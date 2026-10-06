@@ -1,0 +1,1 @@
+update public.video_sources set playback_id='x02ZEtWcTYzTfvR18F72pserKO1RN5MtvICUOb5AKsoU', requires_signed_token=true where id='fb8f1a2f-11bd-46da-b161-c5dd63bbeb21';
