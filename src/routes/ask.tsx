@@ -33,7 +33,7 @@ function AskPage() {
   const submit = (p = text) => { const v = p.trim(); if (v.length >= 3 && !m.isPending) { setText(v); m.mutate(v); } };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 md:px-8">
+    <div className="mx-auto max-w-6xl px-4 pb-10 pt-24 md:px-8">
       <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary"><Sparkles className="h-4 w-4" />{c.eyebrow}</p>
       <h1 className="mt-2 font-display text-3xl font-bold md:text-5xl">{c.title}</h1>
       <p className="mt-3 max-w-2xl text-muted-foreground">{c.sub}</p>
