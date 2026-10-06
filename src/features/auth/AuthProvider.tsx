@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Profile = {
   id: string; display_name: string; avatar: string; is_kids: boolean; max_age: number; locale: string;
+  autoplay_next: boolean; audio_lang: string | null; subtitle_lang: string | null;
 };
 
 type Ctx = {
@@ -15,11 +16,16 @@ type Ctx = {
   activeProfile: Profile | null;
   setActiveProfile: (id: string) => void;
   isAdmin: boolean;
+  isStaff: boolean;
+  canManageMedia: boolean;
+  roles: string[];
+  rolesReady: boolean;
   maxAge: number | undefined;
   signOut: () => Promise<void>;
 };
 const AuthContext = createContext<Ctx | null>(null);
 const ACTIVE_KEY = "mb_active_profile";
+const STAFF = ["super_admin", "admin", "content_manager", "editor", "support"];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -50,12 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["me", "profiles", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("id, display_name, avatar, is_kids, max_age, locale").order("created_at");
+      const { data, error } = await supabase.from("profiles").select("id, display_name, avatar, is_kids, max_age, locale, autoplay_next, audio_lang, subtitle_lang").order("created_at");
       if (error) throw error;
       if (data.length === 0) {
         const name = (user!.user_metadata?.full_name as string) || user!.email?.split("@")[0] || "Me";
         const { data: created, error: e2 } = await supabase
-          .from("profiles").insert({ user_id: user!.id, display_name: name }).select("id, display_name, avatar, is_kids, max_age, locale");
+          .from("profiles").insert({ user_id: user!.id, display_name: name }).select("id, display_name, avatar, is_kids, max_age, locale, autoplay_next, audio_lang, subtitle_lang");
         if (e2) throw e2;
         return created as Profile[];
       }
@@ -67,11 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["me", "roles", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("user_roles").select("role");
-      return (data ?? []).map((r) => r.role);
+      const [{ data }, { data: perms }] = await Promise.all([
+        supabase.from("user_roles").select("role"),
+        supabase.from("admin_permissions").select("permission"),
+      ]);
+      return { roles: (data ?? []).map((r) => r.role as string), perms: (perms ?? []).map((p) => p.permission) };
     },
   });
 
+  const roles = rolesQ.data?.roles ?? [];
   const profiles = profilesQ.data ?? [];
   const activeProfile = profiles.find((p) => p.id === activeId) ?? profiles[0] ?? null;
 
@@ -81,7 +91,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(ACTIVE_KEY, id);
       setActiveId(id);
     },
-    isAdmin: (rolesQ.data ?? []).includes("admin"),
+    roles,
+    rolesReady: !user || rolesQ.isFetched,
+    isAdmin: roles.includes("admin") || roles.includes("super_admin"),
+    isStaff: roles.some((r) => STAFF.includes(r)),
+    canManageMedia: roles.includes("admin") || roles.includes("super_admin") || (rolesQ.data?.perms ?? []).includes("media"),
     maxAge: activeProfile?.is_kids ? activeProfile.max_age : undefined,
     signOut: async () => {
       localStorage.removeItem(ACTIVE_KEY);
