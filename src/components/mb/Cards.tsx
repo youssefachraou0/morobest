@@ -57,11 +57,11 @@ export function PosterCard({ title, rank, className }: { title: TitleCard; rank?
   );
 }
 
-export function LandscapeCard({ title, progress, className, subtitle }: { title: TitleCard; progress?: number; className?: string; subtitle?: string }) {
+export function LandscapeCard({ title, progress, className, subtitle, to }: { title: TitleCard; progress?: number; className?: string; subtitle?: string; to?: { slug: string; ep: string | null } }) {
   const { locale } = useI18n();
   const name = tr(title, locale).title;
   return (
-    <Link to="/title/$slug" params={{ slug: title.slug }} className={cn("group relative block w-[260px] shrink-0 sm:w-[320px]", className)}>
+    <Link {...(to ? { to: "/watch/$slug" as const, params: { slug: to.slug }, search: to.ep ? { ep: to.ep } : {} } : { to: "/title/$slug" as const, params: { slug: title.slug } })} className={cn("group relative block w-[260px] shrink-0 sm:w-[320px]", className)}>
       <div className="relative aspect-video overflow-hidden rounded-lg bg-surface-2 ring-1 ring-foreground/10 transition group-hover:ring-gold/60">
         {(title.backdrop ?? title.poster) && (
           <img src={title.backdrop ?? title.poster!} alt={name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
