@@ -10,33 +10,219 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnimeRouteImport } from './routes/anime'
+import { Route as ClassicsRouteImport } from './routes/classics'
+import { Route as KidsRouteImport } from './routes/kids'
+import { Route as MangaRouteImport } from './routes/manga'
+import { Route as MoviesRouteImport } from './routes/movies'
+import { Route as NewRouteImport } from './routes/new'
+import { Route as SeriesRouteImport } from './routes/series'
+import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as ArabicIndexRouteImport } from './routes/arabic.index'
+import { Route as ArabicCountryRouteImport } from './routes/arabic.$country'
+import { Route as CollectionsIndexRouteImport } from './routes/collections.index'
+import { Route as CollectionsSlugRouteImport } from './routes/collections.$slug'
+import { Route as RamadanIndexRouteImport } from './routes/ramadan.index'
+import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnimeRoute = AnimeRouteImport.update({
+  id: '/anime',
+  path: '/anime',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassicsRoute = ClassicsRouteImport.update({
+  id: '/classics',
+  path: '/classics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KidsRoute = KidsRouteImport.update({
+  id: '/kids',
+  path: '/kids',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MangaRoute = MangaRouteImport.update({
+  id: '/manga',
+  path: '/manga',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviesRoute = MoviesRouteImport.update({
+  id: '/movies',
+  path: '/movies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewRoute = NewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeriesRoute = SeriesRouteImport.update({
+  id: '/series',
+  path: '/series',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrendingRoute = TrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArabicIndexRoute = ArabicIndexRouteImport.update({
+  id: '/arabic/',
+  path: '/arabic/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArabicCountryRoute = ArabicCountryRouteImport.update({
+  id: '/arabic/$country',
+  path: '/arabic/$country',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
+  id: '/collections/',
+  path: '/collections/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsSlugRoute = CollectionsSlugRouteImport.update({
+  id: '/collections/$slug',
+  path: '/collections/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RamadanIndexRoute = RamadanIndexRouteImport.update({
+  id: '/ramadan/',
+  path: '/ramadan/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RamadanYearRoute = RamadanYearRouteImport.update({
+  id: '/ramadan/$year',
+  path: '/ramadan/$year',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
+  '/classics': typeof ClassicsRoute
+  '/kids': typeof KidsRoute
+  '/manga': typeof MangaRoute
+  '/movies': typeof MoviesRoute
+  '/new': typeof NewRoute
+  '/series': typeof SeriesRoute
+  '/trending': typeof TrendingRoute
+  '/arabic/$country': typeof ArabicCountryRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
+  '/ramadan/$year': typeof RamadanYearRoute
+  '/arabic/': typeof ArabicIndexRoute
+  '/collections/': typeof CollectionsIndexRoute
+  '/ramadan/': typeof RamadanIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
+  '/classics': typeof ClassicsRoute
+  '/kids': typeof KidsRoute
+  '/manga': typeof MangaRoute
+  '/movies': typeof MoviesRoute
+  '/new': typeof NewRoute
+  '/series': typeof SeriesRoute
+  '/trending': typeof TrendingRoute
+  '/arabic/$country': typeof ArabicCountryRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
+  '/ramadan/$year': typeof RamadanYearRoute
+  '/arabic': typeof ArabicIndexRoute
+  '/collections': typeof CollectionsIndexRoute
+  '/ramadan': typeof RamadanIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
+  '/classics': typeof ClassicsRoute
+  '/kids': typeof KidsRoute
+  '/manga': typeof MangaRoute
+  '/movies': typeof MoviesRoute
+  '/new': typeof NewRoute
+  '/series': typeof SeriesRoute
+  '/trending': typeof TrendingRoute
+  '/arabic/$country': typeof ArabicCountryRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
+  '/ramadan/$year': typeof RamadanYearRoute
+  '/arabic/': typeof ArabicIndexRoute
+  '/collections/': typeof CollectionsIndexRoute
+  '/ramadan/': typeof RamadanIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/anime'
+    | '/classics'
+    | '/kids'
+    | '/manga'
+    | '/movies'
+    | '/new'
+    | '/series'
+    | '/trending'
+    | '/arabic/$country'
+    | '/collections/$slug'
+    | '/ramadan/$year'
+    | '/arabic/'
+    | '/collections/'
+    | '/ramadan/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/anime'
+    | '/classics'
+    | '/kids'
+    | '/manga'
+    | '/movies'
+    | '/new'
+    | '/series'
+    | '/trending'
+    | '/arabic/$country'
+    | '/collections/$slug'
+    | '/ramadan/$year'
+    | '/arabic'
+    | '/collections'
+    | '/ramadan'
+  id:
+    | '__root__'
+    | '/'
+    | '/anime'
+    | '/classics'
+    | '/kids'
+    | '/manga'
+    | '/movies'
+    | '/new'
+    | '/series'
+    | '/trending'
+    | '/arabic/$country'
+    | '/collections/$slug'
+    | '/ramadan/$year'
+    | '/arabic/'
+    | '/collections/'
+    | '/ramadan/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnimeRoute: typeof AnimeRoute
+  ClassicsRoute: typeof ClassicsRoute
+  KidsRoute: typeof KidsRoute
+  MangaRoute: typeof MangaRoute
+  MoviesRoute: typeof MoviesRoute
+  NewRoute: typeof NewRoute
+  SeriesRoute: typeof SeriesRoute
+  TrendingRoute: typeof TrendingRoute
+  ArabicCountryRoute: typeof ArabicCountryRoute
+  CollectionsSlugRoute: typeof CollectionsSlugRoute
+  RamadanYearRoute: typeof RamadanYearRoute
+  ArabicIndexRoute: typeof ArabicIndexRoute
+  CollectionsIndexRoute: typeof CollectionsIndexRoute
+  RamadanIndexRoute: typeof RamadanIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +234,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/anime': {
+      id: '/anime'
+      path: '/anime'
+      fullPath: '/anime'
+      preLoaderRoute: typeof AnimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classics': {
+      id: '/classics'
+      path: '/classics'
+      fullPath: '/classics'
+      preLoaderRoute: typeof ClassicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kids': {
+      id: '/kids'
+      path: '/kids'
+      fullPath: '/kids'
+      preLoaderRoute: typeof KidsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manga': {
+      id: '/manga'
+      path: '/manga'
+      fullPath: '/manga'
+      preLoaderRoute: typeof MangaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movies': {
+      id: '/movies'
+      path: '/movies'
+      fullPath: '/movies'
+      preLoaderRoute: typeof MoviesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new': {
+      id: '/new'
+      path: '/new'
+      fullPath: '/new'
+      preLoaderRoute: typeof NewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/series': {
+      id: '/series'
+      path: '/series'
+      fullPath: '/series'
+      preLoaderRoute: typeof SeriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trending': {
+      id: '/trending'
+      path: '/trending'
+      fullPath: '/trending'
+      preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arabic/': {
+      id: '/arabic/'
+      path: '/arabic'
+      fullPath: '/arabic/'
+      preLoaderRoute: typeof ArabicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arabic/$country': {
+      id: '/arabic/$country'
+      path: '/arabic/$country'
+      fullPath: '/arabic/$country'
+      preLoaderRoute: typeof ArabicCountryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/': {
+      id: '/collections/'
+      path: '/collections'
+      fullPath: '/collections/'
+      preLoaderRoute: typeof CollectionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/$slug': {
+      id: '/collections/$slug'
+      path: '/collections/$slug'
+      fullPath: '/collections/$slug'
+      preLoaderRoute: typeof CollectionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ramadan/': {
+      id: '/ramadan/'
+      path: '/ramadan'
+      fullPath: '/ramadan/'
+      preLoaderRoute: typeof RamadanIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ramadan/$year': {
+      id: '/ramadan/$year'
+      path: '/ramadan/$year'
+      fullPath: '/ramadan/$year'
+      preLoaderRoute: typeof RamadanYearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnimeRoute: AnimeRoute,
+  ClassicsRoute: ClassicsRoute,
+  KidsRoute: KidsRoute,
+  MangaRoute: MangaRoute,
+  MoviesRoute: MoviesRoute,
+  NewRoute: NewRoute,
+  SeriesRoute: SeriesRoute,
+  TrendingRoute: TrendingRoute,
+  ArabicCountryRoute: ArabicCountryRoute,
+  CollectionsSlugRoute: CollectionsSlugRoute,
+  RamadanYearRoute: RamadanYearRoute,
+  ArabicIndexRoute: ArabicIndexRoute,
+  CollectionsIndexRoute: CollectionsIndexRoute,
+  RamadanIndexRoute: RamadanIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
