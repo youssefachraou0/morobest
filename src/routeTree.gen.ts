@@ -10,14 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AnimeRouteImport } from './routes/anime'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ClassicsRouteImport } from './routes/classics'
+import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as MangaRouteImport } from './routes/manga'
 import { Route as MoviesRouteImport } from './routes/movies'
 import { Route as NewRouteImport } from './routes/new'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedProfilesRouteImport } from './routes/_authenticated/profiles'
+import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
 import { Route as ArabicIndexRouteImport } from './routes/arabic.index'
 import { Route as ArabicCountryRouteImport } from './routes/arabic.$country'
 import { Route as CollectionsIndexRouteImport } from './routes/collections.index'
@@ -32,14 +40,28 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnimeRoute = AnimeRouteImport.update({
   id: '/anime',
   path: '/anime',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClassicsRoute = ClassicsRouteImport.update({
   id: '/classics',
   path: '/classics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KidsRoute = KidsRouteImport.update({
@@ -62,6 +84,16 @@ const NewRoute = NewRouteImport.update({
   path: '/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SeriesRoute = SeriesRouteImport.update({
   id: '/series',
   path: '/series',
@@ -71,6 +103,21 @@ const TrendingRoute = TrendingRouteImport.update({
   id: '/trending',
   path: '/trending',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfilesRoute = AuthenticatedProfilesRouteImport.update({
+  id: '/profiles',
+  path: '/profiles',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWatchlistRoute = AuthenticatedWatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ArabicIndexRoute = ArabicIndexRouteImport.update({
   id: '/arabic/',
@@ -116,13 +163,20 @@ const WatchSlugRoute = WatchSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anime': typeof AnimeRoute
+  '/auth': typeof AuthRoute
   '/classics': typeof ClassicsRoute
+  '/explore': typeof ExploreRoute
   '/kids': typeof KidsRoute
   '/manga': typeof MangaRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/profiles': typeof AuthenticatedProfilesRoute
+  '/watchlist': typeof AuthenticatedWatchlistRoute
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
@@ -135,13 +189,20 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anime': typeof AnimeRoute
+  '/auth': typeof AuthRoute
   '/classics': typeof ClassicsRoute
+  '/explore': typeof ExploreRoute
   '/kids': typeof KidsRoute
   '/manga': typeof MangaRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/profiles': typeof AuthenticatedProfilesRoute
+  '/watchlist': typeof AuthenticatedWatchlistRoute
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
@@ -154,14 +215,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/anime': typeof AnimeRoute
+  '/auth': typeof AuthRoute
   '/classics': typeof ClassicsRoute
+  '/explore': typeof ExploreRoute
   '/kids': typeof KidsRoute
   '/manga': typeof MangaRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/profiles': typeof AuthenticatedProfilesRoute
+  '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
@@ -176,13 +245,20 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/anime'
+    | '/auth'
     | '/classics'
+    | '/explore'
     | '/kids'
     | '/manga'
     | '/movies'
     | '/new'
+    | '/reset-password'
+    | '/search'
     | '/series'
     | '/trending'
+    | '/admin'
+    | '/profiles'
+    | '/watchlist'
     | '/arabic/$country'
     | '/collections/$slug'
     | '/ramadan/$year'
@@ -195,13 +271,20 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/anime'
+    | '/auth'
     | '/classics'
+    | '/explore'
     | '/kids'
     | '/manga'
     | '/movies'
     | '/new'
+    | '/reset-password'
+    | '/search'
     | '/series'
     | '/trending'
+    | '/admin'
+    | '/profiles'
+    | '/watchlist'
     | '/arabic/$country'
     | '/collections/$slug'
     | '/ramadan/$year'
@@ -213,14 +296,22 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/anime'
+    | '/auth'
     | '/classics'
+    | '/explore'
     | '/kids'
     | '/manga'
     | '/movies'
     | '/new'
+    | '/reset-password'
+    | '/search'
     | '/series'
     | '/trending'
+    | '/_authenticated/admin'
+    | '/_authenticated/profiles'
+    | '/_authenticated/watchlist'
     | '/arabic/$country'
     | '/collections/$slug'
     | '/ramadan/$year'
@@ -233,12 +324,17 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AnimeRoute: typeof AnimeRoute
+  AuthRoute: typeof AuthRoute
   ClassicsRoute: typeof ClassicsRoute
+  ExploreRoute: typeof ExploreRoute
   KidsRoute: typeof KidsRoute
   MangaRoute: typeof MangaRoute
   MoviesRoute: typeof MoviesRoute
   NewRoute: typeof NewRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SearchRoute: typeof SearchRoute
   SeriesRoute: typeof SeriesRoute
   TrendingRoute: typeof TrendingRoute
   ArabicCountryRoute: typeof ArabicCountryRoute
@@ -260,6 +356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/anime': {
       id: '/anime'
       path: '/anime'
@@ -267,11 +370,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnimeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/classics': {
       id: '/classics'
       path: '/classics'
       fullPath: '/classics'
       preLoaderRoute: typeof ClassicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kids': {
@@ -302,6 +419,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/series': {
       id: '/series'
       path: '/series'
@@ -315,6 +446,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/trending'
       preLoaderRoute: typeof TrendingRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profiles': {
+      id: '/_authenticated/profiles'
+      path: '/profiles'
+      fullPath: '/profiles'
+      preLoaderRoute: typeof AuthenticatedProfilesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/watchlist': {
+      id: '/_authenticated/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof AuthenticatedWatchlistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/arabic/': {
       id: '/arabic/'
@@ -375,14 +527,34 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedProfilesRoute: typeof AuthenticatedProfilesRoute
+  AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedProfilesRoute: AuthenticatedProfilesRoute,
+  AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AnimeRoute: AnimeRoute,
+  AuthRoute: AuthRoute,
   ClassicsRoute: ClassicsRoute,
+  ExploreRoute: ExploreRoute,
   KidsRoute: KidsRoute,
   MangaRoute: MangaRoute,
   MoviesRoute: MoviesRoute,
   NewRoute: NewRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SearchRoute: SearchRoute,
   SeriesRoute: SeriesRoute,
   TrendingRoute: TrendingRoute,
   ArabicCountryRoute: ArabicCountryRoute,
