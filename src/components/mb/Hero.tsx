@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useCanonical } from "@/features/editorial/canonical";
 import { Link } from "@tanstack/react-router";
 import { Info, Play, Star } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -10,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export function Hero({ items }: { items: TitleCard[] }) {
   const { t, locale } = useI18n();
+  const canonical = useCanonical();
   const [i, setI] = useState(0);
   useEffect(() => {
     if (items.length < 2) return;

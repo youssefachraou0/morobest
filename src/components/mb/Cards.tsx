@@ -4,6 +4,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { tr, ageLabel } from "@/features/catalog/localize";
 import type { Episode, TitleCard } from "@/features/catalog/types";
 import { cn } from "@/lib/utils";
+import { useCanonical } from "@/features/editorial/canonical";
 
 export function Badge({ children, tone = "default", className }: { children: React.ReactNode; tone?: "default" | "gold" | "red" | "green"; className?: string }) {
   const tones = {
@@ -60,6 +61,7 @@ export function PosterCard({ title, rank, className }: { title: TitleCard; rank?
 export function LandscapeCard({ title, progress, className, subtitle, to }: { title: TitleCard; progress?: number; className?: string; subtitle?: string; to?: { slug: string; ep: string | null } }) {
   const { locale } = useI18n();
   const name = tr(title, locale).title;
+  const canonical = useCanonical();
   return (
     <Link {...(to ? { to: "/watch/$slug" as const, params: { slug: to.slug }, search: to.ep ? { ep: to.ep } : {} } : canonical({ kind: "title", slug: title.slug }))} className={cn("group relative block w-[260px] shrink-0 sm:w-[320px]", className)}>
       <div className="relative aspect-video overflow-hidden rounded-lg bg-surface-2 ring-1 ring-foreground/10 transition group-hover:ring-gold/60">
