@@ -60,7 +60,7 @@ function List({ title, rows, empty = "No data in this period." }: { title: strin
 
 function Body({ d }: { d: Dashboard }) {
   const canonical = useCanonical();
-  const byKind = (k: string) => d.titles.filter((t) => t.kind === k).slice(0, 8).map((t) => [t.name, `${t.views} views · ${hm(t.watch_seconds)}`] as [string, string]);
+  const byKind = (k: string) => d.titles.filter((t) => t.kind === k).slice(0, 8).map((t) => [t.name, `${t.views} ${t.views === 1 ? "view" : "views"} · ${hm(t.watch_seconds)}`] as [string, string]);
   const ev = d.events ?? {};
   const rec = (e: string) => ["rec", "similar", "related"].reduce((n, c) => n + (d.ctx?.[`${e}:${c}`] ?? 0), 0);
   return (
