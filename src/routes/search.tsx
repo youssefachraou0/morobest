@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { fetchAniSuggest } from "@/features/anilist/anilist.functions";
 import { AniPoster } from "@/components/mb/Ani";
 import { tmdbSearchQuery } from "@/features/tmdb/tmdb.functions";
+import { fetchLinkedTitleIds } from "@/features/editorial/editorial.functions";
 import { TL, TmdbPersonTile, TmdbPoster } from "@/components/mb/Tmdb";
 
 const KINDS: TitleKind[] = ["movie", "series", "anime", "manga"];
@@ -43,6 +44,11 @@ function SearchPage() {
   const res = useQuery({ ...titlesQuery({ q, kind, maxAge, limit: 60 }), enabled: q.trim().length > 0 });
   const ani = useQuery({ queryKey: ["al-suggest", q.trim().toLowerCase()], queryFn: () => fetchAniSuggest({ data: { q: q.trim() } }), enabled: q.trim().length >= 2 && (!kind || kind === "anime" || kind === "manga"), staleTime: 10 * 60_000 });
   const tm = useQuery({ ...tmdbSearchQuery(q, locale), enabled: q.trim().length >= 2 && (!kind || kind === "movie" || kind === "series") });
+  const ids = (res.data ?? []).map((x) => x.id);
+  const linked = useQuery({ queryKey: ["linked-ids", ids], queryFn: () => fetchLinkedTitleIds({ data: { ids } }), enabled: ids.length > 0, staleTime: 60_000 });
+  // A MOROBEST title linked to TMDB/AniList is already shown through its provider card: one result per title.
+  const own = (res.data ?? []).filter((x) => !(linked.data ?? []).includes(x.id));
+  const providerHits = (tm.data ? tm.data.movies.length + tm.data.tv.length + tm.data.people.length : 0) + (ani.data?.length ?? 0);
   const kindLabel: Record<TitleKind, string> = { movie: t.nav.movies, series: t.nav.series, anime: t.nav.anime, manga: t.nav.manga };
 
   return (
@@ -98,16 +104,16 @@ function SearchPage() {
           <EmptyState title={t.nav.search} body={t.empty.searchHint} />
         ) : res.isLoading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">{Array.from({ length: 6 }).map((_, i) => <PosterSkeleton key={i} />)}</div>
-        ) : res.data && res.data.length > 0 ? (
+        ) : own.length > 0 ? (
           <>
-            <p className="mb-4 text-sm text-muted-foreground">{res.data.length} {t.label.results}</p>
+            <p className="eyebrow mb-3">MOROBEST</p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 lg:grid-cols-6 [&>a]:w-full">
-              {res.data.map((x) => <PosterCard key={x.id} title={x} />)}
+              {own.map((x) => <PosterCard key={x.id} title={x} />)}
             </div>
           </>
-        ) : (
+        ) : providerHits === 0 && !tm.isLoading && !ani.isLoading ? (
           <EmptyState title={t.empty.search} />
-        )}
+        ) : null}
       </div>
     </div>
   );
