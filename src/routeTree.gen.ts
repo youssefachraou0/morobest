@@ -18,6 +18,12 @@ import { Route as MoviesRouteImport } from './routes/movies'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as ArabicIndexRouteImport } from './routes/arabic.index'
+import { Route as ArabicCountryRouteImport } from './routes/arabic.$country'
+import { Route as CollectionsIndexRouteImport } from './routes/collections.index'
+import { Route as CollectionsSlugRouteImport } from './routes/collections.$slug'
+import { Route as RamadanIndexRouteImport } from './routes/ramadan.index'
+import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +70,36 @@ const TrendingRoute = TrendingRouteImport.update({
   path: '/trending',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArabicIndexRoute = ArabicIndexRouteImport.update({
+  id: '/arabic/',
+  path: '/arabic/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArabicCountryRoute = ArabicCountryRouteImport.update({
+  id: '/arabic/$country',
+  path: '/arabic/$country',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
+  id: '/collections/',
+  path: '/collections/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsSlugRoute = CollectionsSlugRouteImport.update({
+  id: '/collections/$slug',
+  path: '/collections/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RamadanIndexRoute = RamadanIndexRouteImport.update({
+  id: '/ramadan/',
+  path: '/ramadan/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RamadanYearRoute = RamadanYearRouteImport.update({
+  id: '/ramadan/$year',
+  path: '/ramadan/$year',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +111,12 @@ export interface FileRoutesByFullPath {
   '/new': typeof NewRoute
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
+  '/arabic/$country': typeof ArabicCountryRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
+  '/ramadan/$year': typeof RamadanYearRoute
+  '/arabic/': typeof ArabicIndexRoute
+  '/collections/': typeof CollectionsIndexRoute
+  '/ramadan/': typeof RamadanIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +128,12 @@ export interface FileRoutesByTo {
   '/new': typeof NewRoute
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
+  '/arabic/$country': typeof ArabicCountryRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
+  '/ramadan/$year': typeof RamadanYearRoute
+  '/arabic': typeof ArabicIndexRoute
+  '/collections': typeof CollectionsIndexRoute
+  '/ramadan': typeof RamadanIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +146,12 @@ export interface FileRoutesById {
   '/new': typeof NewRoute
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
+  '/arabic/$country': typeof ArabicCountryRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
+  '/ramadan/$year': typeof RamadanYearRoute
+  '/arabic/': typeof ArabicIndexRoute
+  '/collections/': typeof CollectionsIndexRoute
+  '/ramadan/': typeof RamadanIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +165,12 @@ export interface FileRouteTypes {
     | '/new'
     | '/series'
     | '/trending'
+    | '/arabic/$country'
+    | '/collections/$slug'
+    | '/ramadan/$year'
+    | '/arabic/'
+    | '/collections/'
+    | '/ramadan/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +182,12 @@ export interface FileRouteTypes {
     | '/new'
     | '/series'
     | '/trending'
+    | '/arabic/$country'
+    | '/collections/$slug'
+    | '/ramadan/$year'
+    | '/arabic'
+    | '/collections'
+    | '/ramadan'
   id:
     | '__root__'
     | '/'
@@ -133,6 +199,12 @@ export interface FileRouteTypes {
     | '/new'
     | '/series'
     | '/trending'
+    | '/arabic/$country'
+    | '/collections/$slug'
+    | '/ramadan/$year'
+    | '/arabic/'
+    | '/collections/'
+    | '/ramadan/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +217,12 @@ export interface RootRouteChildren {
   NewRoute: typeof NewRoute
   SeriesRoute: typeof SeriesRoute
   TrendingRoute: typeof TrendingRoute
+  ArabicCountryRoute: typeof ArabicCountryRoute
+  CollectionsSlugRoute: typeof CollectionsSlugRoute
+  RamadanYearRoute: typeof RamadanYearRoute
+  ArabicIndexRoute: typeof ArabicIndexRoute
+  CollectionsIndexRoute: typeof CollectionsIndexRoute
+  RamadanIndexRoute: typeof RamadanIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +290,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrendingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/arabic/': {
+      id: '/arabic/'
+      path: '/arabic'
+      fullPath: '/arabic/'
+      preLoaderRoute: typeof ArabicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arabic/$country': {
+      id: '/arabic/$country'
+      path: '/arabic/$country'
+      fullPath: '/arabic/$country'
+      preLoaderRoute: typeof ArabicCountryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/': {
+      id: '/collections/'
+      path: '/collections'
+      fullPath: '/collections/'
+      preLoaderRoute: typeof CollectionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/$slug': {
+      id: '/collections/$slug'
+      path: '/collections/$slug'
+      fullPath: '/collections/$slug'
+      preLoaderRoute: typeof CollectionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ramadan/': {
+      id: '/ramadan/'
+      path: '/ramadan'
+      fullPath: '/ramadan/'
+      preLoaderRoute: typeof RamadanIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ramadan/$year': {
+      id: '/ramadan/$year'
+      path: '/ramadan/$year'
+      fullPath: '/ramadan/$year'
+      preLoaderRoute: typeof RamadanYearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +345,12 @@ const rootRouteChildren: RootRouteChildren = {
   NewRoute: NewRoute,
   SeriesRoute: SeriesRoute,
   TrendingRoute: TrendingRoute,
+  ArabicCountryRoute: ArabicCountryRoute,
+  CollectionsSlugRoute: CollectionsSlugRoute,
+  RamadanYearRoute: RamadanYearRoute,
+  ArabicIndexRoute: ArabicIndexRoute,
+  CollectionsIndexRoute: CollectionsIndexRoute,
+  RamadanIndexRoute: RamadanIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
