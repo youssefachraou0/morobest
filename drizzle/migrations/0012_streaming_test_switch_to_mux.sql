@@ -1,0 +1,2 @@
+update public.video_sources set is_active=false, is_default=false where id='02ce1fd7-dccd-4aed-97f2-8ab26e0976b5';
+update public.video_sources set status='disabled', is_active=false where id='cbe2858f-645b-4546-b857-fbc01d30d4c8';
