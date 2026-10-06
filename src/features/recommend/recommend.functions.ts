@@ -34,7 +34,7 @@ export const recommendTitles = createServerFn({ method: "POST" })
         const q = p.title.slice(0, 80);
         const res = await tmdb.cached(`tmdb:search:${q.toLowerCase()}:${data.locale}`, tmdb.TTL.search, () => tmdb.search(q, lang));
         const list: TmdbCard[] = p.kind === "movie" ? res.movies : res.tv;
-        const byYear = (c: TmdbCard) => !p.year || !c.year || Math.abs(Number(c.year) - p.year) <= 1;
+        const byYear = (c: TmdbCard) => !p.year || !c.year || Math.abs(c.year - p.year) <= 1;
         const item = list.find((c) => byYear(c) && (norm(c.title) === norm(p.title))) ?? list.find(byYear) ?? list[0];
         return item ? { source: "tmdb", reason: p.reason, item } : null;
       } catch { return null; }
@@ -42,7 +42,7 @@ export const recommendTitles = createServerFn({ method: "POST" })
     const seen = new Set<string>();
     const items = resolved.filter((r): r is Recommendation => {
       if (!r) return false;
-      const k = `${r.source}:${r.item.id}`;
+      const k = r.source === "tmdb" ? `t:${r.item.type}:${r.item.tmdbId}` : `a:${r.item.aniListId}`;
       if (seen.has(k)) return false;
       seen.add(k); return true;
     });
