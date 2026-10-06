@@ -36,6 +36,7 @@ import { Route as RamadanIndexRouteImport } from './routes/ramadan.index'
 import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
 import { Route as TitleSlugRouteImport } from './routes/title.$slug'
 import { Route as WatchSlugRouteImport } from './routes/watch.$slug'
+import { Route as ApiPublicWebhooksMuxRouteImport } from './routes/api/public/webhooks/mux'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -171,6 +172,11 @@ const WatchSlugRoute = WatchSlugRouteImport.update({
   path: '/watch/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksMuxRoute = ApiPublicWebhooksMuxRouteImport.update({
+  id: '/api/public/webhooks/mux',
+  path: '/api/public/webhooks/mux',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/collections/': typeof CollectionsIndexRoute
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
+  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -227,6 +234,7 @@ export interface FileRoutesByTo {
   '/collections': typeof CollectionsIndexRoute
   '/manga': typeof MangaIndexRoute
   '/ramadan': typeof RamadanIndexRoute
+  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   '/collections/': typeof CollectionsIndexRoute
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
+  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -287,6 +296,7 @@ export interface FileRouteTypes {
     | '/collections/'
     | '/manga/'
     | '/ramadan/'
+    | '/api/public/webhooks/mux'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -315,6 +325,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/manga'
     | '/ramadan'
+    | '/api/public/webhooks/mux'
   id:
     | '__root__'
     | '/'
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '/collections/'
     | '/manga/'
     | '/ramadan/'
+    | '/api/public/webhooks/mux'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -371,6 +383,7 @@ export interface RootRouteChildren {
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   MangaIndexRoute: typeof MangaIndexRoute
   RamadanIndexRoute: typeof RamadanIndexRoute
+  ApiPublicWebhooksMuxRoute: typeof ApiPublicWebhooksMuxRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -564,6 +577,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatchSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/mux': {
+      id: '/api/public/webhooks/mux'
+      path: '/api/public/webhooks/mux'
+      fullPath: '/api/public/webhooks/mux'
+      preLoaderRoute: typeof ApiPublicWebhooksMuxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -607,6 +627,7 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsIndexRoute: CollectionsIndexRoute,
   MangaIndexRoute: MangaIndexRoute,
   RamadanIndexRoute: RamadanIndexRoute,
+  ApiPublicWebhooksMuxRoute: ApiPublicWebhooksMuxRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -37,11 +37,9 @@ function pkcs1ToPkcs8(pkcs1: Uint8Array) {
   const algo = [0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00];
   const oct = [0x04, ...derLen(pkcs1.length)];
   const body = [0x02, 0x01, 0x00, ...algo, ...oct];
-  const out = new Uint8Array(2 + derLen(body.length + pkcs1.length).length - 1 + body.length + pkcs1.length + 1);
   const head = [0x30, ...derLen(body.length + pkcs1.length)];
   const res = new Uint8Array(head.length + body.length + pkcs1.length);
   res.set(head); res.set(body, head.length); res.set(pkcs1, head.length + body.length);
-  void out;
   return res;
 }
 async function signMux(playbackId: string, type: "v" | "t" = "v") {
