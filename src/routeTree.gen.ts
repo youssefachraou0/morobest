@@ -41,6 +41,7 @@ import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
 import { Route as TitleSlugRouteImport } from './routes/title.$slug'
 import { Route as TvSlugRouteImport } from './routes/tv.$slug'
 import { Route as WatchSlugRouteImport } from './routes/watch.$slug'
+import { Route as RamadanYearCountryRouteImport } from './routes/ramadan.$year_.$country'
 import { Route as ApiPublicSubtitlesIdRouteImport } from './routes/api/public/subtitles.$id'
 import { Route as ApiPublicWebhooksMuxRouteImport } from './routes/api/public/webhooks/mux'
 
@@ -204,6 +205,11 @@ const WatchSlugRoute = WatchSlugRouteImport.update({
   path: '/watch/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RamadanYearCountryRoute = RamadanYearCountryRouteImport.update({
+  id: '/ramadan/$year_/$country',
+  path: '/ramadan/$year/$country',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSubtitlesIdRoute = ApiPublicSubtitlesIdRouteImport.update({
   id: '/api/public/subtitles/$id',
   path: '/api/public/subtitles/$id',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/collections/': typeof CollectionsIndexRoute
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
+  '/ramadan/$year/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
   '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
@@ -282,6 +289,7 @@ export interface FileRoutesByTo {
   '/collections': typeof CollectionsIndexRoute
   '/manga': typeof MangaIndexRoute
   '/ramadan': typeof RamadanIndexRoute
+  '/ramadan/$year/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
   '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/collections/': typeof CollectionsIndexRoute
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
+  '/ramadan/$year_/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
   '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/collections/'
     | '/manga/'
     | '/ramadan/'
+    | '/ramadan/$year/$country'
     | '/api/public/subtitles/$id'
     | '/api/public/webhooks/mux'
   fileRoutesByTo: FileRoutesByTo
@@ -391,6 +401,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/manga'
     | '/ramadan'
+    | '/ramadan/$year/$country'
     | '/api/public/subtitles/$id'
     | '/api/public/webhooks/mux'
   id:
@@ -427,6 +438,7 @@ export interface FileRouteTypes {
     | '/collections/'
     | '/manga/'
     | '/ramadan/'
+    | '/ramadan/$year_/$country'
     | '/api/public/subtitles/$id'
     | '/api/public/webhooks/mux'
   fileRoutesById: FileRoutesById
@@ -459,6 +471,7 @@ export interface RootRouteChildren {
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   MangaIndexRoute: typeof MangaIndexRoute
   RamadanIndexRoute: typeof RamadanIndexRoute
+  RamadanYearCountryRoute: typeof RamadanYearCountryRoute
   ApiPublicSubtitlesIdRoute: typeof ApiPublicSubtitlesIdRoute
   ApiPublicWebhooksMuxRoute: typeof ApiPublicWebhooksMuxRoute
 }
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatchSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ramadan/$year_/$country': {
+      id: '/ramadan/$year_/$country'
+      path: '/ramadan/$year/$country'
+      fullPath: '/ramadan/$year/$country'
+      preLoaderRoute: typeof RamadanYearCountryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/subtitles/$id': {
       id: '/api/public/subtitles/$id'
       path: '/api/public/subtitles/$id'
@@ -753,6 +773,7 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsIndexRoute: CollectionsIndexRoute,
   MangaIndexRoute: MangaIndexRoute,
   RamadanIndexRoute: RamadanIndexRoute,
+  RamadanYearCountryRoute: RamadanYearCountryRoute,
   ApiPublicSubtitlesIdRoute: ApiPublicSubtitlesIdRoute,
   ApiPublicWebhooksMuxRoute: ApiPublicWebhooksMuxRoute,
 }
