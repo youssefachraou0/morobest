@@ -125,7 +125,13 @@ function Watch() {
           onPrev={goPrev}
           onFatal={onFatal}
           markers={current
-            ? { introStart: current.intro_start_s, introEnd: current.intro_end_s, recapStart: current.recap_start_s, recapEnd: current.recap_end_s, creditsStart: current.credits_start_s }
+            ? {
+                // Episode markers win; fall back to series-level markers when an episode has none.
+                introStart: current.intro_end_s != null ? current.intro_start_s : d.markers?.introStart,
+                introEnd: current.intro_end_s ?? d.markers?.introEnd,
+                recapStart: current.recap_start_s, recapEnd: current.recap_end_s,
+                creditsStart: current.credits_start_s ?? d.markers?.creditsStart,
+              }
             : d.markers}
           audioOptions={audioOptions}
           audio={String(srcIdx)}
