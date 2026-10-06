@@ -24,6 +24,8 @@ import { Route as CollectionsIndexRouteImport } from './routes/collections.index
 import { Route as CollectionsSlugRouteImport } from './routes/collections.$slug'
 import { Route as RamadanIndexRouteImport } from './routes/ramadan.index'
 import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
+import { Route as TitleSlugRouteImport } from './routes/title.$slug'
+import { Route as WatchSlugRouteImport } from './routes/watch.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +102,16 @@ const RamadanYearRoute = RamadanYearRouteImport.update({
   path: '/ramadan/$year',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TitleSlugRoute = TitleSlugRouteImport.update({
+  id: '/title/$slug',
+  path: '/title/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WatchSlugRoute = WatchSlugRouteImport.update({
+  id: '/watch/$slug',
+  path: '/watch/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -114,6 +126,8 @@ export interface FileRoutesByFullPath {
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
+  '/title/$slug': typeof TitleSlugRoute
+  '/watch/$slug': typeof WatchSlugRoute
   '/arabic/': typeof ArabicIndexRoute
   '/collections/': typeof CollectionsIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
@@ -131,6 +145,8 @@ export interface FileRoutesByTo {
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
+  '/title/$slug': typeof TitleSlugRoute
+  '/watch/$slug': typeof WatchSlugRoute
   '/arabic': typeof ArabicIndexRoute
   '/collections': typeof CollectionsIndexRoute
   '/ramadan': typeof RamadanIndexRoute
@@ -149,6 +165,8 @@ export interface FileRoutesById {
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
+  '/title/$slug': typeof TitleSlugRoute
+  '/watch/$slug': typeof WatchSlugRoute
   '/arabic/': typeof ArabicIndexRoute
   '/collections/': typeof CollectionsIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
@@ -168,6 +186,8 @@ export interface FileRouteTypes {
     | '/arabic/$country'
     | '/collections/$slug'
     | '/ramadan/$year'
+    | '/title/$slug'
+    | '/watch/$slug'
     | '/arabic/'
     | '/collections/'
     | '/ramadan/'
@@ -185,6 +205,8 @@ export interface FileRouteTypes {
     | '/arabic/$country'
     | '/collections/$slug'
     | '/ramadan/$year'
+    | '/title/$slug'
+    | '/watch/$slug'
     | '/arabic'
     | '/collections'
     | '/ramadan'
@@ -202,6 +224,8 @@ export interface FileRouteTypes {
     | '/arabic/$country'
     | '/collections/$slug'
     | '/ramadan/$year'
+    | '/title/$slug'
+    | '/watch/$slug'
     | '/arabic/'
     | '/collections/'
     | '/ramadan/'
@@ -220,6 +244,8 @@ export interface RootRouteChildren {
   ArabicCountryRoute: typeof ArabicCountryRoute
   CollectionsSlugRoute: typeof CollectionsSlugRoute
   RamadanYearRoute: typeof RamadanYearRoute
+  TitleSlugRoute: typeof TitleSlugRoute
+  WatchSlugRoute: typeof WatchSlugRoute
   ArabicIndexRoute: typeof ArabicIndexRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   RamadanIndexRoute: typeof RamadanIndexRoute
@@ -332,6 +358,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RamadanYearRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/title/$slug': {
+      id: '/title/$slug'
+      path: '/title/$slug'
+      fullPath: '/title/$slug'
+      preLoaderRoute: typeof TitleSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/watch/$slug': {
+      id: '/watch/$slug'
+      path: '/watch/$slug'
+      fullPath: '/watch/$slug'
+      preLoaderRoute: typeof WatchSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -348,6 +388,8 @@ const rootRouteChildren: RootRouteChildren = {
   ArabicCountryRoute: ArabicCountryRoute,
   CollectionsSlugRoute: CollectionsSlugRoute,
   RamadanYearRoute: RamadanYearRoute,
+  TitleSlugRoute: TitleSlugRoute,
+  WatchSlugRoute: WatchSlugRoute,
   ArabicIndexRoute: ArabicIndexRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
   RamadanIndexRoute: RamadanIndexRoute,
