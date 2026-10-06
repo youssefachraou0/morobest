@@ -102,6 +102,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
     return () => { flush(); v.removeEventListener("play", onPlay); v.removeEventListener("pause", onPause); v.removeEventListener("timeupdate", onTime); v.removeEventListener("ended", onEnd); v.removeEventListener("seeked", onSeek); };
   }, [source.url]);
   const fail = useCallback((m: string) => {
+    startedRef.current = true; // settles the startup watchdog
     setLoading(false);
     if (fatalRef.current?.(m)) return;
     setUnsupported(m.startsWith("unsupported"));
