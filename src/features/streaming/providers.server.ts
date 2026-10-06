@@ -20,7 +20,8 @@ export interface StreamingProvider {
   status?(src: { upload_id: string | null; provider_asset_id: string | null }): Promise<ProviderStatus>;
 }
 
-const TOKEN_TTL = 6 * 3600;
+// Short-lived playback tokens: long enough for a feature-length session, never permanent.
+const TOKEN_TTL = 3 * 3600;
 const env = (k: string) => process.env[k];
 
 export function safeUrl(u: string, kinds: string[] = ["https:"]) {
