@@ -11,12 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AnimeRouteImport } from './routes/anime'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ClassicsRouteImport } from './routes/classics'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as KidsRouteImport } from './routes/kids'
-import { Route as MangaRouteImport } from './routes/manga'
 import { Route as MoviesRouteImport } from './routes/movies'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -26,10 +24,14 @@ import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedProfilesRouteImport } from './routes/_authenticated/profiles'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
+import { Route as AnimeIndexRouteImport } from './routes/anime.index'
+import { Route as AnimeSlugRouteImport } from './routes/anime.$slug'
 import { Route as ArabicIndexRouteImport } from './routes/arabic.index'
 import { Route as ArabicCountryRouteImport } from './routes/arabic.$country'
 import { Route as CollectionsIndexRouteImport } from './routes/collections.index'
 import { Route as CollectionsSlugRouteImport } from './routes/collections.$slug'
+import { Route as MangaIndexRouteImport } from './routes/manga.index'
+import { Route as MangaSlugRouteImport } from './routes/manga.$slug'
 import { Route as RamadanIndexRouteImport } from './routes/ramadan.index'
 import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
 import { Route as TitleSlugRouteImport } from './routes/title.$slug'
@@ -42,11 +44,6 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AnimeRoute = AnimeRouteImport.update({
-  id: '/anime',
-  path: '/anime',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -67,11 +64,6 @@ const ExploreRoute = ExploreRouteImport.update({
 const KidsRoute = KidsRouteImport.update({
   id: '/kids',
   path: '/kids',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MangaRoute = MangaRouteImport.update({
-  id: '/manga',
-  path: '/manga',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MoviesRoute = MoviesRouteImport.update({
@@ -119,6 +111,16 @@ const AuthenticatedWatchlistRoute = AuthenticatedWatchlistRouteImport.update({
   path: '/watchlist',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AnimeIndexRoute = AnimeIndexRouteImport.update({
+  id: '/anime/',
+  path: '/anime/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeSlugRoute = AnimeSlugRouteImport.update({
+  id: '/anime/$slug',
+  path: '/anime/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArabicIndexRoute = ArabicIndexRouteImport.update({
   id: '/arabic/',
   path: '/arabic/',
@@ -137,6 +139,16 @@ const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
 const CollectionsSlugRoute = CollectionsSlugRouteImport.update({
   id: '/collections/$slug',
   path: '/collections/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MangaIndexRoute = MangaIndexRouteImport.update({
+  id: '/manga/',
+  path: '/manga/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MangaSlugRoute = MangaSlugRouteImport.update({
+  id: '/manga/$slug',
+  path: '/manga/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RamadanIndexRoute = RamadanIndexRouteImport.update({
@@ -162,12 +174,10 @@ const WatchSlugRoute = WatchSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/anime': typeof AnimeRoute
   '/auth': typeof AuthRoute
   '/classics': typeof ClassicsRoute
   '/explore': typeof ExploreRoute
   '/kids': typeof KidsRoute
-  '/manga': typeof MangaRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -177,23 +187,25 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/anime/$slug': typeof AnimeSlugRoute
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
+  '/manga/$slug': typeof MangaSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
   '/title/$slug': typeof TitleSlugRoute
   '/watch/$slug': typeof WatchSlugRoute
+  '/anime/': typeof AnimeIndexRoute
   '/arabic/': typeof ArabicIndexRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/anime': typeof AnimeRoute
   '/auth': typeof AuthRoute
   '/classics': typeof ClassicsRoute
   '/explore': typeof ExploreRoute
   '/kids': typeof KidsRoute
-  '/manga': typeof MangaRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -203,25 +215,27 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/anime/$slug': typeof AnimeSlugRoute
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
+  '/manga/$slug': typeof MangaSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
   '/title/$slug': typeof TitleSlugRoute
   '/watch/$slug': typeof WatchSlugRoute
+  '/anime': typeof AnimeIndexRoute
   '/arabic': typeof ArabicIndexRoute
   '/collections': typeof CollectionsIndexRoute
+  '/manga': typeof MangaIndexRoute
   '/ramadan': typeof RamadanIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/anime': typeof AnimeRoute
   '/auth': typeof AuthRoute
   '/classics': typeof ClassicsRoute
   '/explore': typeof ExploreRoute
   '/kids': typeof KidsRoute
-  '/manga': typeof MangaRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -231,25 +245,27 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/profiles': typeof AuthenticatedProfilesRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
+  '/anime/$slug': typeof AnimeSlugRoute
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
+  '/manga/$slug': typeof MangaSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
   '/title/$slug': typeof TitleSlugRoute
   '/watch/$slug': typeof WatchSlugRoute
+  '/anime/': typeof AnimeIndexRoute
   '/arabic/': typeof ArabicIndexRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/anime'
     | '/auth'
     | '/classics'
     | '/explore'
     | '/kids'
-    | '/manga'
     | '/movies'
     | '/new'
     | '/reset-password'
@@ -259,23 +275,25 @@ export interface FileRouteTypes {
     | '/admin'
     | '/profiles'
     | '/watchlist'
+    | '/anime/$slug'
     | '/arabic/$country'
     | '/collections/$slug'
+    | '/manga/$slug'
     | '/ramadan/$year'
     | '/title/$slug'
     | '/watch/$slug'
+    | '/anime/'
     | '/arabic/'
     | '/collections/'
+    | '/manga/'
     | '/ramadan/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/anime'
     | '/auth'
     | '/classics'
     | '/explore'
     | '/kids'
-    | '/manga'
     | '/movies'
     | '/new'
     | '/reset-password'
@@ -285,24 +303,26 @@ export interface FileRouteTypes {
     | '/admin'
     | '/profiles'
     | '/watchlist'
+    | '/anime/$slug'
     | '/arabic/$country'
     | '/collections/$slug'
+    | '/manga/$slug'
     | '/ramadan/$year'
     | '/title/$slug'
     | '/watch/$slug'
+    | '/anime'
     | '/arabic'
     | '/collections'
+    | '/manga'
     | '/ramadan'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/anime'
     | '/auth'
     | '/classics'
     | '/explore'
     | '/kids'
-    | '/manga'
     | '/movies'
     | '/new'
     | '/reset-password'
@@ -312,38 +332,44 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/profiles'
     | '/_authenticated/watchlist'
+    | '/anime/$slug'
     | '/arabic/$country'
     | '/collections/$slug'
+    | '/manga/$slug'
     | '/ramadan/$year'
     | '/title/$slug'
     | '/watch/$slug'
+    | '/anime/'
     | '/arabic/'
     | '/collections/'
+    | '/manga/'
     | '/ramadan/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AnimeRoute: typeof AnimeRoute
   AuthRoute: typeof AuthRoute
   ClassicsRoute: typeof ClassicsRoute
   ExploreRoute: typeof ExploreRoute
   KidsRoute: typeof KidsRoute
-  MangaRoute: typeof MangaRoute
   MoviesRoute: typeof MoviesRoute
   NewRoute: typeof NewRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   SeriesRoute: typeof SeriesRoute
   TrendingRoute: typeof TrendingRoute
+  AnimeSlugRoute: typeof AnimeSlugRoute
   ArabicCountryRoute: typeof ArabicCountryRoute
   CollectionsSlugRoute: typeof CollectionsSlugRoute
+  MangaSlugRoute: typeof MangaSlugRoute
   RamadanYearRoute: typeof RamadanYearRoute
   TitleSlugRoute: typeof TitleSlugRoute
   WatchSlugRoute: typeof WatchSlugRoute
+  AnimeIndexRoute: typeof AnimeIndexRoute
   ArabicIndexRoute: typeof ArabicIndexRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
+  MangaIndexRoute: typeof MangaIndexRoute
   RamadanIndexRoute: typeof RamadanIndexRoute
 }
 
@@ -361,13 +387,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/anime': {
-      id: '/anime'
-      path: '/anime'
-      fullPath: '/anime'
-      preLoaderRoute: typeof AnimeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -396,13 +415,6 @@ declare module '@tanstack/react-router' {
       path: '/kids'
       fullPath: '/kids'
       preLoaderRoute: typeof KidsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manga': {
-      id: '/manga'
-      path: '/manga'
-      fullPath: '/manga'
-      preLoaderRoute: typeof MangaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/movies': {
@@ -468,6 +480,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWatchlistRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/anime/': {
+      id: '/anime/'
+      path: '/anime'
+      fullPath: '/anime/'
+      preLoaderRoute: typeof AnimeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime/$slug': {
+      id: '/anime/$slug'
+      path: '/anime/$slug'
+      fullPath: '/anime/$slug'
+      preLoaderRoute: typeof AnimeSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/arabic/': {
       id: '/arabic/'
       path: '/arabic'
@@ -494,6 +520,20 @@ declare module '@tanstack/react-router' {
       path: '/collections/$slug'
       fullPath: '/collections/$slug'
       preLoaderRoute: typeof CollectionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manga/': {
+      id: '/manga/'
+      path: '/manga'
+      fullPath: '/manga/'
+      preLoaderRoute: typeof MangaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manga/$slug': {
+      id: '/manga/$slug'
+      path: '/manga/$slug'
+      fullPath: '/manga/$slug'
+      preLoaderRoute: typeof MangaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ramadan/': {
@@ -545,25 +585,27 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AnimeRoute: AnimeRoute,
   AuthRoute: AuthRoute,
   ClassicsRoute: ClassicsRoute,
   ExploreRoute: ExploreRoute,
   KidsRoute: KidsRoute,
-  MangaRoute: MangaRoute,
   MoviesRoute: MoviesRoute,
   NewRoute: NewRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   SeriesRoute: SeriesRoute,
   TrendingRoute: TrendingRoute,
+  AnimeSlugRoute: AnimeSlugRoute,
   ArabicCountryRoute: ArabicCountryRoute,
   CollectionsSlugRoute: CollectionsSlugRoute,
+  MangaSlugRoute: MangaSlugRoute,
   RamadanYearRoute: RamadanYearRoute,
   TitleSlugRoute: TitleSlugRoute,
   WatchSlugRoute: WatchSlugRoute,
+  AnimeIndexRoute: AnimeIndexRoute,
   ArabicIndexRoute: ArabicIndexRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
+  MangaIndexRoute: MangaIndexRoute,
   RamadanIndexRoute: RamadanIndexRoute,
 }
 export const routeTree = rootRouteImport

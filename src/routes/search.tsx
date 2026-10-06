@@ -10,6 +10,8 @@ import { EmptyState } from "@/components/mb/States";
 import type { TitleKind } from "@/features/catalog/types";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { fetchAniSuggest } from "@/features/anilist/anilist.functions";
+import { AniPoster } from "@/components/mb/Ani";
 
 const KINDS: TitleKind[] = ["movie", "series", "anime", "manga"];
 
@@ -37,6 +39,7 @@ function SearchPage() {
   }, [text, q, navigate]);
 
   const res = useQuery({ ...titlesQuery({ q, kind, maxAge, limit: 60 }), enabled: q.trim().length > 0 });
+  const ani = useQuery({ queryKey: ["al-suggest", q.trim().toLowerCase()], queryFn: () => fetchAniSuggest({ data: { q: q.trim() } }), enabled: q.trim().length >= 2 && (!kind || kind === "anime" || kind === "manga"), staleTime: 10 * 60_000 });
   const kindLabel: Record<TitleKind, string> = { movie: t.nav.movies, series: t.nav.series, anime: t.nav.anime, manga: t.nav.manga };
 
   return (
@@ -63,6 +66,14 @@ function SearchPage() {
           </button>
         ))}
       </div>
+      {ani.data && ani.data.length > 0 && (
+        <div className="mt-8">
+          <p className="eyebrow mb-3">Anime &amp; Manga</p>
+          <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
+            {ani.data.filter((x) => !kind || (kind === "anime" ? x.type === "ANIME" : kind === "manga" ? x.type === "MANGA" : true)).map((x) => <AniPoster key={x.type + x.aniListId} item={x} />)}
+          </div>
+        </div>
+      )}
       <div className="mt-8">
         {!q ? (
           <EmptyState title={t.nav.search} body={t.empty.searchHint} />
