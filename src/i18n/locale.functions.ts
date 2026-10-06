@@ -15,5 +15,5 @@ export const getInitialLocale = createServerFn({ method: "GET" }).handler(async 
 
 export function readClientLocale(): Locale {
   const m = document.cookie.match(/(?:^|; )mb_locale=([^;]+)/);
-  return m && valid.includes(m[1]) ? (m[1] as Locale) : "en";
+  return m && m[1] && valid.includes(m[1]) ? (m[1] as Locale) : "en";
 }

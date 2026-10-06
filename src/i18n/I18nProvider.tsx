@@ -6,7 +6,7 @@ export const LOCALE_COOKIE = "mb_locale";
 export function isLocale(v: unknown): v is Locale {
   return typeof v === "string" && (LOCALES as readonly string[]).includes(v);
 }
-export function dirFor(locale: Locale) {
+export function dirFor(locale: Locale): "rtl" | "ltr" {
   return RTL_LOCALES.includes(locale) ? "rtl" : "ltr";
 }
 
