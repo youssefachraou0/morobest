@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const SECTIONS = ["Dashboard", "Movies", "Series", "Anime", "Manga", "Ramadan", "Kids", "People", "Genres", "Countries", "Collections", "Media", "Subtitles", "Users", "Homepage", "SEO", "Analytics", "Security", "Settings", "Integrations"];
 
 function Admin() {
-  const { isAdmin, isStaff, canManageMedia, rolesReady, ready, roles: myRoles } = useAuth();
+  const { isAdmin, isStaff, canManageMedia, canManageContent, rolesReady, ready, roles: myRoles } = useAuth();
   const qc = useQueryClient();
 
   const stats = useQuery({
