@@ -301,13 +301,13 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
                       options={[["-1", "Auto"], ...levels.map((l, i) => [String(i), `${l.height}p`] as [string, string])]} />
                   )}
                   {tracks.length > 1 && (
-                    <Sel label="Audio" value={String(track)} onChange={(v) => { const i = Number(v); if (hlsRef.current) hlsRef.current.audioTrack = i; setTrack(i); const l = tracks[i]?.lang; if (l) onAudioLanguage?.(l); }}
+                    <Sel label="Audio" value={String(track)} onChange={(v) => { const i = Number(v); if (hlsRef.current) hlsRef.current.audioTrack = i; setTrack(i); const l = tracks[i]?.lang; if (l) onAudioLanguage?.(l); if (an.current) track("audio_select", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null, props: { lang: l ?? null } }); }}
                       options={tracks.map((a) => [String(a.id), a.name] as [string, string])} />
                   )}
                   {tracks.length <= 1 && audioOptions && audioOptions.length > 1 && onAudio && (
                     <Sel label="Audio" value={audio ?? ""} onChange={onAudio} options={audioOptions} />
                   )}
-                  <Sel label="Subtitles" value={String(subIdx)} onChange={(v) => setSubIdx(Number(v))}
+                  <Sel label="Subtitles" value={String(subIdx)} onChange={(v) => { const i = Number(v); setSubIdx(i); if (an.current) track("subtitle_select", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null, props: { lang: source.subtitles[i]?.lang ?? "off" } }); }}
                     options={[["-1", "Off"], ...source.subtitles.map((s, i) => [String(i), s.label] as [string, string])]} />
                 </div>
               )}
