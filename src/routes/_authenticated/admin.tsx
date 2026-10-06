@@ -14,13 +14,12 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const SECTIONS = ["Dashboard", "Movies", "Series", "Anime", "Manga", "Ramadan", "Kids", "People", "Genres", "Countries", "Collections", "Media", "Subtitles", "Users", "Homepage", "SEO", "Analytics", "Security", "Settings", "Integrations"];
 
 function Admin() {
-  const { isAdmin, ready } = useAuth();
+  const { isAdmin, isStaff, canManageMedia, rolesReady, ready, roles: myRoles } = useAuth();
   const qc = useQueryClient();
-  const roles = useQuery({ queryKey: ["me", "roles"], queryFn: async () => (await supabase.from("user_roles").select("role")).data ?? [] });
 
   const stats = useQuery({
     queryKey: ["admin", "stats"],
-    enabled: isAdmin,
+    enabled: isStaff,
     queryFn: async () => {
       const count = async (table: "titles" | "episodes" | "people" | "collections" | "manga_chapters") =>
         (await supabase.from(table).select("*", { count: "exact", head: true })).count ?? 0;
@@ -30,7 +29,7 @@ function Admin() {
   });
   const list = useQuery({
     queryKey: ["admin", "titles"],
-    enabled: isAdmin,
+    enabled: isStaff,
     queryFn: async () => (await supabase.from("titles").select("id, slug, kind, original_title, year, published, popularity").order("updated_at", { ascending: false }).limit(100)).data ?? [],
   });
   const togglePub = useMutation({
@@ -42,20 +41,24 @@ function Admin() {
     onError: () => toast.error("Update failed"),
   });
 
-  if (!ready || roles.isLoading) return <StarLoader className="min-h-screen" />;
-  if (!isAdmin) return <div className="pt-32"><EmptyState title="Admins only" body="Your account does not have access to the admin area." /></div>;
+  if (!ready || !rolesReady) return <StarLoader className="min-h-screen" />;
+  if (!isStaff) return <div className="pt-32"><EmptyState title="Admins only" body="Your account does not have access to the admin area." /></div>;
 
   return (
     <div className="flex">
       <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-56 shrink-0 overflow-y-auto border-e border-border p-4 pt-20 lg:block">
-        {SECTIONS.map((s, i) => s === "Media" ? (
+        {SECTIONS.map((s, i) => s === "Media" && canManageMedia ? (
           <Link key={s} to="/admin-media" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Media / Streaming</Link>
+        ) : s === "Subtitles" && canManageMedia ? (
+          <Link key={s} to="/admin-media" search={{ tab: "subtitles" }} className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Subtitles</Link>
+        ) : s === "Settings" && canManageMedia ? (
+          <Link key={s} to="/admin-settings" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Settings · Streaming providers</Link>
         ) : (
           <p key={s} className={i === 0 || s === "Movies" ? "rounded-md bg-surface-2 px-3 py-2 text-sm text-gold" : "px-3 py-2 text-sm text-muted-foreground"}>{s}</p>
         ))}
       </aside>
       <div className="min-w-0 flex-1">
-        <PageHeader eyebrow="Admin" title="Dashboard" />
+        <PageHeader eyebrow={`Admin · ${myRoles.join(", ")}`} title="Dashboard" />
         <div className="grid grid-cols-2 gap-4 px-4 sm:grid-cols-5 sm:px-8">
           {Object.entries(stats.data ?? {}).map(([k, v]) => (
             <div key={k} className="rounded-xl border border-border bg-surface p-4">
@@ -79,7 +82,7 @@ function Admin() {
                     <td className="p-3">{r.year}</td>
                     <td className="p-3">{r.popularity}</td>
                     <td className="p-3">
-                      <input type="checkbox" checked={r.published} onChange={(e) => togglePub.mutate({ id: r.id, published: e.target.checked })} aria-label="Published" className="accent-[var(--gold)]" />
+                      <input type="checkbox" checked={r.published} disabled={!isAdmin} onChange={(e) => togglePub.mutate({ id: r.id, published: e.target.checked })} aria-label="Published" className="accent-[var(--gold)]" />
                     </td>
                   </tr>
                 ))}
