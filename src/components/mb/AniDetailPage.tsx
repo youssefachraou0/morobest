@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { applyOverride, overlayQuery } from "@/features/editorial/editorial.functions";
 import { Ban, ExternalLink, Play, Share2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { aniDetailQuery } from "@/features/anilist/anilist.functions";
@@ -23,10 +25,12 @@ function Face({ p, sub }: { p: AniPerson; sub?: string | null }) {
 }
 
 export function AniDetailPage({ type, id }: { type: AniType; id: number }) {
-  const { data: d } = useSuspenseQuery(aniDetailQuery(type, id));
+  const { data: raw } = useSuspenseQuery(aniDetailQuery(type, id));
   const { locale } = useI18n();
+  const { data: ov } = useSuspenseQuery(overlayQuery(type === "ANIME" ? "anime" : "manga", id, locale));
   const [trailer, setTrailer] = useState(false);
-  if (!d) return null;
+  if (!raw) return null;
+  const d = applyOverride(raw, ov.override);
   const isAnime = type === "ANIME";
   const share = async () => {
     const url = window.location.href;
@@ -66,9 +70,13 @@ export function AniDetailPage({ type, id }: { type: AniType; id: number }) {
           </div>
           {d.nextEpisode && <p className="mt-3 text-sm text-gold">Episode {d.nextEpisode.episode} airs {new Date(d.nextEpisode.airingAt * 1000).toLocaleDateString(locale)}</p>}
           <div className="mt-6 flex flex-wrap gap-3">
-            <button disabled className={mbButton({ variant: "subtle" })} title={isAnime ? AL.noSource[locale] : AL.noReader[locale]}>
-              {isAnime ? <Play /> : <Ban />}{isAnime ? AL.noSource[locale] : AL.noReader[locale]}
-            </button>
+            {isAnime && ov.link?.playable ? (
+              <Link to="/watch/$slug" params={{ slug: ov.link.slug }} className={mbButton()}><Play />Watch now</Link>
+            ) : (
+              <button disabled className={mbButton({ variant: "subtle" })} title={isAnime ? AL.noSource[locale] : AL.noReader[locale]}>
+                {isAnime ? <Play /> : <Ban />}{isAnime ? AL.noSource[locale] : AL.noReader[locale]}
+              </button>
+            )}
             {d.trailer?.site === "youtube" && <button onClick={() => setTrailer(true)} className={mbButton({ variant: "outline" })}><Play />Trailer</button>}
             <button onClick={share} className={mbButton({ variant: "glass" })}><Share2 />Share</button>
             <a href={d.siteUrl} target="_blank" rel="noreferrer" className={mbButton({ variant: "ghost" })}><ExternalLink />AniList</a>

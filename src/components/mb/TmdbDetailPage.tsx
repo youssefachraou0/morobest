@@ -4,6 +4,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Ban, Play, Share2, Star, X } from "lucide-react";
 import { toast } from "sonner";
 import { tmdbDetailQuery, tmdbSeasonQuery } from "@/features/tmdb/tmdb.functions";
+import { applyOverride, episodeAvailabilityQuery, overlayQuery } from "@/features/editorial/editorial.functions";
 import { backdropSrcSet, posterSrcSet, tmdbImg } from "@/features/tmdb/image";
 import type { TmdbType } from "@/features/tmdb/types";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -21,14 +22,18 @@ const D = {
   images: { en: "Images", fr: "Images", ar: "صور" },
   episodes: { en: "Episodes", fr: "Épisodes", ar: "الحلقات" },
   season: { en: "Season", fr: "Saison", ar: "الموسم" },
+  play: { en: "Watch now", fr: "Regarder", ar: "شاهد الآن" },
   watch: { en: "Watch options", fr: "Options de visionnage", ar: "خيارات المشاهدة" },
 } as const;
 
 export function TmdbDetailPage({ type, id }: { type: TmdbType; id: number }) {
   const { locale } = useI18n();
-  const { data: d } = useSuspenseQuery(tmdbDetailQuery(type, id, locale));
+  const { data: raw } = useSuspenseQuery(tmdbDetailQuery(type, id, locale));
+  const { data: ov } = useSuspenseQuery(overlayQuery(type === "movie" ? "movie" : "series", id, locale));
   const [trailer, setTrailer] = useState(false);
-  if (!d) return null;
+  if (!raw) return null;
+  const d = applyOverride(raw, ov.override);
+  const link = ov.link;
   const share = async () => {
     const url = window.location.href;
     if (navigator.share) await navigator.share({ title: d.title, url }).catch(() => {});
@@ -75,8 +80,8 @@ export function TmdbDetailPage({ type, id }: { type: TmdbType; id: number }) {
             </div>
             {d.overview && <p className="mt-5 max-w-2xl leading-relaxed text-foreground/85">{d.overview}</p>}
             <div className="mt-6 flex flex-wrap gap-3">
-              {d.watchSlug ? (
-                <Link to="/title/$slug" params={{ slug: d.watchSlug }} className={mbButton()}><Play />{D.watch[locale]}</Link>
+              {link?.playable ? (
+                <Link to="/watch/$slug" params={{ slug: link.slug }} className={mbButton()}><Play />{D.play[locale]}</Link>
               ) : (
                 <button disabled className={mbButton({ variant: "subtle" })}><Ban />{TL.noSource[locale]}</button>
               )}
@@ -123,6 +128,7 @@ function Seasons({ id, seasons }: { id: number; seasons: { number: number; name:
   const first = seasons.find((s) => s.number > 0)?.number ?? seasons[0]?.number ?? 1;
   const [n, setN] = useState(first);
   const q = useQuery(tmdbSeasonQuery(id, n, locale));
+  const av = useQuery(episodeAvailabilityQuery(id, n));
   return (
     <section className="px-4 py-6 sm:px-8 lg:px-14">
       <StarDivider className="mb-6" />
@@ -147,6 +153,9 @@ function Seasons({ id, seasons }: { id: number; seasons: { number: number; name:
                 {e.rating != null && <span className="inline-flex items-center gap-0.5 text-gold"><Star className="h-3 w-3 fill-current" />{e.rating.toFixed(1)}</span>}
               </p>
               {e.overview && <p className="mt-1 line-clamp-3 text-sm text-foreground/75">{e.overview}</p>}
+              {av.data?.slug && av.data.episodes[e.number]?.playable && (
+                <Link to="/watch/$slug" params={{ slug: av.data.slug }} search={{ ep: av.data.episodes[e.number]!.episodeId }} className={cn(mbButton({ size: "sm" }), "mt-2")}><Play />{D.play[locale]}</Link>
+              )}
             </div>
           </li>
         ))}
