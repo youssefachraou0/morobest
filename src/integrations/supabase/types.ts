@@ -117,6 +117,7 @@ export type Database = {
           episode_id: string | null
           event: string
           id: number
+          is_test: boolean
           occurred_at: string
           path: string | null
           props: Json
@@ -131,6 +132,7 @@ export type Database = {
           episode_id?: string | null
           event: string
           id?: number
+          is_test?: boolean
           occurred_at?: string
           path?: string | null
           props?: Json
@@ -145,6 +147,7 @@ export type Database = {
           episode_id?: string | null
           event?: string
           id?: number
+          is_test?: boolean
           occurred_at?: string
           path?: string | null
           props?: Json
@@ -152,6 +155,24 @@ export type Database = {
           title_id?: string | null
           value?: number | null
           visitor?: string
+        }
+        Relationships: []
+      }
+      analytics_meta: {
+        Row: {
+          details: Json
+          key: string
+          ran_at: string
+        }
+        Insert: {
+          details?: Json
+          key: string
+          ran_at?: string
+        }
+        Update: {
+          details?: Json
+          key?: string
+          ran_at?: string
         }
         Relationships: []
       }
@@ -1757,16 +1778,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      analytics_ctx: { Args: { _from: string; _to: string }; Returns: Json }
+      admin_analytics_cleanup: { Args: never; Returns: Json }
+      admin_analytics_purge_test: { Args: never; Returns: number }
       analytics_dashboard: {
-        Args: { _from: string; _to: string }
+        Args: { _from: string; _include_test?: boolean; _to: string }
         Returns: Json
       }
       analytics_key: { Args: { _key: string; _title: string }; Returns: string }
       analytics_maintain: { Args: never; Returns: undefined }
+      analytics_maintain_if_due: { Args: never; Returns: boolean }
       analytics_rollup: { Args: { _day: string }; Returns: undefined }
       analytics_title: {
-        Args: { _from: string; _title: string; _to: string }
+        Args: {
+          _from: string
+          _include_test?: boolean
+          _title: string
+          _to: string
+        }
         Returns: Json
       }
       can_manage_content: { Args: { _user_id: string }; Returns: boolean }
@@ -1786,6 +1814,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_analytics_admin: { Args: { _u: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       owns_profile: { Args: { _profile: string }; Returns: boolean }
       playable_units: {

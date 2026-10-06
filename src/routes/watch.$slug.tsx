@@ -1,3 +1,4 @@
+import { useCanonical } from "@/features/editorial/canonical";
 import { track } from "@/features/analytics/track";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
@@ -35,6 +36,7 @@ function Watch() {
   const { ep } = Route.useSearch();
   const { data: d } = useSuspenseQuery(titleQuery(slug));
   const { t, locale } = useI18n();
+  const canonical = useCanonical();
   const { activeProfile, maxAge } = useAuth();
   const progress = useProgress();
   const qc = useQueryClient();
@@ -79,8 +81,8 @@ function Watch() {
     const tried = new Set(failed).add(active.id);
     setFailed(tried);
     const nextIdx = sources.findIndex((s) => !tried.has(s.id));
-    track("playback_error", { titleId: d?.id ?? null, episodeId: current?.id ?? null, props: { provider: active.provider ?? null, message: message.slice(0, 120) } });
-    if (nextIdx >= 0) { track("fallback", { titleId: d?.id ?? null, episodeId: current?.id ?? null, props: { provider: sources[nextIdx]?.provider ?? null } }); setSrcIdx(nextIdx); return true; }
+    track("playback_error", { titleId: d?.id ?? null, episodeId: current?.id ?? null, props: { provider: active.provider ?? null, message: message.replace(/https?:\/\/\S+/g, "[url]").slice(0, 120) }, test: !!active.isTest });
+    if (nextIdx >= 0) { track("fallback", { titleId: d?.id ?? null, episodeId: current?.id ?? null, props: { provider: sources[nextIdx]?.provider ?? null }, test: !!active.isTest }); setSrcIdx(nextIdx); return true; }
     return false;
   }, [active, failed, sources, d?.id, current?.id]);
 
@@ -103,7 +105,7 @@ function Watch() {
   return (
     <div className="fixed inset-0 z-50 bg-background">
       <div className="absolute inset-x-0 top-0 z-10 flex items-center gap-4 bg-gradient-to-b from-background/90 to-transparent p-4 sm:px-8">
-        <Link to="/title/$slug" params={{ slug }} aria-label={t.action.back} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-foreground/10">
+        <Link {...canonical({ kind: "title", slug })} aria-label={t.action.back} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-foreground/10">
           <ArrowLeft className="h-6 w-6 rtl:rotate-180" />
         </Link>
         <div className="min-w-0">
@@ -126,7 +128,7 @@ function Watch() {
           source={active}
           onPrev={goPrev}
           onFatal={onFatal}
-          analytics={{ titleId: d.id, episodeId: current?.id ?? null, provider: active.provider ?? null }}
+          analytics={{ titleId: d.id, episodeId: current?.id ?? null, provider: active.provider ?? null, test: !!active.isTest }}
           markers={current
             ? {
                 // Episode markers win; fall back to series-level markers when an episode has none.

@@ -17,6 +17,7 @@ import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as MoviesRouteImport } from './routes/movies'
 import { Route as NewRouteImport } from './routes/new'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SeriesRouteImport } from './routes/series'
@@ -87,6 +88,11 @@ const MoviesRoute = MoviesRouteImport.update({
 const NewRoute = NewRouteImport.update({
   id: '/new',
   path: '/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -263,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/kids': typeof KidsRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/series': typeof SeriesRoute
@@ -304,6 +311,7 @@ export interface FileRoutesByTo {
   '/kids': typeof KidsRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/series': typeof SeriesRoute
@@ -347,6 +355,7 @@ export interface FileRoutesById {
   '/kids': typeof KidsRoute
   '/movies': typeof MoviesRoute
   '/new': typeof NewRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/series': typeof SeriesRoute
@@ -390,6 +399,7 @@ export interface FileRouteTypes {
     | '/kids'
     | '/movies'
     | '/new'
+    | '/privacy'
     | '/reset-password'
     | '/search'
     | '/series'
@@ -431,6 +441,7 @@ export interface FileRouteTypes {
     | '/kids'
     | '/movies'
     | '/new'
+    | '/privacy'
     | '/reset-password'
     | '/search'
     | '/series'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/kids'
     | '/movies'
     | '/new'
+    | '/privacy'
     | '/reset-password'
     | '/search'
     | '/series'
@@ -516,6 +528,7 @@ export interface RootRouteChildren {
   KidsRoute: typeof KidsRoute
   MoviesRoute: typeof MoviesRoute
   NewRoute: typeof NewRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   SeriesRoute: typeof SeriesRoute
@@ -597,6 +610,13 @@ declare module '@tanstack/react-router' {
       path: '/new'
       fullPath: '/new'
       preLoaderRoute: typeof NewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -862,6 +882,7 @@ const rootRouteChildren: RootRouteChildren = {
   KidsRoute: KidsRoute,
   MoviesRoute: MoviesRoute,
   NewRoute: NewRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   SeriesRoute: SeriesRoute,

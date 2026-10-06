@@ -133,7 +133,7 @@ export function Footer() {
           ))}
         </div>
       </div>
-      <p className="relative mt-10 text-xs text-muted-foreground">© {new Date().getFullYear()} MOROBEST. {t.footer.rights} {t.footer.legal}</p>
+      <p className="relative mt-10 text-xs text-muted-foreground">© {new Date().getFullYear()} MOROBEST. {t.footer.rights} {t.footer.legal} · <Link to="/privacy" className="hover:text-gold">{t.footer.privacy}</Link></p>
     </footer>
   );
 }

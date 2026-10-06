@@ -1,0 +1,42 @@
+import asyncio, json, os, time
+from playwright.async_api import async_playwright
+OUT="/tmp/e2e"; os.makedirs(OUT, exist_ok=True)
+async def main():
+    async with async_playwright() as p:
+        b=await p.chromium.launch(headless=True, args=["--autoplay-policy=no-user-gesture-required"])
+        c=await b.new_context(viewport={"width":1280,"height":1800})
+        cookies=json.loads(os.environ.get("LOVABLE_BROWSER_SUPABASE_COOKIES_JSON") or "[]")
+        for k in cookies: k["url"]="http://localhost:8080"
+        if cookies: await c.add_cookies(cookies)
+        pg=await c.new_page()
+        errs=[]; pg.on("pageerror", lambda e: errs.append(str(e)))
+        await pg.goto("http://localhost:8080/?mb_qa=1")
+        await pg.evaluate(f"localStorage.setItem({json.dumps(os.environ['LOVABLE_BROWSER_SUPABASE_STORAGE_KEY'])}, {json.dumps(os.environ['LOVABLE_BROWSER_SUPABASE_SESSION_JSON'])})")
+        print("start", time.strftime("%H:%M:%S", time.gmtime()))
+        await pg.goto("http://localhost:8080/title/fight-club-1999?mb_qa=1"); await pg.wait_for_timeout(3000)
+        print("title url", pg.url)
+        await pg.screenshot(path=f"{OUT}/1_title.png")
+        w=pg.get_by_role("link", name="Play").or_(pg.get_by_role("link", name="Watch now")).first
+        await w.click(); await pg.wait_for_timeout(8000)
+        print("watch url", pg.url)
+        st=lambda: pg.evaluate("(()=>{const v=document.querySelector('video');return v?{t:v.currentTime,p:v.paused,d:v.duration,src:(v.currentSrc||'').slice(-25)}:null})()")
+        print("after load", await st())
+        await pg.evaluate("document.querySelector('video')?.play()"); await pg.wait_for_timeout(95000)
+        print("after 95s", await st())
+        await pg.evaluate("document.querySelector('video').pause()"); await pg.wait_for_timeout(3000)
+        await pg.evaluate("document.querySelector('video').play()"); await pg.wait_for_timeout(3000)
+        await pg.evaluate("{const v=document.querySelector('video'); v.currentTime=v.currentTime+120}"); await pg.wait_for_timeout(5000)
+        await pg.evaluate("{const v=document.querySelector('video'); v.currentTime=v.duration-4}"); await pg.wait_for_timeout(9000)
+        print("after end", await st())
+        await pg.screenshot(path=f"{OUT}/2_watch.png")
+        await pg.goto("http://localhost:8080/search?q=breaking%20bad"); await pg.wait_for_timeout(5000)
+        res=pg.locator("main a[href^='/tv/'], main a[href^='/title/']").first
+        print("search first href", await res.get_attribute("href"))
+        await res.click(); await pg.wait_for_timeout(4000); print("result url", pg.url)
+        await pg.goto("http://localhost:8080/title/fight-club-1999"); await pg.wait_for_timeout(3000)
+        btns=await pg.locator("button").all_inner_texts(); print("buttons", [x for x in btns if x.strip()][:15])
+        await pg.evaluate("document.dispatchEvent(new Event('visibilitychange'))")
+        await pg.goto("http://localhost:8080/"); await pg.wait_for_timeout(5000)
+        print("errors", errs[:5])
+        await b.close()
+asyncio.run(main())

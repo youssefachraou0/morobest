@@ -1,3 +1,4 @@
+import { useCanonical } from "@/features/editorial/canonical";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const SECTIONS = ["Dashboard", "Movies", "Series", "Anime", "Manga", "Ramadan", "Kids", "People", "Genres", "Countries", "Collections", "Media", "Subtitles", "Users", "Homepage", "SEO", "Analytics", "Security", "Settings", "Integrations"];
 
 function Admin() {
+  const canonical = useCanonical();
   const { isAdmin, isStaff, canManageMedia, canManageContent, rolesReady, ready, roles: myRoles } = useAuth();
   const qc = useQueryClient();
 
@@ -84,7 +86,7 @@ function Admin() {
               <tbody>
                 {(list.data ?? []).map((r) => (
                   <tr key={r.id} className="border-t border-border">
-                    <td className="p-3"><Link to="/title/$slug" params={{ slug: r.slug }} className="hover:text-gold">{r.original_title}</Link></td>
+                    <td className="p-3"><Link {...canonical({ kind: "title", slug: r.slug })} className="hover:text-gold">{r.original_title}</Link></td>
                     <td className="p-3">{r.kind}</td>
                     <td className="p-3">{r.year}</td>
                     <td className="p-3">{r.popularity}</td>

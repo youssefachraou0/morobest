@@ -48,7 +48,7 @@ const en = {
     unavailable: "This title is not available right now.", playback: "Playback could not start.", offline: "You appear to be offline.",
   },
   hero: { tagline: "Cinema of the world. Soul of Morocco." },
-  footer: { rights: "All rights reserved.", legal: "Only licensed and authorized content is streamed on MOROBEST." },
+  footer: { rights: "All rights reserved.", legal: "Only licensed and authorized content is streamed on MOROBEST.", privacy: "Privacy" },
 };
 
 export type Dict = typeof en;
@@ -101,7 +101,7 @@ const fr: Dict = {
     unavailable: "Ce titre n'est pas disponible.", playback: "La lecture n'a pas pu démarrer.", offline: "Vous semblez hors ligne.",
   },
   hero: { tagline: "Le cinéma du monde. L'âme du Maroc." },
-  footer: { rights: "Tous droits réservés.", legal: "MOROBEST ne diffuse que des contenus sous licence." },
+  footer: { rights: "Tous droits réservés.", legal: "MOROBEST ne diffuse que des contenus sous licence.", privacy: "Confidentialité" },
 };
 
 const ar: Dict = {
@@ -149,7 +149,7 @@ const ar: Dict = {
     playback: "تعذّر بدء التشغيل.", offline: "يبدو أنك غير متصل.",
   },
   hero: { tagline: "سينما العالم. روح المغرب." },
-  footer: { rights: "جميع الحقوق محفوظة.", legal: "تعرض موروبيست المحتوى المرخص فقط." },
+  footer: { rights: "جميع الحقوق محفوظة.", legal: "تعرض موروبيست المحتوى المرخص فقط.", privacy: "الخصوصية" },
 };
 
 export const DICTS: Record<Locale, Dict> = { en, fr, ar };

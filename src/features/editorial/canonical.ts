@@ -11,7 +11,13 @@ export type CanonicalLink =
 const PATH = { movie: "/movie/$slug", series: "/tv/$slug", anime: "/anime/$slug", manga: "/manga/$slug" } as const;
 
 export function getCanonicalContentUrl(content: ContentRef, slugs: Record<string, string> | undefined): CanonicalLink {
-  if (content.kind === "title") return { to: "/title/$slug", params: { slug: content.slug } };
+  if (content.kind === "title") {
+    const link = slugs?.[`title:${content.slug}`];
+    if (!link) return { to: "/title/$slug", params: { slug: content.slug } };
+    const [ct, pid] = link.split("|") as [string, string];
+    const kind = (ct === "movie" || ct === "anime" || ct === "manga" ? ct : "series") as "movie" | "series" | "anime" | "manga";
+    return getCanonicalContentUrl({ kind, providerId: pid, slug: `${content.slug}-${pid}` }, slugs);
+  }
   const custom = slugs?.[`${content.kind}:${content.providerId}`];
   return { to: PATH[content.kind], params: { slug: custom ?? content.slug } };
 }

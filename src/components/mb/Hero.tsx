@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useCanonical } from "@/features/editorial/canonical";
 import { Link } from "@tanstack/react-router";
 import { Info, Play, Star } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -10,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export function Hero({ items }: { items: TitleCard[] }) {
   const { t, locale } = useI18n();
+  const canonical = useCanonical();
   const [i, setI] = useState(0);
   useEffect(() => {
     if (items.length < 2) return;
@@ -50,7 +52,7 @@ export function Hero({ items }: { items: TitleCard[] }) {
         {l.synopsis && <p className="mt-4 max-w-xl animate-fade-up text-base text-foreground/80 sm:text-lg" style={{ animationDelay: "220ms" }}>{l.synopsis}</p>}
         <div className="mt-7 flex animate-fade-up gap-3" style={{ animationDelay: "280ms" }}>
           <Link to="/watch/$slug" params={{ slug: cur.slug }} className={mbButton({ size: "lg" })}><Play className="fill-current" />{t.action.play}</Link>
-          <Link to="/title/$slug" params={{ slug: cur.slug }} className={mbButton({ variant: "glass", size: "lg" })}><Info />{t.action.moreInfo}</Link>
+          <Link {...canonical({ kind: "title", slug: cur.slug })} className={mbButton({ variant: "glass", size: "lg" })}><Info />{t.action.moreInfo}</Link>
         </div>
         <div className="mt-10 flex gap-2" role="tablist">
           {items.map((it, idx) => (
