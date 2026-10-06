@@ -1645,6 +1645,7 @@ export type Database = {
           available_from: string | null
           available_until: string | null
           created_at: string
+          duration_s: number | null
           episode_id: string | null
           error_message: string | null
           id: string
@@ -1655,12 +1656,16 @@ export type Database = {
           is_test_source: boolean
           kind: string
           language: string | null
+          original_filename: string | null
           playback_id: string | null
           priority: number
           provider: string | null
           provider_asset_id: string | null
           quality: string | null
+          replaces_source_ids: string[] | null
           requires_signed_token: boolean
+          rights_confirmed_at: string | null
+          rights_confirmed_by: string | null
           status: string
           title_id: string
           updated_at: string
@@ -1673,6 +1678,7 @@ export type Database = {
           available_from?: string | null
           available_until?: string | null
           created_at?: string
+          duration_s?: number | null
           episode_id?: string | null
           error_message?: string | null
           id?: string
@@ -1683,12 +1689,16 @@ export type Database = {
           is_test_source?: boolean
           kind?: string
           language?: string | null
+          original_filename?: string | null
           playback_id?: string | null
           priority?: number
           provider?: string | null
           provider_asset_id?: string | null
           quality?: string | null
+          replaces_source_ids?: string[] | null
           requires_signed_token?: boolean
+          rights_confirmed_at?: string | null
+          rights_confirmed_by?: string | null
           status?: string
           title_id: string
           updated_at?: string
@@ -1701,6 +1711,7 @@ export type Database = {
           available_from?: string | null
           available_until?: string | null
           created_at?: string
+          duration_s?: number | null
           episode_id?: string | null
           error_message?: string | null
           id?: string
@@ -1711,12 +1722,16 @@ export type Database = {
           is_test_source?: boolean
           kind?: string
           language?: string | null
+          original_filename?: string | null
           playback_id?: string | null
           priority?: number
           provider?: string | null
           provider_asset_id?: string | null
           quality?: string | null
+          replaces_source_ids?: string[] | null
           requires_signed_token?: boolean
+          rights_confirmed_at?: string | null
+          rights_confirmed_by?: string | null
           status?: string
           title_id?: string
           updated_at?: string

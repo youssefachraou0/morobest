@@ -21,6 +21,7 @@ const Event = z.object({
     id: z.string().max(200).optional(),
     upload_id: z.string().max(200).optional(),
     asset_id: z.string().max(200).optional(),
+    duration: z.number().optional(),
     playback_ids: z.array(z.object({ id: z.string().max(200) })).optional(),
     errors: z.object({ messages: z.array(z.string()).optional() }).optional(),
     error: z.object({ message: z.string().optional() }).optional(),
@@ -72,10 +73,11 @@ export const Route = createFileRoute("/api/public/webhooks/mux")({
 
         for (const r of rows ?? []) {
           if (r.status === "disabled") continue;
-          const patch: { status: string; provider_asset_id?: string; playback_id?: string; error_message?: string | null; is_active?: boolean } = { status };
+          const patch: { status: string; duration_s?: number; provider_asset_id?: string; playback_id?: string; error_message?: string | null; is_active?: boolean } = { status };
           if (assetId) patch.provider_asset_id = assetId;
           const pb = evt.data?.playback_ids?.[0]?.id;
           if (pb) patch.playback_id = pb;
+          if (evt.data?.duration) patch.duration_s = evt.data.duration;
           if (status === "failed") patch.error_message = (evt.data?.errors?.messages?.join("; ") || evt.data?.error?.message || evt.type).slice(0, 300);
           if (status === "ready") { patch.error_message = null; if (r.status !== "ready") patch.is_active = true; }
           await supabaseAdmin.from("video_sources").update(patch).eq("id", r.id);

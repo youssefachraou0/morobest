@@ -15,10 +15,11 @@ import {
   saveMarkers, uploadSubtitle,
 } from "@/features/streaming/streaming.functions";
 import { cn } from "@/lib/utils";
+import { MediaIngest } from "@/components/mb/MediaIngest";
 
-type Tab = "sources" | "subtitles" | "markers";
+type Tab = "import" | "sources" | "subtitles" | "markers";
 export const Route = createFileRoute("/_authenticated/admin-media")({
-  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" || s.tab === "import" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
   head: () => ({ meta: [{ title: "Media · MOROBEST Admin" }, { name: "description", content: "Manage MOROBEST video sources, subtitles and markers." }, { name: "robots", content: "noindex" }] }),
   component: MediaAdmin,
 });
@@ -58,6 +59,13 @@ function MediaAdmin() {
     () => (sel?.seasons ?? []).slice().sort((a, b) => a.number - b.number).flatMap((s) => (s.episodes ?? []).slice().sort((a, b) => a.number - b.number).map((e) => ({ ...e, label: `S${s.number}E${e.number} — ${e.title}` }))),
     [sel],
   );
+  const ingestEpisodes = useMemo(
+    () => (sel?.seasons ?? []).flatMap((s) => (s.episodes ?? []).map((e) => ({ id: e.id, season: s.number, number: e.number, title: e.title })))
+      .sort((a, b) => a.season - b.season || a.number - b.number),
+    [sel],
+  );
+  const cfgFn = useServerFn(providerConfig);
+  const cfg = useQuery({ queryKey: ["admin", "providers"], queryFn: () => cfgFn(), enabled: canManageMedia });
 
   if (!ready || !rolesReady) return <StarLoader className="min-h-screen" />;
   if (!canManageMedia) return <div className="pt-32"><EmptyState title="Media managers only" body="Your account does not have access to media management." /></div>;
@@ -96,7 +104,7 @@ function MediaAdmin() {
                     {(sel.external_titles ?? []).length ? sel.external_titles.map((x) => <Badge key={x.provider + x.provider_id}>{x.provider.toUpperCase()} {x.media_type} #{x.provider_id}</Badge>) : <Badge>No TMDB/AniList link</Badge>}
                   </div>
                 </div>
-                {episodes.length > 0 && (
+                {episodes.length > 0 && tab !== "import" && (
                   <select className={cn(field, "w-auto")} value={episodeId} onChange={(e) => setEpisodeId(e.target.value)} aria-label="Episode">
                     <option value="">{tab === "sources" ? "Whole series (fallback)" : "Choose an episode…"}</option>
                     {episodes.map((e) => <option key={e.id} value={e.id}>{e.label}</option>)}
@@ -104,10 +112,11 @@ function MediaAdmin() {
                 )}
               </div>
               <div className="flex gap-1 rounded-lg bg-surface-2 p-1 text-sm">
-                {(["sources", "subtitles", "markers"] as const).map((t) => (
-                  <button key={t} onClick={() => navigate({ search: { tab: t === "sources" ? undefined : t }, replace: true })} className={cn("flex-1 rounded-md px-2 py-1.5 capitalize", tab === t ? "bg-background text-gold" : "text-muted-foreground")}>{t === "markers" ? "Intro / recap / credits" : t}</button>
+                {(["import", "sources", "subtitles", "markers"] as const).map((t) => (
+                  <button key={t} onClick={() => navigate({ search: { tab: t === "sources" ? undefined : t }, replace: true })} className={cn("flex-1 rounded-md px-2 py-1.5 capitalize", tab === t ? "bg-background text-gold" : "text-muted-foreground")}>{t === "markers" ? "Intro / recap / credits" : t === "import" ? "Import / Upload" : t}</button>
                 ))}
               </div>
+              {tab === "import" && <MediaIngest key={sel.id} titleId={sel.id} titleName={sel.original_title} isSeries={sel.kind !== "movie"} episodes={ingestEpisodes} muxReady={!!cfg.data?.mux} />}
               {tab === "sources" && <Sources titleId={sel.id} episodeId={episodeId} episodes={episodes} />}
               {tab === "subtitles" && <Subtitles titleId={sel.id} episodeId={episodeId} needsEpisode={episodes.length > 0} />}
               {tab === "markers" && (
@@ -222,7 +231,7 @@ function Sources({ titleId, episodeId, episodes }: { titleId: string; episodeId:
           <Badge tone={cfg.data?.cloudflare ? "green" : "default"}>Cloudflare {cfg.data?.cloudflare ? "connected" : "optional"}</Badge>
         </div>
         <div className="grid grid-cols-2 gap-1 rounded-lg bg-surface-2 p-1 text-xs">
-          {([["playback", "Mux playback ID"], ["upload", "Upload video"], ["asset", "Existing asset"], ["url", "HLS / DASH / MP4 / embed"]] as const).map(([m, l]) => (
+          {([["playback", "Mux playback ID"], ["asset", "Existing asset"], ["url", "HLS / DASH / MP4 / embed"]] as const).map(([m, l]) => (
             <button key={m} onClick={() => setMode(m)} className={`rounded-md px-2 py-1.5 ${mode === m ? "bg-background text-gold" : "text-muted-foreground"}`}>{l}</button>
           ))}
         </div>
