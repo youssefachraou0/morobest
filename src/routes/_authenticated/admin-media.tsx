@@ -113,7 +113,7 @@ function MediaAdmin() {
               </div>
               <div className="flex gap-1 rounded-lg bg-surface-2 p-1 text-sm">
                 {(["sources", "subtitles", "markers"] as const).map((t) => (
-                  <button key={t} onClick={() => navigate({ search: { tab: t === "sources" ? undefined : t }, replace: true })} className={cn("flex-1 rounded-md px-2 py-1.5 capitalize", tab === t ? "bg-background text-gold" : "text-muted-foreground")}>{t === "markers" ? "Intro / recap / credits" : t === "import" ? "Import / Upload" : t}</button>
+                  <button key={t} onClick={() => navigate({ search: { tab: t === "sources" ? undefined : t }, replace: true })} className={cn("flex-1 rounded-md px-2 py-1.5 capitalize", tab === t ? "bg-background text-gold" : "text-muted-foreground")}>{t === "markers" ? "Intro / recap / credits" : t}</button>
                 ))}
               </div>
               {null}
