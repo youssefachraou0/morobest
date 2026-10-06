@@ -56,7 +56,7 @@ function Watch() {
   const audioOptions = useMemo(() => {
     const seen = new Map<string, number>();
     sources.forEach((s, i) => { const k = `${s.language ?? "orig"}${s.isDubbed ? "-dub" : ""}`; if (!seen.has(k)) seen.set(k, i); });
-    return Array.from(seen.entries()).map(([k, i]) => [String(i), `${(sources[i].language ?? "Original").toUpperCase()}${sources[i].isDubbed ? " (dub)" : ""}`] as [string, string]);
+    return Array.from(seen.entries()).map(([k, i]) => [String(i), `${(sources[i]!.language ?? "Original").toUpperCase()}${sources[i]!.isDubbed ? " (dub)" : ""}`] as [string, string]);
   }, [sources]);
   const onFatal = useCallback((message: string) => {
     if (active) reportPlaybackError({ data: { sourceId: active.id, message } }).catch(() => {});

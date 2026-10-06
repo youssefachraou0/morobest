@@ -203,7 +203,7 @@ function MediaAdmin() {
                   </div>
                   {s.error_message && <p className="mt-2 text-sm text-destructive">{s.error_message}</p>}
                   {(s.playback_errors ?? []).length > 0 && (
-                    <p className="mt-1 text-xs text-muted-foreground">{s.playback_errors.length} viewer error(s) · latest: {s.playback_errors[s.playback_errors.length - 1].message}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{s.playback_errors.length} viewer error(s) · latest: {s.playback_errors[s.playback_errors.length - 1]?.message}</p>
                   )}
                   <div className="mt-3 flex flex-wrap gap-2">
                     {s.status === "ready" && <button className={mbButton({ variant: "outline", size: "sm" })} onClick={async () => { try { setPreview(await previewFn({ data: { sourceId: s.id } })); } catch (e) { toast.error((e as Error).message); } }}>Preview</button>}
