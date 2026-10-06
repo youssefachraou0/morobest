@@ -80,7 +80,7 @@ export async function listTitles(db: Db, p: ListParams): Promise<TitleCard[]> {
   }
   if (restrict && restrict.length === 0) return [];
 
-  let q = db.from("titles").select(CARD_SELECT).eq("published", true).is("deleted_at", null);
+  let q = db.from("titles").select(CARD_SELECT).eq("published", true).is("deleted_at", null).eq("is_diagnostic", false);
   if (restrict) q = q.in("id", restrict);
   if (p.kind) q = Array.isArray(p.kind) ? q.in("kind", p.kind) : q.eq("kind", p.kind);
   if (p.kids) q = q.eq("is_kids", true);

@@ -16,6 +16,8 @@ type Props = {
   onNext?: () => void;
   nextLabel?: string;
   errorLabel: string;
+  /** Shown when the browser cannot decode the stream. */
+  unsupportedLabel?: string;
   retryLabel: string;
   onPrev?: () => void;
   /** Return true when the caller handled the failure (e.g. switched to a fallback source). */
@@ -42,7 +44,7 @@ const fmt = (s: number) => {
 };
 
 /** Provider-agnostic player: HLS via hls.js (or native), MP4 direct. DASH/embeds plug in by `kind`. */
-export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext, nextLabel, errorLabel, retryLabel, onPrev, onFatal, markers, audioOptions, audio, onAudio, autoplayNext = true, preferredAudio, onAudioLanguage, preferredSubtitle, badge, analytics }: Props) {
+export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext, nextLabel, errorLabel, unsupportedLabel, retryLabel, onPrev, onFatal, markers, audioOptions, audio, onAudio, autoplayNext = true, preferredAudio, onAudioLanguage, preferredSubtitle, badge, analytics }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -68,6 +70,10 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   const [creditsDismissed, setCreditsDismissed] = useState(false);
   const [menu, setMenu] = useState(false);
   const [error, setError] = useState(false);
+  const [unsupported, setUnsupported] = useState(false);
+  const startedRef = useRef(false);
+  const attemptRef = useRef(0);
+  const unsupportedAt = useRef<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [idle, setIdle] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -97,7 +103,15 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
     v.addEventListener("play", onPlay); v.addEventListener("pause", onPause); v.addEventListener("timeupdate", onTime); v.addEventListener("ended", onEnd); v.addEventListener("seeked", onSeek);
     return () => { flush(); v.removeEventListener("play", onPlay); v.removeEventListener("pause", onPause); v.removeEventListener("timeupdate", onTime); v.removeEventListener("ended", onEnd); v.removeEventListener("seeked", onSeek); };
   }, [source.url]);
-  const fail = useCallback((m: string) => { if (fatalRef.current?.(m)) return; setError(true); }, []);
+  const fail = useCallback((m: string) => {
+    startedRef.current = true; // settles the startup watchdog
+    setLoading(false);
+    if (fatalRef.current?.(m)) return;
+    const unsup = m.startsWith("unsupported");
+    if (unsup) unsupportedAt.current = attemptRef.current;
+    setUnsupported(unsup);
+    setError(true);
+  }, []);
   useEffect(() => {
     if (countdown == null) return;
     if (!autoplayNext) return;
@@ -109,14 +123,30 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   useEffect(() => {
     const v = video.current;
     if (!v) return;
+    attemptRef.current = attempt;
+    // A refreshed token URL must not silently re-run a stream this browser already can't decode.
+    if (unsupportedAt.current === attempt) return;
     let destroyed = false;
     setError(false);
+    setUnsupported(false);
     setLoading(true);
+    startedRef.current = false;
+    // Never spin forever: if "playing" isn't reached within 15s, inspect and fail (or stop the spinner when autoplay was merely blocked).
+    const startTimer = setTimeout(() => {
+      if (destroyed || startedRef.current) return;
+      const me = v.error;
+      if (me) return fail(me.code === 4 ? `unsupported: media error ${me.code}` : `media error ${me.code}`);
+      if (v.readyState >= 3) { setLoading(false); return; }
+      fail(`start timeout (readyState ${v.readyState}, networkState ${v.networkState})`);
+    }, 15_000);
+    const avc = 'video/mp4; codecs="avc1.42E01E,mp4a.40.2"';
     const start = () => { if (startAt > 0 && startAt < (v.duration || Infinity) - 5) v.currentTime = startAt; v.play().catch(() => {}); };
     if (source.kind === "hls" && !v.canPlayType("application/vnd.apple.mpegurl")) {
       import("hls.js").then(({ default: Hls }) => {
         if (destroyed) return;
-        if (!Hls.isSupported()) return fail("HLS not supported");
+        if (!Hls.isSupported()) return fail("unsupported: HLS/MSE not available");
+        const MS = (window as unknown as { MediaSource?: { isTypeSupported(t: string): boolean } }).MediaSource;
+        if (MS && !MS.isTypeSupported(avc)) return fail("unsupported: H.264/AAC not decodable");
         const hls = new Hls({ capLevelToPlayerSize: true });
         hlsRef.current = hls;
         hls.loadSource(source.url);
@@ -133,6 +163,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
         hls.on(Hls.Events.ERROR, (_e, d) => {
           if (!d.fatal) return;
           retries.current++;
+          if (String(d.details).includes("IncompatibleCodecs")) return fail(`unsupported: hls ${d.details}`);
           if (retries.current > 2) return fail(`hls: ${d.details}`);
           if (d.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
           else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
@@ -152,8 +183,20 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
       v.src = source.url;
       v.addEventListener("loadedmetadata", start, { once: true });
     }
-    return () => { destroyed = true; hlsRef.current?.destroy(); hlsRef.current = null; };
+    return () => { destroyed = true; clearTimeout(startTimer); hlsRef.current?.destroy(); hlsRef.current = null; };
   }, [source.url, source.kind, startAt, attempt]);
+
+  // Mid-playback stall watchdog: buffering for 25s without recovering becomes a real error.
+  useEffect(() => {
+    const v = video.current; if (!v) return;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const arm = () => { clearTimeout(t); t = setTimeout(() => { if (!v.paused && v.readyState < 3) fail(`stalled (readyState ${v.readyState})`); }, 25_000); };
+    const clear = () => clearTimeout(t);
+    const onErr = () => { const me = v.error; if (me && (source.kind === "hls" || source.kind === "dash") && me.code === 4) fail(`unsupported: media error ${me.code}`); };
+    v.addEventListener("waiting", arm); v.addEventListener("stalled", arm);
+    v.addEventListener("playing", clear); v.addEventListener("emptied", clear); v.addEventListener("abort", clear); v.addEventListener("error", onErr);
+    return () => { clear(); v.removeEventListener("waiting", arm); v.removeEventListener("stalled", arm); v.removeEventListener("playing", clear); v.removeEventListener("emptied", clear); v.removeEventListener("abort", clear); v.removeEventListener("error", onErr); };
+  }, [source.url, source.kind, fail]);
 
   // periodic progress save
   useEffect(() => {
@@ -229,10 +272,10 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
         onDurationChange={(e) => setDur(e.currentTarget.duration)}
         onVolumeChange={(e) => { setMuted(e.currentTarget.muted); setVol(e.currentTarget.volume); }}
         onWaiting={() => setLoading(true)}
-        onPlaying={() => setLoading(false)}
+        onPlaying={() => { startedRef.current = true; setLoading(false); }}
         onCanPlay={() => setLoading(false)}
         onEnded={() => { const v = video.current; if (v) onProgress?.(v.duration, v.duration); onEnded?.(); if (onNext && countdown == null) setCountdown(6); }}
-        onError={() => { if (source.kind !== "hls" && source.kind !== "dash") fail("media error"); }}
+        onError={(e) => { if (source.kind !== "hls" && source.kind !== "dash") { const c = e.currentTarget.error?.code; fail(c === 4 ? `unsupported: media error ${c}` : `media error ${c ?? "?"}`); } }}
       >
         {source.subtitles.map((s, i) => <track key={s.url + i} kind="subtitles" srcLang={s.lang} label={s.label} src={s.url} />)}
       </video>
@@ -242,7 +285,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
       {error && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/90">
           <Star8 className="h-12 w-12 text-gold" />
-          <p className="font-display text-2xl">{errorLabel}</p>
+          <p className="px-6 text-center font-display text-2xl" role="alert">{unsupported && unsupportedLabel ? unsupportedLabel : errorLabel}</p>
           <button onClick={() => setAttempt((a) => a + 1)} className="rounded-lg border border-gold/50 px-5 py-2 text-gold hover:bg-gold-soft">{retryLabel}</button>
         </div>
       )}

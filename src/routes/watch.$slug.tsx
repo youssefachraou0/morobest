@@ -77,7 +77,7 @@ function Watch() {
   // Fallback: try each remaining source once (no infinite retries), recording every failure.
   const onFatal = useCallback((message: string) => {
     if (!active) return false;
-    reportPlaybackError({ data: { sourceId: active.id, message, provider: active.provider, device: navigator.userAgent.slice(0, 300) } }).catch(() => {});
+    reportPlaybackError({ data: { sourceId: active.id, message, provider: active.provider, device: deviceFamily() } }).catch(() => {});
     const tried = new Set(failed).add(active.id);
     setFailed(tried);
     const nextIdx = sources.findIndex((s) => !tried.has(s.id));
@@ -152,9 +152,19 @@ function Watch() {
           onNext={goNext}
           nextLabel={t.action.next}
           errorLabel={t.error.playback}
+          unsupportedLabel={t.error.unsupported}
           retryLabel={t.action.retry}
         />
       )}
     </div>
   );
+}
+
+/** Non-identifying browser/OS family for playback diagnostics (no full user-agent). */
+function deviceFamily() {
+  const ua = navigator.userAgent;
+  const b = /Edg\//.test(ua) ? "Edge" : /OPR\//.test(ua) ? "Opera" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "Other";
+  const o = /Windows/.test(ua) ? "Windows" : /Android/.test(ua) ? "Android" : /iPhone|iPad|iPod/.test(ua) ? "iOS" : /Mac OS X/.test(ua) ? "macOS" : /CrOS/.test(ua) ? "ChromeOS" : /Linux/.test(ua) ? "Linux" : "Other";
+  const hls = typeof MediaSource !== "undefined" && MediaSource.isTypeSupported('video/mp4; codecs="avc1.42E01E,mp4a.40.2"') ? "h264" : "no-h264";
+  return `${b} / ${o} / ${hls}`;
 }
