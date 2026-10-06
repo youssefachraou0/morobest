@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_permissions: {
+        Row: {
+          granted_at: string
+          permission: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          permission: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          permission?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       collection_items: {
         Row: {
           collection_id: string
@@ -155,11 +173,13 @@ export type Database = {
       episodes: {
         Row: {
           air_date: string | null
+          credits_start_s: number | null
           id: string
           intro_end_s: number | null
           intro_start_s: number | null
           number: number
           recap_end_s: number | null
+          recap_start_s: number | null
           runtime_min: number | null
           season_id: string
           synopsis: string | null
@@ -168,11 +188,13 @@ export type Database = {
         }
         Insert: {
           air_date?: string | null
+          credits_start_s?: number | null
           id?: string
           intro_end_s?: number | null
           intro_start_s?: number | null
           number: number
           recap_end_s?: number | null
+          recap_start_s?: number | null
           runtime_min?: number | null
           season_id: string
           synopsis?: string | null
@@ -181,11 +203,13 @@ export type Database = {
         }
         Update: {
           air_date?: string | null
+          credits_start_s?: number | null
           id?: string
           intro_end_s?: number | null
           intro_start_s?: number | null
           number?: number
           recap_end_s?: number | null
+          recap_start_s?: number | null
           runtime_min?: number | null
           season_id?: string
           synopsis?: string | null
@@ -440,20 +464,26 @@ export type Database = {
       playback_errors: {
         Row: {
           created_at: string
+          device: string | null
           id: string
           message: string
+          provider: string | null
           source_id: string | null
         }
         Insert: {
           created_at?: string
+          device?: string | null
           id?: string
           message: string
+          provider?: string | null
           source_id?: string | null
         }
         Update: {
           created_at?: string
+          device?: string | null
           id?: string
           message?: string
+          provider?: string | null
           source_id?: string | null
         }
         Relationships: [
@@ -472,6 +502,8 @@ export type Database = {
           duration_s: number
           episode_id: string | null
           id: string
+          last_watched_at: string
+          percentage: number | null
           position_s: number
           profile_id: string
           title_id: string
@@ -482,6 +514,8 @@ export type Database = {
           duration_s?: number
           episode_id?: string | null
           id?: string
+          last_watched_at?: string
+          percentage?: number | null
           position_s?: number
           profile_id: string
           title_id: string
@@ -492,6 +526,8 @@ export type Database = {
           duration_s?: number
           episode_id?: string | null
           id?: string
+          last_watched_at?: string
+          percentage?: number | null
           position_s?: number
           profile_id?: string
           title_id?: string
@@ -523,6 +559,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          audio_lang: string | null
+          autoplay_next: boolean
           avatar: string
           created_at: string
           display_name: string
@@ -535,6 +573,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          audio_lang?: string | null
+          autoplay_next?: boolean
           avatar?: string
           created_at?: string
           display_name: string
@@ -547,6 +587,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          audio_lang?: string | null
+          autoplay_next?: boolean
           avatar?: string
           created_at?: string
           display_name?: string
@@ -783,27 +825,65 @@ export type Database = {
       }
       subtitle_tracks: {
         Row: {
+          created_at: string
+          episode_id: string | null
           id: string
+          is_active: boolean
+          is_default: boolean
+          is_forced: boolean
+          is_sdh: boolean
           label: string
           lang: string
+          title_id: string | null
           url: string
-          video_source_id: string
+          video_source_id: string | null
+          vtt: string | null
         }
         Insert: {
+          created_at?: string
+          episode_id?: string | null
           id?: string
+          is_active?: boolean
+          is_default?: boolean
+          is_forced?: boolean
+          is_sdh?: boolean
           label: string
           lang: string
+          title_id?: string | null
           url: string
-          video_source_id: string
+          video_source_id?: string | null
+          vtt?: string | null
         }
         Update: {
+          created_at?: string
+          episode_id?: string | null
           id?: string
+          is_active?: boolean
+          is_default?: boolean
+          is_forced?: boolean
+          is_sdh?: boolean
           label?: string
           lang?: string
+          title_id?: string | null
           url?: string
-          video_source_id?: string
+          video_source_id?: string | null
+          vtt?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "subtitle_tracks_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subtitle_tracks_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "titles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subtitle_tracks_video_source_id_fkey"
             columns: ["video_source_id"]
@@ -976,9 +1056,12 @@ export type Database = {
           age_rating: number
           backdrop_url: string | null
           created_at: string
+          credits_start_s: number | null
           deleted_at: string | null
           format: string | null
           id: string
+          intro_end_s: number | null
+          intro_start_s: number | null
           is_classic: boolean
           is_kids: boolean
           kind: Database["public"]["Enums"]["title_kind"]
@@ -1000,9 +1083,12 @@ export type Database = {
           age_rating?: number
           backdrop_url?: string | null
           created_at?: string
+          credits_start_s?: number | null
           deleted_at?: string | null
           format?: string | null
           id?: string
+          intro_end_s?: number | null
+          intro_start_s?: number | null
           is_classic?: boolean
           is_kids?: boolean
           kind: Database["public"]["Enums"]["title_kind"]
@@ -1024,9 +1110,12 @@ export type Database = {
           age_rating?: number
           backdrop_url?: string | null
           created_at?: string
+          credits_start_s?: number | null
           deleted_at?: string | null
           format?: string | null
           id?: string
+          intro_end_s?: number | null
+          intro_start_s?: number | null
           is_classic?: boolean
           is_kids?: boolean
           kind?: Database["public"]["Enums"]["title_kind"]
@@ -1101,6 +1190,7 @@ export type Database = {
       }
       video_sources: {
         Row: {
+          audio_language: string | null
           availability_country: string[] | null
           available_from: string | null
           available_until: string | null
@@ -1112,6 +1202,7 @@ export type Database = {
           is_default: boolean
           is_dubbed: boolean
           is_subbed: boolean
+          is_test_source: boolean
           kind: string
           language: string | null
           playback_id: string | null
@@ -1127,6 +1218,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          audio_language?: string | null
           availability_country?: string[] | null
           available_from?: string | null
           available_until?: string | null
@@ -1138,6 +1230,7 @@ export type Database = {
           is_default?: boolean
           is_dubbed?: boolean
           is_subbed?: boolean
+          is_test_source?: boolean
           kind?: string
           language?: string | null
           playback_id?: string | null
@@ -1153,6 +1246,7 @@ export type Database = {
           url: string
         }
         Update: {
+          audio_language?: string | null
           availability_country?: string[] | null
           available_from?: string | null
           available_until?: string | null
@@ -1164,6 +1258,7 @@ export type Database = {
           is_default?: boolean
           is_dubbed?: boolean
           is_subbed?: boolean
+          is_test_source?: boolean
           kind?: string
           language?: string | null
           playback_id?: string | null
@@ -1233,6 +1328,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_media: { Args: { _user_id: string }; Returns: boolean }
       get_playback_source: {
         Args: { _episode?: string; _title: string }
         Returns: {
@@ -1248,18 +1344,27 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       owns_profile: { Args: { _profile: string }; Returns: boolean }
       playable_units: {
-        Args: { _title: string }
+        Args: { _include_test?: boolean; _title: string }
         Returns: {
           episode_id: string
+          test_only: boolean
         }[]
       }
       playback_candidates: {
-        Args: { _country?: string; _episode?: string; _title: string }
+        Args: {
+          _country?: string
+          _episode?: string
+          _include_test?: boolean
+          _title: string
+        }
         Returns: {
+          audio_language: string
           id: string
           is_dubbed: boolean
+          is_test_source: boolean
           kind: string
           language: string
           playback_id: string
@@ -1271,6 +1376,7 @@ export type Database = {
           url: string
         }[]
       }
+      subtitle_vtt: { Args: { _id: string }; Returns: string }
     }
     Enums: {
       app_role:

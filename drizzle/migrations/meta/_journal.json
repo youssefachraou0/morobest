@@ -43,6 +43,13 @@
       "when": 1791316797173,
       "tag": "0005_admin_roles_enum",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791316895258,
+      "tag": "0006_streaming_production_ready",
+      "breakpoints": true
     }
   ]
 }
