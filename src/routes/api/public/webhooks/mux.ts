@@ -72,7 +72,7 @@ export const Route = createFileRoute("/api/public/webhooks/mux")({
 
         for (const r of rows ?? []) {
           if (r.status === "disabled") continue;
-          const patch: Record<string, unknown> = { status };
+          const patch: { status: string; provider_asset_id?: string; playback_id?: string; error_message?: string | null; is_active?: boolean } = { status };
           if (assetId) patch.provider_asset_id = assetId;
           const pb = evt.data?.playback_ids?.[0]?.id;
           if (pb) patch.playback_id = pb;
