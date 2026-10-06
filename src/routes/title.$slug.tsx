@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { fetchPlayable } from "@/features/streaming/streaming.functions";
+import { fetchPlayable, fetchPlayableStaff } from "@/features/streaming/streaming.functions";
 import { Bookmark, BookmarkCheck, Heart, Play, Share2, Star, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { titleQuery } from "@/features/catalog/queries";
@@ -35,11 +35,11 @@ function TitlePage() {
   const { slug } = Route.useParams();
   const { data: d } = useSuspenseQuery(titleQuery(slug));
   const { t, locale } = useI18n();
-  const { user, maxAge } = useAuth();
+  const { user, maxAge, canManageMedia } = useAuth();
   const lib = useLibrary();
   const progress = useProgress();
   const [seasonIdx, setSeasonIdx] = useState(0);
-  const playable = useQuery({ queryKey: ["playable", d?.id], enabled: !!d, queryFn: () => fetchPlayable({ data: { titleId: d!.id } }), staleTime: 60_000 });
+  const playable = useQuery({ queryKey: ["playable", d?.id, canManageMedia], enabled: !!d, queryFn: () => (canManageMedia ? fetchPlayableStaff : fetchPlayable)({ data: { titleId: d!.id } }), staleTime: 60_000 });
   if (!d) return null;
 
   if (maxAge != null && d.ageRating > maxAge) {
@@ -99,7 +99,7 @@ function TitlePage() {
               )}
               {!isManga && (playable.data?.whole || (playable.data?.episodes.length ?? 0) > 0) && (
                 <Link to="/watch/$slug" params={{ slug: d.slug }} search={resume?.episode_id ? { ep: resume.episode_id } : !playable.data?.whole && playable.data?.episodes[0] ? { ep: playable.data.episodes[0] } : {}} className={mbButton({ size: "lg" })}>
-                  <Play className="fill-current" />{resume ? t.action.continue : t.action.play}
+                  <Play className="fill-current" />{resume ? t.action.continue : t.action.play}{playable.data?.testOnly ? " · TEST VIDEO" : ""}
                 </Link>
               )}
               <button onClick={requireUser(() => lib.toggle({ table: "watchlist", titleId: d.id, on: !inList }))} className={mbButton({ variant: "glass", size: "lg" })} aria-pressed={inList}>

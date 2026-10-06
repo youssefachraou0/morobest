@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { titleQuery } from "@/features/catalog/queries";
 import { authorizePlayback, reportPlaybackError } from "@/features/streaming/streaming.functions";
 import { useI18n } from "@/i18n/I18nProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { saveProgress, useProgress } from "@/features/library/useLibrary";
 import { tr } from "@/features/catalog/localize";
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/watch/$slug")({
   notFoundComponent: () => <FullPageMessage code="404" title="This title is not available right now." />,
   component: Watch,
 });
+
+const LANG_NAMES: Record<string, string> = { ar: "العربية", fr: "Français", en: "English", es: "Español", ja: "日本語" };
 
 function Watch() {
   const { slug } = Route.useParams();
@@ -50,19 +53,34 @@ function Watch() {
     gcTime: 30 * 60_000,
   });
   const sources = src.data?.ok ? src.data.sources : [];
+  const prefAudio = activeProfile?.audio_lang ?? null;
+  const preferredIdx = Math.max(0, prefAudio ? sources.findIndex((s) => (s.audioLanguage ?? s.language) === prefAudio) : 0);
   const [srcIdx, setSrcIdx] = useState(0);
-  useEffect(() => setSrcIdx(0), [current?.id]);
+  const [failed, setFailed] = useState<Set<string>>(new Set());
+  useEffect(() => { setSrcIdx(preferredIdx); setFailed(new Set()); }, [current?.id, sources.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const saveAudioPref = useCallback((lang: string | null) => {
+    if (!activeProfile || !lang || lang === activeProfile.audio_lang) return;
+    supabase.from("profiles").update({ audio_lang: lang }).eq("id", activeProfile.id).then(() => qc.invalidateQueries({ queryKey: ["me", "profiles"] }));
+  }, [activeProfile, qc]);
   const active = sources[srcIdx];
   const audioOptions = useMemo(() => {
     const seen = new Map<string, number>();
-    sources.forEach((s, i) => { const k = `${s.language ?? "orig"}${s.isDubbed ? "-dub" : ""}`; if (!seen.has(k)) seen.set(k, i); });
-    return Array.from(seen.entries()).map(([k, i]) => [String(i), `${(sources[i]!.language ?? "Original").toUpperCase()}${sources[i]!.isDubbed ? " (dub)" : ""}`] as [string, string]);
+    sources.forEach((s, i) => { const k = `${s.audioLanguage ?? s.language ?? "orig"}${s.isDubbed ? "-dub" : ""}`; if (!seen.has(k)) seen.set(k, i); });
+    return Array.from(seen.entries()).map(([, i]) => {
+      const s = sources[i]!; const l = s.audioLanguage ?? s.language;
+      return [String(i), `${l ? (LANG_NAMES[l] ?? l.toUpperCase()) : "Original"}${s.isDubbed ? " (dub)" : ""}`] as [string, string];
+    });
   }, [sources]);
+  // Fallback: try each remaining source once (no infinite retries), recording every failure.
   const onFatal = useCallback((message: string) => {
-    if (active) reportPlaybackError({ data: { sourceId: active.id, message } }).catch(() => {});
-    if (srcIdx + 1 < sources.length) { setSrcIdx(srcIdx + 1); return true; }
+    if (!active) return false;
+    reportPlaybackError({ data: { sourceId: active.id, message, provider: active.provider, device: navigator.userAgent.slice(0, 300) } }).catch(() => {});
+    const tried = new Set(failed).add(active.id);
+    setFailed(tried);
+    const nextIdx = sources.findIndex((s) => !tried.has(s.id));
+    if (nextIdx >= 0) { setSrcIdx(nextIdx); return true; }
     return false;
-  }, [active, srcIdx, sources.length]);
+  }, [active, failed, sources]);
 
   const saved = (progress.data ?? []).find((p) => p.title_id === d?.id && (p.episode_id ?? null) === (current?.id ?? null));
   const pid = activeProfile?.id;
@@ -97,7 +115,7 @@ function Watch() {
       {src.isLoading || progress.isLoading ? (
         <StarLoader className="h-full" />
       ) : !active ? (
-        <FullPageMessage title={src.data?.reason === "forbidden" ? t.error.unavailable : "Not currently available to watch"} homeLabel={t.nav.home} />
+        <FullPageMessage title={src.data?.reason === "forbidden" || src.data?.reason === "age" ? t.error.unavailable : "Not currently available to watch"} homeLabel={t.nav.home} />
       ) : active.kind === "embed" ? (
         <iframe src={active.url} title={name} className="h-full w-full" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation" />
       ) : (
@@ -106,12 +124,19 @@ function Watch() {
           source={active}
           onPrev={goPrev}
           onFatal={onFatal}
-          markers={current ? { introStart: current.intro_start_s, introEnd: current.intro_end_s, recapEnd: current.recap_end_s } : undefined}
+          markers={current
+            ? { introStart: current.intro_start_s, introEnd: current.intro_end_s, recapStart: current.recap_start_s, recapEnd: current.recap_end_s, creditsStart: current.credits_start_s }
+            : d.markers}
           audioOptions={audioOptions}
           audio={String(srcIdx)}
-          onAudio={(v) => setSrcIdx(Number(v))}
+          onAudio={(v) => { const i = Number(v); setSrcIdx(i); saveAudioPref(sources[i]?.audioLanguage ?? sources[i]?.language ?? null); }}
+          autoplayNext={activeProfile?.autoplay_next ?? true}
+          preferredAudio={prefAudio}
+          onAudioLanguage={saveAudioPref}
+          preferredSubtitle={activeProfile?.subtitle_lang ?? null}
+          badge={active.isTest ? "TEST VIDEO" : undefined}
           title={name}
-          startAt={saved && !saved.completed ? saved.position_s : 0}
+          startAt={saved && !saved.completed && saved.duration_s > 0 && saved.position_s / saved.duration_s >= 0.05 ? saved.position_s : 0}
           onProgress={onProgress}
           onNext={goNext}
           nextLabel={t.action.next}
