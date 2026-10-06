@@ -156,7 +156,10 @@ export type Database = {
         Row: {
           air_date: string | null
           id: string
+          intro_end_s: number | null
+          intro_start_s: number | null
           number: number
+          recap_end_s: number | null
           runtime_min: number | null
           season_id: string
           synopsis: string | null
@@ -166,7 +169,10 @@ export type Database = {
         Insert: {
           air_date?: string | null
           id?: string
+          intro_end_s?: number | null
+          intro_start_s?: number | null
           number: number
+          recap_end_s?: number | null
           runtime_min?: number | null
           season_id: string
           synopsis?: string | null
@@ -176,7 +182,10 @@ export type Database = {
         Update: {
           air_date?: string | null
           id?: string
+          intro_end_s?: number | null
+          intro_start_s?: number | null
           number?: number
+          recap_end_s?: number | null
           runtime_min?: number | null
           season_id?: string
           synopsis?: string | null
