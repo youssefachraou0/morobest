@@ -87,7 +87,7 @@ export const adminContentDetail = createServerFn({ method: "POST" })
       context.supabase.from("admin_audit_log").select("id, admin_id, action, old_value, new_value, created_at").eq("content_id", ref(data)).order("created_at", { ascending: false }).limit(50),
     ]);
     let sources: { id: string; provider: string | null; status: string; is_active: boolean; is_test_source: boolean; episode_id: string | null; language: string | null }[] = [];
-    let ramadan: unknown[] = [];
+    let ramadan: any[] = [];
     if (link?.title_id) {
       const { data: s } = await context.supabase.from("video_sources").select("id, provider, status, is_active, is_test_source, episode_id, language").eq("title_id", link.title_id);
       sources = s ?? [];
@@ -174,7 +174,7 @@ export const adminSetTitleStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await guard(context);
     const { data: old } = await context.supabase.from("titles").select("content_status, is_demo").eq("id", data.titleId).single();
-    const patch: Record<string, unknown> = {};
+    const patch: { content_status?: string; is_demo?: boolean } = {};
     if (data.status) patch.content_status = data.status;
     if (data.isDemo !== undefined) patch.is_demo = data.isDemo;
     const { error } = await context.supabase.from("titles").update(patch).eq("id", data.titleId);
@@ -278,7 +278,8 @@ export const adminSetEpisodeLink = createServerFn({ method: "POST" })
     z.object({ pid: z.number().int().positive(), season: z.number().int().min(0), episode: z.number().int().min(0), episodeId: z.string().uuid().nullable(), reset: z.boolean().optional() }).parse(d))
   .handler(async ({ data, context }) => {
     await guard(context);
-    const { data: l } = await context.supabase.from("content_links").select("title_id").eq("provider", "tmdb").eq("content_type", "series").eq("provider_id", String(data.pid)).eq("is_primary", true).single();
+    const { data: l } = await context.supabase.from("content_links").select("title_id").eq("provider", "tmdb").eq("content_type", "series").eq("provider_id", String(data.pid)).eq("is_primary", true).maybeSingle();
+    if (!l) throw new Error("Link this series first.");
     const key = { provider: "tmdb", provider_id: String(data.pid), season_number: data.season, episode_number: data.episode };
     if (data.reset) await context.supabase.from("episode_links").delete().match(key);
     else {
@@ -383,7 +384,7 @@ export const adminAuditLog = createServerFn({ method: "POST" })
     let q = context.supabase.from("admin_audit_log").select("id, admin_id, action, content_id, old_value, new_value, created_at").order("created_at", { ascending: false }).limit(200);
     if (data.contentId) q = q.eq("content_id", data.contentId);
     const { data: rows } = await q;
-    return (rows ?? []) as { id: string; admin_id: string; action: string; content_id: string | null; old_value: unknown; new_value: unknown; created_at: string }[];
+    return (rows ?? []) as { id: string; admin_id: string; action: string; content_id: string | null; old_value: any; new_value: any; created_at: string }[];
   });
 
 // ---------- Ramadan ----------
@@ -417,7 +418,8 @@ export const adminRamadanAssignments = createServerFn({ method: "POST" })
   .inputValidator((d: { seasonId: string }) => z.object({ seasonId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await guard(context);
-    const { data: rows } = await context.supabase.from("ramadan_titles").select("*, titles(original_title, poster_url)").eq("season_id", data.seasonId).order("ord");
+    const { data: res } = await context.supabase.from("ramadan_titles").select("*, titles(original_title, poster_url)").eq("season_id", data.seasonId).order("ord");
+    const rows = (res ?? []) as any[];
     const tm = (rows ?? []).filter((r: any) => r.provider === "tmdb");
     if (tm.length) {
       const { cardsFor, LANG } = await import("@/features/tmdb/tmdb.server");

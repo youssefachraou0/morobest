@@ -15,7 +15,7 @@ export type SeoOverride = {
   slug: string | null; canonical_url: string | null; indexable: boolean; follow_links: boolean;
   seo_title_ar: string | null; seo_title_fr: string | null; seo_title_en: string | null;
   meta_description_ar: string | null; meta_description_fr: string | null; meta_description_en: string | null;
-  og_title: string | null; og_description: string | null; og_image: string | null; schema: unknown;
+  og_title: string | null; og_description: string | null; og_image: string | null; schema: any;
 };
 export type Overlay = {
   override: Override | null;
