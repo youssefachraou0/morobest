@@ -85,6 +85,13 @@
       "when": 1791322872279,
       "tag": "0011_media_ingestion_rights",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791324023268,
+      "tag": "0012_streaming_test_switch_to_mux",
+      "breakpoints": true
     }
   ]
 }
