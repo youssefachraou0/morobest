@@ -20,6 +20,8 @@ import { Header, MobileNav, Footer } from "@/components/mb/Header";
 import { FullPageMessage } from "@/components/mb/States";
 import { mbButton } from "@/components/mb/Button";
 import { Toaster } from "@/components/ui/sonner";
+import { slugMapQuery } from "@/features/editorial/editorial.functions";
+import { track, resetImpressions } from "@/features/analytics/track";
 
 function NotFoundComponent() {
   const { t } = useI18n();
@@ -47,6 +49,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   beforeLoad: async (): Promise<{ locale: Locale }> => ({
     locale: typeof window === "undefined" ? await getInitialLocale() : readClientLocale(),
   }),
+  // Custom slugs are needed by every card so links point straight at the canonical URL.
+  loader: ({ context }) => context.queryClient.ensureQueryData(slugMapQuery()).catch(() => ({})),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -90,7 +94,9 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient, locale } = Route.useRouteContext();
-  const immersive = useRouterState({ select: (s) => s.location.pathname.startsWith("/watch") });
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const immersive = pathname.startsWith("/watch");
+  useEffect(() => { resetImpressions(); track("page_view"); }, [pathname]);
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider initial={locale}>

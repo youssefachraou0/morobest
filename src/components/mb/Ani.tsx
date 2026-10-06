@@ -10,6 +10,8 @@ import { Badge, PosterSkeleton } from "./Cards";
 import { mbButton } from "./Button";
 import { EmptyState } from "./States";
 import { cn } from "@/lib/utils";
+import { contentKey, useCanonical } from "@/features/editorial/canonical";
+import { track, useImpression } from "@/features/analytics/track";
 
 type L3 = { en: string; fr: string; ar: string };
 const ROW_LABELS: Record<string, L3> = {
@@ -37,10 +39,13 @@ export const AL = {
 const nice = (s: string | null) => (s ? s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase()) : "");
 export { nice };
 
-export function AniPoster({ item, className }: { item: AniCard; className?: string }) {
-  const to = item.type === "ANIME" ? "/anime/$slug" : "/manga/$slug";
+export function AniPoster({ item, className, ctx, onPick }: { item: AniCard; className?: string; ctx?: string; onPick?: () => void }) {
+  const canonical = useCanonical();
+  const kind = item.type === "ANIME" ? "anime" : "manga";
+  const key = contentKey(kind, item.aniListId);
+  const ref = useImpression<HTMLAnchorElement>(`${ctx ?? "row"}:${key}`, () => track("impression", { key, ctx: ctx ?? "row" }));
   return (
-    <Link to={to} params={{ slug: item.slug }} className={cn("group relative block w-[136px] shrink-0 sm:w-[168px] lg:w-[184px]", className)}>
+    <Link ref={ref} {...canonical({ kind, providerId: item.aniListId, slug: item.slug })} onClick={() => { track("click", { key, ctx: ctx ?? "row" }); onPick?.(); }} className={cn("group relative block w-[136px] shrink-0 sm:w-[168px] lg:w-[184px]", className)}>
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-surface-2 shadow-poster ring-1 ring-foreground/10 transition-all duration-500 group-hover:-translate-y-1 group-hover:ring-gold/60">
         {item.poster && <img src={item.poster} alt={item.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />}
         <div className="absolute inset-0 bg-card-fade opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -64,6 +69,7 @@ export function AniPoster({ item, className }: { item: AniCard; className?: stri
 
 function AniHero({ items }: { items: AniCard[] }) {
   const [i, setI] = useState(0);
+  const canonical = useCanonical();
   useEffect(() => {
     if (items.length < 2) return;
     const id = setInterval(() => setI((x) => (x + 1) % items.length), 8000);
@@ -71,7 +77,7 @@ function AniHero({ items }: { items: AniCard[] }) {
   }, [items.length]);
   const h = items[i];
   if (!h) return null;
-  const to = h.type === "ANIME" ? "/anime/$slug" : "/manga/$slug";
+  const kind = h.type === "ANIME" ? "anime" : "manga";
   return (
     <section className="relative h-[72vh] min-h-[520px] overflow-hidden">
       {items.map((x, k) => (
@@ -86,7 +92,7 @@ function AniHero({ items }: { items: AniCard[] }) {
           <h1 className="font-display text-4xl font-semibold sm:text-6xl">{h.title}</h1>
           {h.nativeTitle && <p className="mt-1 text-muted-foreground">{h.nativeTitle}</p>}
           {h.synopsis && <p className="mt-4 line-clamp-3 text-foreground/80">{h.synopsis}</p>}
-          <Link to={to} params={{ slug: h.slug }} className={mbButton({ className: "mt-6" })}><Info />Details</Link>
+          <Link {...canonical({ kind, providerId: h.aniListId, slug: h.slug })} onClick={() => track("click", { key: contentKey(kind, h.aniListId), ctx: "hero" })} className={mbButton({ className: "mt-6" })}><Info />Details</Link>
         </div>
       </div>
     </section>

@@ -201,7 +201,7 @@ export const adminSaveOverride = createServerFn({ method: "POST" })
   });
 
 const seoFields = z.object({
-  slug: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Slug: lowercase letters, numbers and dashes").max(120).nullable(),
+  slug: z.string().max(200).nullable(),
   canonical_url: z.string().url().max(500).nullable(), indexable: z.boolean(), follow_links: z.boolean(),
   seo_title_ar: z.string().max(200).nullable(), seo_title_fr: z.string().max(200).nullable(), seo_title_en: z.string().max(200).nullable(),
   meta_description_ar: z.string().max(400).nullable(), meta_description_fr: z.string().max(400).nullable(), meta_description_en: z.string().max(400).nullable(),
@@ -216,7 +216,17 @@ export const adminSaveSeo = createServerFn({ method: "POST" })
     const p = providerFor(data.ct);
     const key = { provider: p, content_type: data.ct, provider_id: String(data.pid) };
     const { data: old } = await context.supabase.from("seo_overrides").select("*").match(key).maybeSingle();
-    if (data.fields.slug && /-\d+$/.test(data.fields.slug)) throw new Error("Custom slugs cannot end with -number (reserved for provider ids).");
+    if (data.fields.slug) {
+      // Never silently rewrite what the editor typed: reject with the exact reason and a suggestion.
+      const { validateSlug, describeSlugError } = await import("./slug");
+      const check = validateSlug(data.fields.slug);
+      if (!check.ok) throw new Error(describeSlugError(check));
+      const { data: clash } = await context.supabase.from("seo_overrides").select("provider_id").eq("content_type", data.ct).eq("slug", data.fields.slug).neq("provider_id", String(data.pid)).maybeSingle();
+      if (clash) {
+        const alt = [`${data.fields.slug}-${data.ct === "series" ? "series" : data.ct}`, `${data.fields.slug}-morobest`].find(Boolean)!;
+        throw new Error(`“${data.fields.slug}” is already used by another ${data.ct}. Slugs must be unique — try “${alt}”.`);
+      }
+    }
     const { error } = await context.supabase.from("seo_overrides").upsert({ ...key, ...data.fields, schema: data.fields.schema as never, updated_by: context.userId, updated_at: new Date().toISOString() }, { onConflict: "provider,content_type,provider_id" });
     if (error) throw new Error(error.message.includes("seo_overrides_slug") ? "That slug is already used by another title." : error.message);
     const prev = old?.slug ?? null;

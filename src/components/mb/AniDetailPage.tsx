@@ -112,12 +112,12 @@ export function AniDetailPage({ type, id }: { type: AniType; id: number }) {
             {d.relations.map((r) => (
               <div key={r.aniListId} className="relative">
                 <span className="absolute end-2 top-2 z-10"><Badge tone="gold">{nice(r.relation)}</Badge></span>
-                <AniPoster item={r} />
+                <AniPoster item={r} ctx="related" />
               </div>
             ))}
           </Row>
         )}
-        {d.recommendations.length > 0 && <Row title="Recommendations">{d.recommendations.map((r) => <AniPoster key={r.aniListId} item={r} />)}</Row>}
+        {d.recommendations.length > 0 && <Row title="Recommendations">{d.recommendations.map((r) => <AniPoster key={r.aniListId} item={r} ctx="rec" />)}</Row>}
         {d.externalLinks.length > 0 && (
           <div className="flex flex-wrap gap-2 px-4 sm:px-8 lg:px-14">
             {d.externalLinks.map((l) => <a key={l.url} href={l.url} target="_blank" rel="noreferrer nofollow" className={mbButton({ variant: "subtle", size: "sm" })}>{l.site}</a>)}

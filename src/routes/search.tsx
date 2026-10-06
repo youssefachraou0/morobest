@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { fetchAniSuggest } from "@/features/anilist/anilist.functions";
 import { AniPoster } from "@/components/mb/Ani";
 import { tmdbSearchQuery } from "@/features/tmdb/tmdb.functions";
+import { track } from "@/features/analytics/track";
 import { fetchLinkedTitleIds } from "@/features/editorial/editorial.functions";
 import { TL, TmdbPersonTile, TmdbPoster } from "@/components/mb/Tmdb";
 
@@ -49,6 +50,14 @@ function SearchPage() {
   // A MOROBEST title linked to TMDB/AniList is already shown through its provider card: one result per title.
   const own = (res.data ?? []).filter((x) => !(linked.data ?? []).includes(x.id));
   const providerHits = (tm.data ? tm.data.movies.length + tm.data.tv.length + tm.data.people.length : 0) + (ani.data?.length ?? 0);
+  // One "search" event per settled query (the URL only updates after typing pauses).
+  useEffect(() => {
+    const term = q.trim().toLowerCase();
+    if (term.length < 2) return;
+    const id = setTimeout(() => track("search", { props: { q: term.slice(0, 80), kind: kind ?? null } }), 1200);
+    return () => clearTimeout(id);
+  }, [q, kind]);
+  const picked = (key: string) => track("search_click", { key, ctx: "search", props: { q: q.trim().toLowerCase().slice(0, 80) } });
   const kindLabel: Record<TitleKind, string> = { movie: t.nav.movies, series: t.nav.series, anime: t.nav.anime, manga: t.nav.manga };
 
   return (
@@ -79,11 +88,11 @@ function SearchPage() {
         <>
           {kind !== "series" && tm.data.movies.length > 0 && (
             <div className="mt-8"><p className="eyebrow mb-3">{TL.movies[locale]}</p>
-              <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">{tm.data.movies.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</div></div>
+              <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">{tm.data.movies.map((x) => <TmdbPoster key={x.tmdbId} item={x} ctx="search" onPick={() => picked(`tmdb:movie:${x.tmdbId}`)} />)}</div></div>
           )}
           {kind !== "movie" && tm.data.tv.length > 0 && (
             <div className="mt-8"><p className="eyebrow mb-3">{TL.series[locale]}</p>
-              <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">{tm.data.tv.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</div></div>
+              <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">{tm.data.tv.map((x) => <TmdbPoster key={x.tmdbId} item={x} ctx="search" onPick={() => picked(`tmdb:series:${x.tmdbId}`)} />)}</div></div>
           )}
           {!kind && tm.data.people.length > 0 && (
             <div className="mt-8"><p className="eyebrow mb-3">{TL.people[locale]}</p>
@@ -95,7 +104,7 @@ function SearchPage() {
         <div className="mt-8">
           <p className="eyebrow mb-3">Anime &amp; Manga</p>
           <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
-            {ani.data.filter((x) => !kind || (kind === "anime" ? x.type === "ANIME" : kind === "manga" ? x.type === "MANGA" : true)).map((x) => <AniPoster key={x.type + x.aniListId} item={x} />)}
+            {ani.data.filter((x) => !kind || (kind === "anime" ? x.type === "ANIME" : kind === "manga" ? x.type === "MANGA" : true)).map((x) => <AniPoster key={x.type + x.aniListId} item={x} ctx="search" onPick={() => picked(`anilist:${x.type === "ANIME" ? "anime" : "manga"}:${x.aniListId}`)} />)}
           </div>
         </div>
       )}
@@ -107,8 +116,8 @@ function SearchPage() {
         ) : own.length > 0 ? (
           <>
             <p className="eyebrow mb-3">MOROBEST</p>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 lg:grid-cols-6 [&>a]:w-full">
-              {own.map((x) => <PosterCard key={x.id} title={x} />)}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 lg:grid-cols-6 [&>div>a]:w-full">
+              {own.map((x) => <div key={x.id} onClickCapture={() => picked(`mb:${x.id}`)}><PosterCard title={x} /></div>)}
             </div>
           </>
         ) : providerHits === 0 && !tm.isLoading && !ani.isLoading ? (

@@ -116,8 +116,8 @@ export function TmdbDetailPage({ type, id }: { type: TmdbType; id: number }) {
           {d.images.map((src) => <img key={src} src={tmdbImg(src, "w780")!} alt="" loading="lazy" className="aspect-video w-72 shrink-0 rounded-lg object-cover ring-1 ring-border sm:w-96" />)}
         </Row>
       )}
-      {d.recommendations.length > 0 && <Row title={D.recs[locale]}>{d.recommendations.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</Row>}
-      {d.similar.length > 0 && <Row title={D.similar[locale]}>{d.similar.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</Row>}
+      {d.recommendations.length > 0 && <Row title={D.recs[locale]}>{d.recommendations.map((x) => <TmdbPoster key={x.tmdbId} item={x} ctx="rec" />)}</Row>}
+      {d.similar.length > 0 && <Row title={D.similar[locale]}>{d.similar.map((x) => <TmdbPoster key={x.tmdbId} item={x} ctx="similar" />)}</Row>}
       <TmdbAttribution />
     </div>
   );

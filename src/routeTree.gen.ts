@@ -44,6 +44,7 @@ import { Route as TitleSlugRouteImport } from './routes/title.$slug'
 import { Route as TvSlugRouteImport } from './routes/tv.$slug'
 import { Route as WatchSlugRouteImport } from './routes/watch.$slug'
 import { Route as AuthenticatedAdminTitleKeyRouteImport } from './routes/_authenticated/admin-title.$key'
+import { Route as ApiPublicEventsRouteImport } from './routes/api/public/events'
 import { Route as RamadanYearCountryRouteImport } from './routes/ramadan.$year_.$country'
 import { Route as ApiPublicSubtitlesIdRouteImport } from './routes/api/public/subtitles.$id'
 import { Route as ApiPublicWebhooksMuxRouteImport } from './routes/api/public/webhooks/mux'
@@ -226,6 +227,11 @@ const AuthenticatedAdminTitleKeyRoute =
     path: '/admin-title/$key',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicEventsRoute = ApiPublicEventsRouteImport.update({
+  id: '/api/public/events',
+  path: '/api/public/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RamadanYearCountryRoute = RamadanYearCountryRouteImport.update({
   id: '/ramadan/$year_/$country',
   path: '/ramadan/$year/$country',
@@ -277,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
   '/admin-title/$key': typeof AuthenticatedAdminTitleKeyRoute
+  '/api/public/events': typeof ApiPublicEventsRoute
   '/ramadan/$year/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
   '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
@@ -316,6 +323,7 @@ export interface FileRoutesByTo {
   '/manga': typeof MangaIndexRoute
   '/ramadan': typeof RamadanIndexRoute
   '/admin-title/$key': typeof AuthenticatedAdminTitleKeyRoute
+  '/api/public/events': typeof ApiPublicEventsRoute
   '/ramadan/$year/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
   '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
@@ -357,6 +365,7 @@ export interface FileRoutesById {
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
   '/_authenticated/admin-title/$key': typeof AuthenticatedAdminTitleKeyRoute
+  '/api/public/events': typeof ApiPublicEventsRoute
   '/ramadan/$year_/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
   '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
@@ -398,6 +407,7 @@ export interface FileRouteTypes {
     | '/manga/'
     | '/ramadan/'
     | '/admin-title/$key'
+    | '/api/public/events'
     | '/ramadan/$year/$country'
     | '/api/public/subtitles/$id'
     | '/api/public/webhooks/mux'
@@ -437,6 +447,7 @@ export interface FileRouteTypes {
     | '/manga'
     | '/ramadan'
     | '/admin-title/$key'
+    | '/api/public/events'
     | '/ramadan/$year/$country'
     | '/api/public/subtitles/$id'
     | '/api/public/webhooks/mux'
@@ -477,6 +488,7 @@ export interface FileRouteTypes {
     | '/manga/'
     | '/ramadan/'
     | '/_authenticated/admin-title/$key'
+    | '/api/public/events'
     | '/ramadan/$year_/$country'
     | '/api/public/subtitles/$id'
     | '/api/public/webhooks/mux'
@@ -510,6 +522,7 @@ export interface RootRouteChildren {
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   MangaIndexRoute: typeof MangaIndexRoute
   RamadanIndexRoute: typeof RamadanIndexRoute
+  ApiPublicEventsRoute: typeof ApiPublicEventsRoute
   RamadanYearCountryRoute: typeof RamadanYearCountryRoute
   ApiPublicSubtitlesIdRoute: typeof ApiPublicSubtitlesIdRoute
   ApiPublicWebhooksMuxRoute: typeof ApiPublicWebhooksMuxRoute
@@ -762,6 +775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTitleKeyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/events': {
+      id: '/api/public/events'
+      path: '/api/public/events'
+      fullPath: '/api/public/events'
+      preLoaderRoute: typeof ApiPublicEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ramadan/$year_/$country': {
       id: '/ramadan/$year_/$country'
       path: '/ramadan/$year/$country'
@@ -839,6 +859,7 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsIndexRoute: CollectionsIndexRoute,
   MangaIndexRoute: MangaIndexRoute,
   RamadanIndexRoute: RamadanIndexRoute,
+  ApiPublicEventsRoute: ApiPublicEventsRoute,
   RamadanYearCountryRoute: RamadanYearCountryRoute,
   ApiPublicSubtitlesIdRoute: ApiPublicSubtitlesIdRoute,
   ApiPublicWebhooksMuxRoute: ApiPublicWebhooksMuxRoute,
