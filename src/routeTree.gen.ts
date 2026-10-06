@@ -22,6 +22,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin-content'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin-media'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin-settings'
 import { Route as AuthenticatedProfilesRouteImport } from './routes/_authenticated/profiles'
@@ -109,6 +110,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminContentRoute =
+  AuthenticatedAdminContentRouteImport.update({
+    id: '/admin-content',
+    path: '/admin-content',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
   id: '/admin-media',
   path: '/admin-media',
@@ -234,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-content': typeof AuthenticatedAdminContentRoute
   '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/profiles': typeof AuthenticatedProfilesRoute
@@ -270,6 +278,7 @@ export interface FileRoutesByTo {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-content': typeof AuthenticatedAdminContentRoute
   '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/profiles': typeof AuthenticatedProfilesRoute
@@ -308,6 +317,7 @@ export interface FileRoutesById {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin-media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/profiles': typeof AuthenticatedProfilesRoute
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-content'
     | '/admin-media'
     | '/admin-settings'
     | '/profiles'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-content'
     | '/admin-media'
     | '/admin-settings'
     | '/profiles'
@@ -419,6 +431,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-content'
     | '/_authenticated/admin-media'
     | '/_authenticated/admin-settings'
     | '/_authenticated/profiles'
@@ -567,6 +580,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-content': {
+      id: '/_authenticated/admin-content'
+      path: '/admin-content'
+      fullPath: '/admin-content'
+      preLoaderRoute: typeof AuthenticatedAdminContentRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-media': {
@@ -728,6 +748,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedProfilesRoute: typeof AuthenticatedProfilesRoute
@@ -736,6 +757,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedProfilesRoute: AuthenticatedProfilesRoute,
