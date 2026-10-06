@@ -72,7 +72,7 @@ export function AniDetailPage({ type, id }: { type: AniType; id: number }) {
           {d.nextEpisode && <p className="mt-3 text-sm text-gold">Episode {d.nextEpisode.episode} airs {new Date(d.nextEpisode.airingAt * 1000).toLocaleDateString(locale)}</p>}
           <div className="mt-6 flex flex-wrap gap-3">
             {isAnime && ov.link?.playable ? (
-              <Link to="/watch/$slug" params={{ slug: ov.link.slug }} className={mbButton()} onClick={() => track("watch_click", { ctx: "detail", props: { slug: ov.link.slug } })}><Play />Watch now</Link>
+              <Link to="/watch/$slug" params={{ slug: ov.link.slug }} className={mbButton()} onClick={() => track("watch_click", { ctx: "detail", props: { slug: ov.link?.slug ?? null } })}><Play />Watch now</Link>
             ) : (
               <button disabled className={mbButton({ variant: "subtle" })} title={isAnime ? AL.noSource[locale] : AL.noReader[locale]}>
                 {isAnime ? <Play /> : <Ban />}{isAnime ? AL.noSource[locale] : AL.noReader[locale]}
