@@ -142,9 +142,18 @@ const NOT_CONFIGURED = "Mux production credentials not configured";
 
 export const createProviderUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => unit.merge(meta).extend({ provider: z.enum(["mux", "cloudflare"]), signed: z.boolean() }).parse(d))
+  .inputValidator((d: unknown) => unit.merge(meta).extend({
+    provider: z.enum(["mux", "cloudflare"]), signed: z.boolean(),
+    rightsConfirmed: z.literal(true, { errorMap: () => ({ message: "Confirm MOROBEST is authorized to distribute this video" }) }),
+    filename: z.string().max(200).optional(), onExisting: z.enum(["replace", "alternate"]).optional(),
+  }).parse(d))
   .handler(async ({ data, context }) => {
     await assertMedia(context);
+    // Duplicate protection: an existing production source requires an explicit Replace / Add alternate choice.
+    let dq = context.supabase.from("video_sources").select("id").eq("title_id", data.titleId).eq("is_test_source", false).eq("is_active", true).in("status", ["ready", "processing", "uploading"]);
+    dq = data.episodeId ? dq.eq("episode_id", data.episodeId) : dq.is("episode_id", null);
+    const { data: existing } = await dq;
+    if (existing?.length && !data.onExisting) throw new Error("DUPLICATE: This title already has a playable video.");
     const { providerFor } = await import("./providers.server");
     const p = providerFor(data.provider);
     if (!p.configured() || !p.createUpload) throw new Error(data.provider === "mux" ? NOT_CONFIGURED : "Cloudflare Stream not configured");
@@ -153,7 +162,9 @@ export const createProviderUpload = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase.from("video_sources").insert({
       title_id: data.titleId, episode_id: data.episodeId ?? null, provider: data.provider, kind: "hls", url: "",
       upload_id: ticket.uploadId, provider_asset_id: data.provider === "cloudflare" ? ticket.uploadId : null,
-      status: "uploading", is_active: false, requires_signed_token: data.signed, ...metaRow(data),
+      status: "uploading", is_active: false, requires_signed_token: data.signed, ...metaRow(data), is_test_source: false,
+      rights_confirmed_by: context.userId, rights_confirmed_at: new Date().toISOString(), original_filename: data.filename ?? null,
+      replaces_source_ids: data.onExisting === "replace" ? (existing ?? []).map((r) => r.id) : null,
     }).select("id").single();
     if (error) throw new Error(error.message);
     return { sourceId: row.id, uploadUrl: ticket.uploadUrl, method: ticket.method };

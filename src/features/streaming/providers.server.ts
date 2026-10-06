@@ -10,7 +10,7 @@ export type Playable = {
   quality: string | null; isDubbed: boolean; isTest: boolean; subtitles: SourceRow["subtitles"]; expiresAt: number | null;
 };
 export type UploadTicket = { uploadUrl: string; uploadId: string; method: "PUT" | "POST" };
-export type ProviderStatus = { status: "uploading" | "processing" | "ready" | "failed"; playbackId?: string; assetId?: string; error?: string };
+export type ProviderStatus = { status: "uploading" | "processing" | "ready" | "failed"; playbackId?: string; assetId?: string; error?: string; duration?: number };
 
 export interface StreamingProvider {
   id: string;
@@ -108,7 +108,7 @@ export const muxProvider: StreamingProvider = {
     const a = await mux(`/assets/${encodeURIComponent(assetId)}`);
     if (a.status === "errored") return { status: "failed", assetId, error: a.errors?.messages?.[0] ?? "Mux processing failed" };
     if (a.status !== "ready") return { status: "processing", assetId };
-    return { status: "ready", assetId, playbackId: a.playback_ids?.[0]?.id };
+    return { status: "ready", assetId, playbackId: a.playback_ids?.[0]?.id, duration: typeof a.duration === "number" ? a.duration : undefined };
   },
 };
 
