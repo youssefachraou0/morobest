@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 type Tab = "sources" | "subtitles" | "markers";
 export const Route = createFileRoute("/_authenticated/admin-media")({
-  validateSearch: (s: Record<string, unknown>): { tab?: Tab } => ({ tab: s.tab === "subtitles" || s.tab === "markers" ? s.tab : undefined }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
   head: () => ({ meta: [{ title: "Media · MOROBEST Admin" }, { name: "description", content: "Manage MOROBEST video sources, subtitles and markers." }, { name: "robots", content: "noindex" }] }),
   component: MediaAdmin,
 });
@@ -40,10 +40,10 @@ const fromTimecode = (v: string): number | null => {
 
 function MediaAdmin() {
   const { canManageMedia, ready, rolesReady } = useAuth();
-  const { tab = "sources" } = Route.useSearch();
+  const { tab = "sources", title: initialTitle } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [q, setQ] = useState("");
-  const [titleId, setTitleId] = useState("");
+  const [titleId, setTitleId] = useState(initialTitle ?? "");
   const [episodeId, setEpisodeId] = useState("");
 
   const titles = useQuery({

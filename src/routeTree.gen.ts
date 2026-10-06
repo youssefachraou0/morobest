@@ -24,6 +24,7 @@ import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin-content'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin-media'
+import { Route as AuthenticatedAdminRamadanRouteImport } from './routes/_authenticated/admin-ramadan'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin-settings'
 import { Route as AuthenticatedProfilesRouteImport } from './routes/_authenticated/profiles'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
@@ -122,6 +123,12 @@ const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
   path: '/admin-media',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRamadanRoute =
+  AuthenticatedAdminRamadanRouteImport.update({
+    id: '/admin-ramadan',
+    path: '/admin-ramadan',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/admin-settings',
@@ -250,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-content': typeof AuthenticatedAdminContentRoute
   '/admin-media': typeof AuthenticatedAdminMediaRoute
+  '/admin-ramadan': typeof AuthenticatedAdminRamadanRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
@@ -288,6 +296,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-content': typeof AuthenticatedAdminContentRoute
   '/admin-media': typeof AuthenticatedAdminMediaRoute
+  '/admin-ramadan': typeof AuthenticatedAdminRamadanRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
@@ -328,6 +337,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin-media': typeof AuthenticatedAdminMediaRoute
+  '/_authenticated/admin-ramadan': typeof AuthenticatedAdminRamadanRoute
   '/_authenticated/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/profiles': typeof AuthenticatedProfilesRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
@@ -368,6 +378,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-content'
     | '/admin-media'
+    | '/admin-ramadan'
     | '/admin-settings'
     | '/profiles'
     | '/watchlist'
@@ -406,6 +417,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-content'
     | '/admin-media'
+    | '/admin-ramadan'
     | '/admin-settings'
     | '/profiles'
     | '/watchlist'
@@ -445,6 +457,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-content'
     | '/_authenticated/admin-media'
+    | '/_authenticated/admin-ramadan'
     | '/_authenticated/admin-settings'
     | '/_authenticated/profiles'
     | '/_authenticated/watchlist'
@@ -609,6 +622,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-ramadan': {
+      id: '/_authenticated/admin-ramadan'
+      path: '/admin-ramadan'
+      fullPath: '/admin-ramadan'
+      preLoaderRoute: typeof AuthenticatedAdminRamadanRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-settings': {
       id: '/_authenticated/admin-settings'
       path: '/admin-settings'
@@ -770,6 +790,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
+  AuthenticatedAdminRamadanRoute: typeof AuthenticatedAdminRamadanRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedProfilesRoute: typeof AuthenticatedProfilesRoute
   AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
@@ -780,6 +801,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
+  AuthenticatedAdminRamadanRoute: AuthenticatedAdminRamadanRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedProfilesRoute: AuthenticatedProfilesRoute,
   AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
