@@ -28,6 +28,7 @@ export type Country = Named & { code: string; is_arab: boolean; region: string |
 export type Episode = {
   id: string; number: number; title: string; synopsis: string | null; runtime_min: number | null;
   air_date: string | null; thumbnail_url: string | null;
+  intro_start_s?: number | null; intro_end_s?: number | null; recap_end_s?: number | null;
 };
 export type Season = { id: string; number: number; name: string | null; year: number | null; episodes: Episode[] };
 export type Chapter = { id: string; number: number; title: string | null; release_date: string | null; readable: boolean; official_url: string | null };

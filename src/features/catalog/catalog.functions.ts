@@ -96,7 +96,7 @@ export const fetchTitle = createServerFn({ method: "GET" })
          title_countries(countries(*)),
          title_languages(languages(*)),
          credits(role, character_name, ord, people(slug, name, name_ar, photo_url)),
-         seasons(id, number, name, year, episodes(id, number, title, synopsis, runtime_min, air_date, thumbnail_url)),
+         seasons(id, number, name, year, episodes(id, number, title, synopsis, runtime_min, air_date, thumbnail_url, intro_start_s, intro_end_s, recap_end_s)),
          manga_volumes(id, number, release_date, cover_url),
          manga_chapters(id, volume_id, number, title, release_date, readable, official_url)`,
       )
