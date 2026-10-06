@@ -52,7 +52,7 @@ function TitlePage() {
   const isManga = d.kind === "manga";
   const season = d.seasons[seasonIdx];
   const myProgress = (progress.data ?? []).filter((p) => p.title_id === d.id);
-  const resume = myProgress.find((p) => !p.completed);
+  const resume = myProgress.find((p) => !p.completed && p.duration_s > 0 && p.position_s / p.duration_s > 0.05);
   const directors = d.credits.filter((c) => c.role !== "actor");
 
   const requireUser = (fn: () => void) => () => {
