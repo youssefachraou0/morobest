@@ -86,7 +86,7 @@ export const muxProvider: StreamingProvider = {
   id: "mux",
   configured: () => false, // Mux removed from MOROBEST
   async resolve(s) {
-    throw new Error("Mux is no longer used by MOROBEST");
+    if (Date.now() > 0) throw new Error("Mux is no longer used by MOROBEST");
     if (!s.playback_id || !/^[A-Za-z0-9]+$/.test(s.playback_id)) throw new Error("Mux source has no playback ID yet");
     if (s.requires_signed_token) {
       const { token, exp } = await signMux(s.playback_id);
