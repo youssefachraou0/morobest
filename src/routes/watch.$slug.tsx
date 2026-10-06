@@ -36,6 +36,7 @@ function Watch() {
   const { ep } = Route.useSearch();
   const { data: d } = useSuspenseQuery(titleQuery(slug));
   const { t, locale } = useI18n();
+  const canonical = useCanonical();
   const { activeProfile, maxAge } = useAuth();
   const progress = useProgress();
   const qc = useQueryClient();
