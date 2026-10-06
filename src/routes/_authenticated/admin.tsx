@@ -48,7 +48,9 @@ function Admin() {
   return (
     <div className="flex">
       <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-56 shrink-0 overflow-y-auto border-e border-border p-4 pt-20 lg:block">
-        {SECTIONS.map((s, i) => (
+        {SECTIONS.map((s, i) => s === "Media" ? (
+          <Link key={s} to="/admin-media" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Media / Streaming</Link>
+        ) : (
           <p key={s} className={i === 0 || s === "Movies" ? "rounded-md bg-surface-2 px-3 py-2 text-sm text-gold" : "px-3 py-2 text-sm text-muted-foreground"}>{s}</p>
         ))}
       </aside>
