@@ -172,3 +172,7 @@ export async function detail(type: AniType, id: number): Promise<AniDetail | nul
     siteUrl: m.siteUrl,
   };
 }
+
+export function forgetMemory(prefixes: string[]) {
+  for (const k of [...mem.keys()]) if (prefixes.some((p) => k.startsWith(p))) mem.delete(k);
+}

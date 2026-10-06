@@ -394,3 +394,10 @@ export async function cardsFor(refs: { type: TmdbType; id: number }[], lang: str
   ));
   return out.filter((x): x is TmdbCard => !!x);
 }
+
+/** Drops in-memory and stored cache entries whose key starts with any prefix (admin Refresh actions). */
+export async function forget(prefixes: string[]) {
+  for (const k of [...mem.keys()]) if (prefixes.some((p) => k.startsWith(p))) mem.delete(k);
+  const db = await adminDb();
+  if (db) for (const p of prefixes) await db.from("provider_cache").delete().like("key", `${p}%`);
+}

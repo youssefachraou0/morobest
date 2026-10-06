@@ -18,6 +18,8 @@ type Ctx = {
   isAdmin: boolean;
   isStaff: boolean;
   canManageMedia: boolean;
+  canManageContent: boolean;
+  isSuperAdmin: boolean;
   roles: string[];
   rolesReady: boolean;
   maxAge: number | undefined;
@@ -96,6 +98,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAdmin: roles.includes("admin") || roles.includes("super_admin"),
     isStaff: roles.some((r) => STAFF.includes(r)),
     canManageMedia: roles.includes("admin") || roles.includes("super_admin") || (rolesQ.data?.perms ?? []).includes("media"),
+    canManageContent: roles.some((r) => ["super_admin", "admin", "content_manager", "editor"].includes(r)) || (rolesQ.data?.perms ?? []).includes("content"),
+    isSuperAdmin: roles.includes("super_admin"),
     maxAge: activeProfile?.is_kids ? activeProfile.max_age : undefined,
     signOut: async () => {
       localStorage.removeItem(ACTIVE_KEY);
