@@ -22,6 +22,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin-media'
 import { Route as AuthenticatedProfilesRouteImport } from './routes/_authenticated/profiles'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
 import { Route as AnimeIndexRouteImport } from './routes/anime.index'
@@ -100,6 +101,11 @@ const TrendingRoute = TrendingRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
+  id: '/admin-media',
+  path: '/admin-media',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProfilesRoute = AuthenticatedProfilesRouteImport.update({
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/anime/$slug': typeof AnimeSlugRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/anime/$slug': typeof AnimeSlugRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/profiles': typeof AuthenticatedProfilesRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
   '/anime/$slug': typeof AnimeSlugRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-media'
     | '/profiles'
     | '/watchlist'
     | '/anime/$slug'
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-media'
     | '/profiles'
     | '/watchlist'
     | '/anime/$slug'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-media'
     | '/_authenticated/profiles'
     | '/_authenticated/watchlist'
     | '/anime/$slug'
@@ -479,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-media': {
+      id: '/_authenticated/admin-media'
+      path: '/admin-media'
+      fullPath: '/admin-media'
+      preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profiles': {
       id: '/_authenticated/profiles'
       path: '/profiles'
@@ -589,12 +608,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedProfilesRoute: typeof AuthenticatedProfilesRoute
   AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedProfilesRoute: AuthenticatedProfilesRoute,
   AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
 }

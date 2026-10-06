@@ -201,22 +201,3 @@ export const fetchCollection = createServerFn({ method: "GET" })
     const order = new Map(items.map((i) => [i.title_id, i.ord]));
     return { ...col, titles: cards.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)) };
   });
-
-export const fetchPlayback = createServerFn({ method: "GET" })
-  .inputValidator((d: { titleId: string; episodeId?: string }) =>
-    z.object({ titleId: z.string().uuid(), episodeId: z.string().uuid().optional() }).parse(d),
-  )
-  .handler(async ({ data }) => {
-    const { publicDb } = await import("./catalog.server");
-    const { data: rows, error } = await publicDb().rpc("get_playback_source", {
-      _title: data.titleId,
-      ...(data.episodeId ? { _episode: data.episodeId } : {}),
-    });
-    if (error) {
-      console.error("playback lookup failed", error);
-      return null;
-    }
-    const src = rows?.[0];
-    if (!src) return null;
-    return { kind: src.kind, url: src.url, subtitles: (src.subtitles ?? []) as { lang: string; label: string; url: string }[] };
-  });
