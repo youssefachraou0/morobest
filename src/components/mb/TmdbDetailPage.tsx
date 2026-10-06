@@ -154,7 +154,7 @@ function Seasons({ id, seasons }: { id: number; seasons: { number: number; name:
               </p>
               {e.overview && <p className="mt-1 line-clamp-3 text-sm text-foreground/75">{e.overview}</p>}
               {av.data?.slug && av.data.episodes[e.number]?.playable && (
-                <Link to="/watch/$slug" params={{ slug: av.data.slug }} search={{ ep: av.data.episodes[e.number].episodeId }} className={cn(mbButton({ size: "sm" }), "mt-2")}><Play />{D.play[locale]}</Link>
+                <Link to="/watch/$slug" params={{ slug: av.data.slug }} search={{ ep: av.data.episodes[e.number]!.episodeId }} className={cn(mbButton({ size: "sm" }), "mt-2")}><Play />{D.play[locale]}</Link>
               )}
             </div>
           </li>

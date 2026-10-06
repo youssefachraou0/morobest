@@ -268,7 +268,7 @@ export const adminEpisodeMapping = createServerFn({ method: "POST" })
     const ready = (id: string) => (src ?? []).some((v: any) => v.is_active && v.status === "ready" && (v.episode_id === id || v.episode_id === null));
     const { data: manual } = await context.supabase.from("episode_links").select("episode_number").eq("provider", "tmdb").eq("provider_id", String(data.pid)).eq("season_number", data.season);
     const manualSet = new Set((manual ?? []).map((m: any) => m.episode_number));
-    const rows = (s?.episodes ?? []).map((e) => ({ number: e.number, title: e.title, episodeId: map[e.number] ?? null, manual: manualSet.has(e.number), ready: map[e.number] ? ready(map[e.number]) : false }));
+    const rows = (s?.episodes ?? []).map((e) => ({ number: e.number, title: e.title, episodeId: map[e.number] ?? null, manual: manualSet.has(e.number), ready: map[e.number] ? ready(map[e.number]!) : false }));
     return { linked: true, rows, internal };
   });
 
