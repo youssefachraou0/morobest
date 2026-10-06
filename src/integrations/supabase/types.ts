@@ -475,6 +475,27 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_cache: {
+        Row: {
+          expires_at: string
+          key: string
+          payload: Json
+          updated_at: string
+        }
+        Insert: {
+          expires_at: string
+          key: string
+          payload: Json
+          updated_at?: string
+        }
+        Update: {
+          expires_at?: string
+          key?: string
+          payload?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ramadan_entries: {
         Row: {
           air_time: string | null
