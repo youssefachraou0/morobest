@@ -28,9 +28,9 @@ const field = "h-10 w-full rounded-lg border border-input bg-surface px-3 text-s
 const STATUS_TONE: Record<string, "default" | "gold" | "red" | "green"> = { ready: "green", failed: "red", uploading: "gold", processing: "gold", disabled: "default" };
 const MUX_TEST_PLAYBACK = "v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM";
 
-export const toTimecode = (s: number | null | undefined) =>
+const toTimecode = (s: number | null | undefined) =>
   s == null ? "" : [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60].map((n) => String(n).padStart(2, "0")).join(":");
-export const fromTimecode = (v: string): number | null => {
+const fromTimecode = (v: string): number | null => {
   const t = v.trim();
   if (!t) return null;
   const parts = t.split(":").map(Number);
