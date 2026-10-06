@@ -1509,6 +1509,7 @@ export type Database = {
           intro_start_s: number | null
           is_classic: boolean
           is_demo: boolean
+          is_diagnostic: boolean
           is_kids: boolean
           kind: Database["public"]["Enums"]["title_kind"]
           original_title: string
@@ -1538,6 +1539,7 @@ export type Database = {
           intro_start_s?: number | null
           is_classic?: boolean
           is_demo?: boolean
+          is_diagnostic?: boolean
           is_kids?: boolean
           kind: Database["public"]["Enums"]["title_kind"]
           original_title: string
@@ -1567,6 +1569,7 @@ export type Database = {
           intro_start_s?: number | null
           is_classic?: boolean
           is_demo?: boolean
+          is_diagnostic?: boolean
           is_kids?: boolean
           kind?: Database["public"]["Enums"]["title_kind"]
           original_title?: string
