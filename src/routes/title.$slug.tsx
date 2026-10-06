@@ -1,3 +1,4 @@
+import { track } from "@/features/analytics/track";
 import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -98,7 +99,7 @@ function TitlePage() {
                 <span className={mbButton({ variant: "subtle", size: "lg", className: "pointer-events-none opacity-70" })}>Not currently available to watch</span>
               )}
               {!isManga && (playable.data?.whole || (playable.data?.episodes.length ?? 0) > 0) && (
-                <Link to="/watch/$slug" params={{ slug: d.slug }} search={resume?.episode_id ? { ep: resume.episode_id } : !playable.data?.whole && playable.data?.episodes[0] ? { ep: playable.data.episodes[0] } : {}} className={mbButton({ size: "lg" })}>
+                <Link to="/watch/$slug" params={{ slug: d.slug }} search={resume?.episode_id ? { ep: resume.episode_id } : !playable.data?.whole && playable.data?.episodes[0] ? { ep: playable.data.episodes[0] } : {}} className={mbButton({ size: "lg" })} onClick={() => track(resume ? "continue_click" : "watch_click", { titleId: d.id, ctx: "detail" })}>
                   <Play className="fill-current" />{resume ? t.action.continue : t.action.play}{playable.data?.testOnly ? " · TEST VIDEO" : ""}
                 </Link>
               )}
