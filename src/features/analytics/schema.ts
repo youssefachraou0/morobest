@@ -13,6 +13,7 @@ const short = (n: number) => z.string().max(n);
 
 /** Allowed props per event. Unknown keys are rejected (strict). */
 const PROPS: Partial<Record<EventName, z.ZodTypeAny>> = {
+  search_click: z.object({ q: short(80) }).strict(),
   search: z.object({ q: short(80), kind: short(20).nullable().optional() }).strict(),
   play_start: z.object({ provider: short(30).nullable().optional() }).strict(),
   playback_error: z.object({ provider: short(30).nullable().optional(), message: short(120).optional() }).strict(),

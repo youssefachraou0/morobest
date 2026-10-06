@@ -83,11 +83,11 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
     const v = video.current; const a = an.current;
     if (!v || !a) return;
     const f = { titleId: a.titleId, episodeId: a.episodeId ?? null, ...(a.test ? { test: true } : {}) };
-    let started = false, done = false, last = v.currentTime, acc = 0;
+    let started = false, done = false, paused = false, last = v.currentTime, acc = 0;
     const flush = () => { if (acc >= 1) { trackEvent("watch_time", { ...f, value: Math.round(acc) }); acc = 0; } };
-    const onPlay = () => { if (!started) { started = true; trackEvent("play_start", { ...f, props: { provider: a.provider ?? null } }); } else trackEvent("resume", f); };
+    const onPlay = () => { if (!started) { started = true; trackEvent("play_start", { ...f, props: { provider: a.provider ?? null } }); } else if (paused) { paused = false; trackEvent("resume", f); } };
     const onSeek = () => { last = v.currentTime; };
-    const onPause = () => { if (!v.ended) trackEvent("pause", f); flush(); };
+    const onPause = () => { if (!v.ended && !paused) { paused = true; trackEvent("pause", f); } flush(); };
     const onTime = () => {
       acc += watchStep(last, v.currentTime, { paused: v.paused, hidden: document.visibilityState === "hidden" }); last = v.currentTime;
       if (acc >= 30) flush();
