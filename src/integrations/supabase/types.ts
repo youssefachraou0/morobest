@@ -1757,6 +1757,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      analytics_ctx: { Args: { _from: string; _to: string }; Returns: Json }
       analytics_dashboard: {
         Args: { _from: string; _to: string }
         Returns: Json

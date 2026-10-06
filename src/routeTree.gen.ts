@@ -22,6 +22,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin-analytics'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin-content'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin-media'
 import { Route as AuthenticatedAdminRamadanRouteImport } from './routes/_authenticated/admin-ramadan'
@@ -113,6 +114,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/admin-analytics',
+    path: '/admin-analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminContentRoute =
   AuthenticatedAdminContentRouteImport.update({
     id: '/admin-content',
@@ -261,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin-content': typeof AuthenticatedAdminContentRoute
   '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/admin-ramadan': typeof AuthenticatedAdminRamadanRoute
@@ -301,6 +309,7 @@ export interface FileRoutesByTo {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin-content': typeof AuthenticatedAdminContentRoute
   '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/admin-ramadan': typeof AuthenticatedAdminRamadanRoute
@@ -343,6 +352,7 @@ export interface FileRoutesById {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin-content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin-media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin-ramadan': typeof AuthenticatedAdminRamadanRoute
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-analytics'
     | '/admin-content'
     | '/admin-media'
     | '/admin-ramadan'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-analytics'
     | '/admin-content'
     | '/admin-media'
     | '/admin-ramadan'
@@ -466,6 +478,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-analytics'
     | '/_authenticated/admin-content'
     | '/_authenticated/admin-media'
     | '/_authenticated/admin-ramadan'
@@ -619,6 +632,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-analytics': {
+      id: '/_authenticated/admin-analytics'
+      path: '/admin-analytics'
+      fullPath: '/admin-analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-content': {
@@ -808,6 +828,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminRamadanRoute: typeof AuthenticatedAdminRamadanRoute
@@ -819,6 +840,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminRamadanRoute: AuthenticatedAdminRamadanRoute,
