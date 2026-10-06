@@ -120,7 +120,7 @@ export function TmdbDetailPage({ type, id }: { type: TmdbType; id: number }) {
 
 function Seasons({ id, seasons }: { id: number; seasons: { number: number; name: string; episodeCount: number }[] }) {
   const { locale } = useI18n();
-  const first = seasons.find((s) => s.number > 0)?.number ?? seasons[0].number;
+  const first = seasons.find((s) => s.number > 0)?.number ?? seasons[0]?.number ?? 1;
   const [n, setN] = useState(first);
   const q = useQuery(tmdbSeasonQuery(id, n, locale));
   return (
