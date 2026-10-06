@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Maximize, Minimize, Pause, Play, PictureInPicture2, RotateCcw, RotateCw, SkipForward, SkipBack, Volume2, VolumeX, Settings } from "lucide-react";
 import { Star8 } from "@/components/mb/Brand";
 import { cn } from "@/lib/utils";
+import { track } from "@/features/analytics/track";
 
 export type PlayerSource = { kind: string; url: string; subtitles: { lang: string; label: string; url: string; forced?: boolean; default?: boolean }[] };
 
@@ -29,6 +30,8 @@ type Props = {
   onAudioLanguage?: (lang: string) => void;
   preferredSubtitle?: string | null;
   badge?: string;
+  /** First-party analytics identity for this playback (title + episode). */
+  analytics?: { titleId: string; episodeId?: string | null; provider?: string | null };
 };
 
 const fmt = (s: number) => {
@@ -38,7 +41,7 @@ const fmt = (s: number) => {
 };
 
 /** Provider-agnostic player: HLS via hls.js (or native), MP4 direct. DASH/embeds plug in by `kind`. */
-export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext, nextLabel, errorLabel, retryLabel, onPrev, onFatal, markers, audioOptions, audio, onAudio, autoplayNext = true, preferredAudio, onAudioLanguage, preferredSubtitle, badge }: Props) {
+export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext, nextLabel, errorLabel, retryLabel, onPrev, onFatal, markers, audioOptions, audio, onAudio, autoplayNext = true, preferredAudio, onAudioLanguage, preferredSubtitle, badge, analytics }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -73,11 +76,31 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   const retries = useRef(0);
   const fatalRef = useRef(onFatal);
   fatalRef.current = onFatal;
+  // Analytics: start/pause/resume, real watched seconds (heartbeat every 30s), completion once.
+  const an = useRef(analytics); an.current = analytics;
+  useEffect(() => {
+    const v = video.current; const a = an.current;
+    if (!v || !a) return;
+    const f = { titleId: a.titleId, episodeId: a.episodeId ?? null };
+    let started = false, done = false, last = v.currentTime, acc = 0;
+    const flush = () => { if (acc >= 1) { track("watch_time", { ...f, value: Math.round(acc) }); acc = 0; } };
+    const onPlay = () => { if (!started) { started = true; track("play_start", { ...f, props: { provider: a.provider ?? null } }); } else track("resume", f); };
+    const onPause = () => { if (!v.ended) track("pause", f); flush(); };
+    const onTime = () => {
+      const d = v.currentTime - last; last = v.currentTime;
+      if (d > 0 && d < 2 && !v.paused) acc += d;
+      if (acc >= 30) flush();
+      if (!done && v.duration > 0 && v.currentTime / v.duration >= 0.9) { done = true; track("complete", { ...f, value: Math.round(v.duration) }); }
+    };
+    const onEnd = () => { flush(); if (!done) { done = true; track("complete", { ...f, value: Math.round(v.duration || 0) }); } };
+    v.addEventListener("play", onPlay); v.addEventListener("pause", onPause); v.addEventListener("timeupdate", onTime); v.addEventListener("ended", onEnd);
+    return () => { flush(); v.removeEventListener("play", onPlay); v.removeEventListener("pause", onPause); v.removeEventListener("timeupdate", onTime); v.removeEventListener("ended", onEnd); };
+  }, [source.url]);
   const fail = useCallback((m: string) => { if (fatalRef.current?.(m)) return; setError(true); }, []);
   useEffect(() => {
     if (countdown == null) return;
     if (!autoplayNext) return;
-    if (countdown <= 0) { setCountdown(null); onNext?.(); return; }
+    if (countdown <= 0) { setCountdown(null); if (an.current) track("autoplay_next", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null }); onNext?.(); return; }
     const id = setTimeout(() => setCountdown((c) => (c == null ? null : c - 1)), 1000);
     return () => clearTimeout(id);
   }, [countdown, onNext, autoplayNext]);
