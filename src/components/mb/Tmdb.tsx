@@ -11,6 +11,8 @@ import { Badge, PosterSkeleton } from "./Cards";
 import { mbButton } from "./Button";
 import { EmptyState } from "./States";
 import { cn } from "@/lib/utils";
+import { contentKey, useCanonical } from "@/features/editorial/canonical";
+import { track, useImpression } from "@/features/analytics/track";
 
 type L3 = { en: string; fr: string; ar: string };
 const L: Record<string, L3> = {
@@ -62,10 +64,13 @@ export const TL = {
 } satisfies Record<string, L3>;
 export const rowLabel = (k: string, l: keyof L3) => L[k]?.[l] ?? k;
 
-export function TmdbPoster({ item, className, rank }: { item: TmdbCard; className?: string; rank?: number }) {
-  const to = item.type === "movie" ? "/movie/$slug" : "/tv/$slug";
+export function TmdbPoster({ item, className, rank, ctx, onPick }: { item: TmdbCard; className?: string; rank?: number; ctx?: string; onPick?: () => void }) {
+  const canonical = useCanonical();
+  const kind = item.type === "movie" ? "movie" : "series";
+  const key = contentKey(kind, item.tmdbId);
+  const ref = useImpression<HTMLAnchorElement>(`${ctx ?? "row"}:${key}`, () => track("impression", { key, ctx: ctx ?? "row" }));
   return (
-    <Link to={to} params={{ slug: item.slug }} className={cn("group relative block w-[136px] shrink-0 sm:w-[168px] lg:w-[184px]", className)}>
+    <Link ref={ref} {...canonical({ kind, providerId: item.tmdbId, slug: item.slug })} onClick={() => { track("click", { key, ctx: ctx ?? "row" }); onPick?.(); }} className={cn("group relative block w-[136px] shrink-0 sm:w-[168px] lg:w-[184px]", className)}>
       {rank && <span className="pointer-events-none absolute -start-3 bottom-6 z-10 font-display text-7xl font-bold text-gold/80 drop-shadow-lg">{rank}</span>}
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-surface-2 shadow-poster ring-1 ring-foreground/10 transition-all duration-500 group-hover:-translate-y-1 group-hover:ring-gold/60">
         {item.poster ? (
@@ -101,6 +106,7 @@ export function TmdbPersonTile({ p }: { p: TmdbPersonCard }) {
 
 export function TmdbHero({ items }: { items: TmdbCard[] }) {
   const { locale } = useI18n();
+  const canonical = useCanonical();
   const [i, setI] = useState(0);
   useEffect(() => {
     if (items.length < 2) return;
@@ -124,7 +130,7 @@ export function TmdbHero({ items }: { items: TmdbCard[] }) {
           <h1 className="font-display text-4xl font-semibold sm:text-6xl">{h.title}</h1>
           {h.originalTitle !== h.title && <p className="mt-1 text-muted-foreground">{h.originalTitle}</p>}
           {h.overview && <p className="mt-4 line-clamp-3 text-foreground/80">{h.overview}</p>}
-          <Link to={h.type === "movie" ? "/movie/$slug" : "/tv/$slug"} params={{ slug: h.slug }} className={mbButton({ className: "mt-6" })}><Info />{TL.details[locale]}</Link>
+          <Link {...canonical({ kind: h.type === "movie" ? "movie" : "series", providerId: h.tmdbId, slug: h.slug })} onClick={() => track("click", { key: contentKey(h.type === "movie" ? "movie" : "series", h.tmdbId), ctx: "hero" })} className={mbButton({ className: "mt-6" })}><Info />{TL.details[locale]}</Link>
           <div className="mt-6 flex gap-1.5">
             {items.map((_, k) => <button key={k} onClick={() => setI(k)} aria-label={`Slide ${k + 1}`} className={cn("h-1 rounded-full transition-all", k === i ? "w-8 bg-gold" : "w-3 bg-foreground/30")} />)}
           </div>

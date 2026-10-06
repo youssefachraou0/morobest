@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/features/analytics/track";
 import { useAuth } from "@/features/auth/AuthProvider";
 
 /** Watchlist + favorites for the active profile (RLS-scoped). */
@@ -29,7 +30,7 @@ export function useLibrary() {
         : await supabase.from(table).delete().eq("profile_id", pid).eq("title_id", titleId);
       if (res.error) throw res.error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["me", "library", pid] }),
+    onSuccess: (_r, v) => { track(`${v.table === "watchlist" ? "watchlist" : "favorite"}_${v.on ? "add" : "remove"}`, { titleId: v.titleId }); return qc.invalidateQueries({ queryKey: ["me", "library", pid] }); },
   });
 
   return {

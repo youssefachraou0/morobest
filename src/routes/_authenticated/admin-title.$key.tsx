@@ -15,6 +15,8 @@ import { mbButton } from "@/components/mb/Button";
 import { Badge } from "@/components/mb/Cards";
 import { AuditTable, field } from "@/components/mb/AdminBits";
 import { cn } from "@/lib/utils";
+import { validateSlug } from "@/features/editorial/slug";
+import { TitleAnalyticsView } from "@/components/mb/AnalyticsBits";
 
 const TABS = ["overview", "metadata", "localization", "video", "subtitles", "audio", "episodes", "ramadan", "seo", "availability", "analytics", "audit"] as const;
 type Tab = (typeof TABS)[number];
@@ -75,7 +77,7 @@ function TitleAdmin() {
         {tab === "episodes" && (ext.ct === "series" ? <Episodes ext={ext} seasons={d.meta?.seasons ?? []} linked={!!titleId} /> : <p className="text-muted-foreground">Only TMDB series have seasons and episodes.</p>)}
         {tab === "ramadan" && <RamadanTab d={d} />}
         {(tab === "video" || tab === "subtitles" || tab === "audio" || tab === "availability") && <MediaTab tab={tab} d={d} />}
-        {tab === "analytics" && <p className="text-muted-foreground">Viewing analytics are not collected yet. Watch progress is stored per profile and will feed this view once analytics are enabled.</p>}
+        {tab === "analytics" && (d.link?.titles?.id ? <TitleAnalyticsView titleId={d.link.titles.id} /> : <p className="text-muted-foreground">Viewing analytics appear once this title is linked to a MOROBEST title with playable video.</p>)}
         {tab === "audit" && <AuditTable contentId={d.ref} />}
       </div>
     </div>
@@ -230,14 +232,16 @@ function Seo({ k, ext, d, currentSlug }: { k: string; ext: Ext; d: D; currentSlu
       let schema: Record<string, unknown> | null = null;
       if (f.schema.trim()) { try { schema = JSON.parse(f.schema); } catch { throw new Error("Schema must be valid JSON"); } }
       return save({ data: { ...ext, currentSlug, fields: {
-        slug: n(f.slug), canonical_url: n(f.canonical_url), indexable: f.indexable, follow_links: f.follow_links,
+        slug: f.slug === "" ? null : f.slug, canonical_url: n(f.canonical_url), indexable: f.indexable, follow_links: f.follow_links,
         seo_title_ar: n(f.seo_title_ar), seo_title_fr: n(f.seo_title_fr), seo_title_en: n(f.seo_title_en),
         meta_description_ar: n(f.meta_description_ar), meta_description_fr: n(f.meta_description_fr), meta_description_en: n(f.meta_description_en),
         og_title: n(f.og_title), og_description: n(f.og_description), og_image: n(f.og_image), schema,
       } } });
     },
-    onSuccess: () => { toast.success("SEO saved"); done(); }, onError: (e) => toast.error((e as Error).message),
+    onSuccess: () => { toast.success("SEO saved"); done(); qc.invalidateQueries({ queryKey: ["editorial", "slug-map"] }); }, onError: (e) => toast.error((e as Error).message, { duration: 9000 }),
   });
+  const qc = useQueryClient();
+  const slugCheck = validateSlug(f.slug);
   const T = (x: keyof ReturnType<typeof init>, label: string, area = false) => (
     <label className="block text-sm">{label}
       {area ? <textarea className={cn(field, "mt-1 h-20 py-2")} value={f[x] as string} onChange={(e) => setF({ ...f, [x]: e.target.value })} aria-label={label} />
@@ -249,7 +253,14 @@ function Seo({ k, ext, d, currentSlug }: { k: string; ext: Ext; d: D; currentSlu
     <div className="max-w-4xl space-y-4">
       <p className="text-xs text-muted-foreground">Empty fields fall back to automatic SEO from provider metadata. Changing the slug keeps a permanent redirect from the old URL.</p>
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="block text-sm">Slug <span className="text-muted-foreground">/{base}/…</span><input className={cn(field, "mt-1")} value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value.toLowerCase() })} placeholder={d.meta?.slug ?? ""} aria-label="Slug" /></label>
+        <label className="block text-sm">Slug <span className="text-muted-foreground">/{base}/…</span><input className={cn(field, "mt-1", !slugCheck.ok && "border-destructive")} value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value })} placeholder={d.meta?.slug ?? ""} aria-label="Slug" aria-invalid={!slugCheck.ok} aria-describedby="slug-help" />
+          {!slugCheck.ok && (
+            <span id="slug-help" role="alert" className="mt-1 block text-xs text-destructive">
+              {slugCheck.reason}
+              {slugCheck.suggestion && <> Suggested: <button type="button" className="font-semibold text-gold underline" onClick={() => setF({ ...f, slug: slugCheck.suggestion! })}>{slugCheck.suggestion}</button></>}
+            </span>
+          )}
+        </label>
         {T("canonical_url", "Canonical URL")}
         {T("seo_title_ar", "SEO title (AR)")}{T("seo_title_fr", "SEO title (FR)")}{T("seo_title_en", "SEO title (EN)")}
         <div className="flex items-end gap-6 text-sm">

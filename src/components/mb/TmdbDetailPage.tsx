@@ -1,3 +1,4 @@
+import { track } from "@/features/analytics/track";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -81,7 +82,7 @@ export function TmdbDetailPage({ type, id }: { type: TmdbType; id: number }) {
             {d.overview && <p className="mt-5 max-w-2xl leading-relaxed text-foreground/85">{d.overview}</p>}
             <div className="mt-6 flex flex-wrap gap-3">
               {link?.playable ? (
-                <Link to="/watch/$slug" params={{ slug: link.slug }} className={mbButton()}><Play />{D.play[locale]}</Link>
+                <Link to="/watch/$slug" params={{ slug: link.slug }} className={mbButton()} onClick={() => track("watch_click", { ctx: "detail", props: { slug: link.slug } })}><Play />{D.play[locale]}</Link>
               ) : (
                 <button disabled className={mbButton({ variant: "subtle" })}><Ban />{TL.noSource[locale]}</button>
               )}
@@ -116,8 +117,8 @@ export function TmdbDetailPage({ type, id }: { type: TmdbType; id: number }) {
           {d.images.map((src) => <img key={src} src={tmdbImg(src, "w780")!} alt="" loading="lazy" className="aspect-video w-72 shrink-0 rounded-lg object-cover ring-1 ring-border sm:w-96" />)}
         </Row>
       )}
-      {d.recommendations.length > 0 && <Row title={D.recs[locale]}>{d.recommendations.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</Row>}
-      {d.similar.length > 0 && <Row title={D.similar[locale]}>{d.similar.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</Row>}
+      {d.recommendations.length > 0 && <Row title={D.recs[locale]}>{d.recommendations.map((x) => <TmdbPoster key={x.tmdbId} item={x} ctx="rec" />)}</Row>}
+      {d.similar.length > 0 && <Row title={D.similar[locale]}>{d.similar.map((x) => <TmdbPoster key={x.tmdbId} item={x} ctx="similar" />)}</Row>}
       <TmdbAttribution />
     </div>
   );
@@ -154,7 +155,7 @@ function Seasons({ id, seasons }: { id: number; seasons: { number: number; name:
               </p>
               {e.overview && <p className="mt-1 line-clamp-3 text-sm text-foreground/75">{e.overview}</p>}
               {av.data?.slug && av.data.episodes[e.number]?.playable && (
-                <Link to="/watch/$slug" params={{ slug: av.data.slug }} search={{ ep: av.data.episodes[e.number]!.episodeId }} className={cn(mbButton({ size: "sm" }), "mt-2")}><Play />{D.play[locale]}</Link>
+                <Link to="/watch/$slug" params={{ slug: av.data.slug }} search={{ ep: av.data.episodes[e.number]!.episodeId }} onClick={() => track("watch_click", { episodeId: av.data!.episodes[e.number]!.episodeId, ctx: "episode" })} className={cn(mbButton({ size: "sm" }), "mt-2")}><Play />{D.play[locale]}</Link>
               )}
             </div>
           </li>

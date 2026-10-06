@@ -62,6 +62,99 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_daily: {
+        Row: {
+          clicks: number
+          completions: number
+          content_key: string
+          day: string
+          errors: number
+          favorite_adds: number
+          impressions: number
+          starts: number
+          title_id: string | null
+          unique_viewers: number
+          views: number
+          watch_seconds: number
+          watchlist_adds: number
+        }
+        Insert: {
+          clicks?: number
+          completions?: number
+          content_key: string
+          day: string
+          errors?: number
+          favorite_adds?: number
+          impressions?: number
+          starts?: number
+          title_id?: string | null
+          unique_viewers?: number
+          views?: number
+          watch_seconds?: number
+          watchlist_adds?: number
+        }
+        Update: {
+          clicks?: number
+          completions?: number
+          content_key?: string
+          day?: string
+          errors?: number
+          favorite_adds?: number
+          impressions?: number
+          starts?: number
+          title_id?: string | null
+          unique_viewers?: number
+          views?: number
+          watch_seconds?: number
+          watchlist_adds?: number
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          content_key: string | null
+          ctx: string | null
+          episode_id: string | null
+          event: string
+          id: number
+          occurred_at: string
+          path: string | null
+          props: Json
+          session: string | null
+          title_id: string | null
+          value: number | null
+          visitor: string
+        }
+        Insert: {
+          content_key?: string | null
+          ctx?: string | null
+          episode_id?: string | null
+          event: string
+          id?: number
+          occurred_at?: string
+          path?: string | null
+          props?: Json
+          session?: string | null
+          title_id?: string | null
+          value?: number | null
+          visitor: string
+        }
+        Update: {
+          content_key?: string | null
+          ctx?: string | null
+          episode_id?: string | null
+          event?: string
+          id?: number
+          occurred_at?: string
+          path?: string | null
+          props?: Json
+          session?: string | null
+          title_id?: string | null
+          value?: number | null
+          visitor?: string
+        }
+        Relationships: []
+      }
       collection_items: {
         Row: {
           collection_id: string
@@ -241,6 +334,27 @@ export type Database = {
           name_fr?: string
           region?: string | null
           slug?: string
+        }
+        Relationships: []
+      }
+      crawler_hits: {
+        Row: {
+          bot: string
+          day: string
+          hits: number
+          section: string
+        }
+        Insert: {
+          bot: string
+          day: string
+          hits?: number
+          section: string
+        }
+        Update: {
+          bot?: string
+          day?: string
+          hits?: number
+          section?: string
         }
         Relationships: []
       }
@@ -1643,6 +1757,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      analytics_ctx: { Args: { _from: string; _to: string }; Returns: Json }
+      analytics_dashboard: {
+        Args: { _from: string; _to: string }
+        Returns: Json
+      }
+      analytics_key: { Args: { _key: string; _title: string }; Returns: string }
+      analytics_maintain: { Args: never; Returns: undefined }
+      analytics_rollup: { Args: { _day: string }; Returns: undefined }
+      analytics_title: {
+        Args: { _from: string; _title: string; _to: string }
+        Returns: Json
+      }
       can_manage_content: { Args: { _user_id: string }; Returns: boolean }
       can_manage_media: { Args: { _user_id: string }; Returns: boolean }
       get_playback_source: {
@@ -1700,6 +1826,15 @@ export type Database = {
       }
       subtitle_vtt: { Args: { _id: string }; Returns: string }
       title_is_public: { Args: { _title: string }; Returns: boolean }
+      trending_content: {
+        Args: { _days?: number; _limit?: number }
+        Returns: {
+          content_key: string
+          score: number
+          title_id: string
+          viewers: number
+        }[]
+      }
     }
     Enums: {
       app_role:

@@ -131,3 +131,11 @@ export function seoHead(opts: {
   const scripts = s?.schema ? [{ type: "application/ld+json", children: JSON.stringify(s.schema) }] : [];
   return { meta, links: [{ rel: "canonical", href: s?.canonical_url || `https://morobest.lovable.app${opts.path}` }], scripts };
 }
+
+/** Current custom slugs keyed "contentType:providerId" — feeds getCanonicalContentUrl so cards link straight to the canonical URL. */
+export const fetchSlugMap = createServerFn({ method: "GET" }).handler(async (): Promise<Record<string, string>> => {
+  const { publicDb } = await import("@/features/catalog/catalog.server");
+  const { data } = await publicDb().from("seo_overrides").select("content_type, provider_id, slug").not("slug", "is", null).limit(5000);
+  return Object.fromEntries((data ?? []).map((r) => [`${r.content_type}:${r.provider_id}`, r.slug as string]));
+});
+export const slugMapQuery = () => queryOptions({ queryKey: ["editorial", "slug-map"], queryFn: () => fetchSlugMap(), staleTime: 5 * 60_000 });
