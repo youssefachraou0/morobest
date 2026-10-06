@@ -19,7 +19,7 @@ import { MediaIngest } from "@/components/mb/MediaIngest";
 
 type Tab = "import" | "sources" | "subtitles" | "markers";
 export const Route = createFileRoute("/_authenticated/admin-media")({
-  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" || s.tab === "import" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
   head: () => ({ meta: [{ title: "Media · MOROBEST Admin" }, { name: "description", content: "Manage MOROBEST video sources, subtitles and markers." }, { name: "robots", content: "noindex" }] }),
   component: MediaAdmin,
 });
@@ -112,11 +112,11 @@ function MediaAdmin() {
                 )}
               </div>
               <div className="flex gap-1 rounded-lg bg-surface-2 p-1 text-sm">
-                {(["import", "sources", "subtitles", "markers"] as const).map((t) => (
+                {(["sources", "subtitles", "markers"] as const).map((t) => (
                   <button key={t} onClick={() => navigate({ search: { tab: t === "sources" ? undefined : t }, replace: true })} className={cn("flex-1 rounded-md px-2 py-1.5 capitalize", tab === t ? "bg-background text-gold" : "text-muted-foreground")}>{t === "markers" ? "Intro / recap / credits" : t === "import" ? "Import / Upload" : t}</button>
                 ))}
               </div>
-              {tab === "import" && <MediaIngest key={sel.id} titleId={sel.id} titleName={sel.original_title} isSeries={sel.kind !== "movie"} episodes={ingestEpisodes} muxReady={!!cfg.data?.mux} />}
+              {null}
               {tab === "sources" && <Sources titleId={sel.id} episodeId={episodeId} episodes={episodes} />}
               {tab === "subtitles" && <Subtitles titleId={sel.id} episodeId={episodeId} needsEpisode={episodes.length > 0} />}
               {tab === "markers" && (
@@ -134,8 +134,8 @@ function MediaAdmin() {
 
 function Sources({ titleId, episodeId, episodes }: { titleId: string; episodeId: string; episodes: { id: string; label: string }[] }) {
   const qc = useQueryClient();
-  const [mode, setMode] = useState<Mode>("playback");
-  const [provider, setProvider] = useState<"mux" | "cloudflare">("mux");
+  const [mode, setMode] = useState<Mode>("url");
+  const [provider, setProvider] = useState<"mux" | "cloudflare">("cloudflare");
   const [kind, setKind] = useState<"hls" | "dash" | "mp4" | "embed">("hls");
   const [url, setUrl] = useState("");
   const [assetId, setAssetId] = useState("");
@@ -227,18 +227,18 @@ function Sources({ titleId, episodeId, episodes }: { titleId: string; episodeId:
     <div className="grid gap-6 xl:grid-cols-[minmax(0,400px)_1fr]">
       <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
         <div className="flex flex-wrap gap-2 text-xs">
-          <Badge tone={cfg.data?.mux ? "green" : "default"}>Mux {cfg.data?.mux ? "connected" : "not configured"}</Badge>
+          
           <Badge tone={cfg.data?.cloudflare ? "green" : "default"}>Cloudflare {cfg.data?.cloudflare ? "connected" : "optional"}</Badge>
         </div>
         <div className="grid grid-cols-2 gap-1 rounded-lg bg-surface-2 p-1 text-xs">
-          {([["playback", "Mux playback ID"], ["asset", "Existing asset"], ["url", "HLS / DASH / MP4 / embed"]] as const).map(([m, l]) => (
+          {([["url", "HLS / DASH / MP4 / embed"], ["asset", "Cloudflare asset"]] as const).map(([m, l]) => (
             <button key={m} onClick={() => setMode(m)} className={`rounded-md px-2 py-1.5 ${mode === m ? "bg-background text-gold" : "text-muted-foreground"}`}>{l}</button>
           ))}
         </div>
         {needsProvider && (
           <>
             <select className={field} value={provider} onChange={(e) => setProvider(e.target.value as "mux" | "cloudflare")} aria-label="Provider">
-              <option value="mux">Mux (primary)</option><option value="cloudflare">Cloudflare Stream (optional)</option>
+              <option value="cloudflare">Cloudflare Stream (optional)</option>
             </select>
             {!providerReady && <p className="rounded-lg bg-surface-2 p-3 text-xs text-muted-foreground">{provider === "mux" ? "Mux production credentials not configured." : "Cloudflare Stream not configured."} <Link to="/admin-settings" className="text-gold">Settings</Link></p>}
             {mode === "upload"

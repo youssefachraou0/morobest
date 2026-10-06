@@ -50,7 +50,6 @@ import { Route as AuthenticatedAdminTitleKeyRouteImport } from './routes/_authen
 import { Route as ApiPublicEventsRouteImport } from './routes/api/public/events'
 import { Route as RamadanYearCountryRouteImport } from './routes/ramadan.$year_.$country'
 import { Route as ApiPublicSubtitlesIdRouteImport } from './routes/api/public/subtitles.$id'
-import { Route as ApiPublicWebhooksMuxRouteImport } from './routes/api/public/webhooks/mux'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -261,11 +260,6 @@ const ApiPublicSubtitlesIdRoute = ApiPublicSubtitlesIdRouteImport.update({
   path: '/api/public/subtitles/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicWebhooksMuxRoute = ApiPublicWebhooksMuxRouteImport.update({
-  id: '/api/public/webhooks/mux',
-  path: '/api/public/webhooks/mux',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -308,7 +302,6 @@ export interface FileRoutesByFullPath {
   '/api/public/events': typeof ApiPublicEventsRoute
   '/ramadan/$year/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
-  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -351,7 +344,6 @@ export interface FileRoutesByTo {
   '/api/public/events': typeof ApiPublicEventsRoute
   '/ramadan/$year/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
-  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -396,7 +388,6 @@ export interface FileRoutesById {
   '/api/public/events': typeof ApiPublicEventsRoute
   '/ramadan/$year_/$country': typeof RamadanYearCountryRoute
   '/api/public/subtitles/$id': typeof ApiPublicSubtitlesIdRoute
-  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -441,7 +432,6 @@ export interface FileRouteTypes {
     | '/api/public/events'
     | '/ramadan/$year/$country'
     | '/api/public/subtitles/$id'
-    | '/api/public/webhooks/mux'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -484,7 +474,6 @@ export interface FileRouteTypes {
     | '/api/public/events'
     | '/ramadan/$year/$country'
     | '/api/public/subtitles/$id'
-    | '/api/public/webhooks/mux'
   id:
     | '__root__'
     | '/'
@@ -528,7 +517,6 @@ export interface FileRouteTypes {
     | '/api/public/events'
     | '/ramadan/$year_/$country'
     | '/api/public/subtitles/$id'
-    | '/api/public/webhooks/mux'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -564,7 +552,6 @@ export interface RootRouteChildren {
   ApiPublicEventsRoute: typeof ApiPublicEventsRoute
   RamadanYearCountryRoute: typeof RamadanYearCountryRoute
   ApiPublicSubtitlesIdRoute: typeof ApiPublicSubtitlesIdRoute
-  ApiPublicWebhooksMuxRoute: typeof ApiPublicWebhooksMuxRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -856,13 +843,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSubtitlesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/webhooks/mux': {
-      id: '/api/public/webhooks/mux'
-      path: '/api/public/webhooks/mux'
-      fullPath: '/api/public/webhooks/mux'
-      preLoaderRoute: typeof ApiPublicWebhooksMuxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -926,7 +906,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEventsRoute: ApiPublicEventsRoute,
   RamadanYearCountryRoute: RamadanYearCountryRoute,
   ApiPublicSubtitlesIdRoute: ApiPublicSubtitlesIdRoute,
-  ApiPublicWebhooksMuxRoute: ApiPublicWebhooksMuxRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
