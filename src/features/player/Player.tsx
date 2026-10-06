@@ -72,6 +72,8 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   const [error, setError] = useState(false);
   const [unsupported, setUnsupported] = useState(false);
   const startedRef = useRef(false);
+  const attemptRef = useRef(0);
+  const unsupportedAt = useRef<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [idle, setIdle] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -105,7 +107,9 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
     startedRef.current = true; // settles the startup watchdog
     setLoading(false);
     if (fatalRef.current?.(m)) return;
-    setUnsupported(m.startsWith("unsupported"));
+    const unsup = m.startsWith("unsupported");
+    if (unsup) unsupportedAt.current = attemptRef.current;
+    setUnsupported(unsup);
     setError(true);
   }, []);
   useEffect(() => {
@@ -119,6 +123,9 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   useEffect(() => {
     const v = video.current;
     if (!v) return;
+    attemptRef.current = attempt;
+    // A refreshed token URL must not silently re-run a stream this browser already can't decode.
+    if (unsupportedAt.current === attempt) return;
     let destroyed = false;
     setError(false);
     setUnsupported(false);
