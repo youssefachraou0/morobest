@@ -16,6 +16,9 @@ describe("event validation", () => {
   it("accepts a valid playback batch", () => {
     expect(BatchSchema.safeParse(batch([ev("play_start", { props: { provider: "mux" } }), ev("watch_time", { value: 30 })])).success).toBe(true);
   });
+  it("accepts every props shape the app sends", () => {
+    for (const e of [ev("search_click", { titleId: null, props: { q: "fight club" } }), ev("watch_click", { props: { slug: "x" } }), ev("playback_error", { props: { provider: "url", message: "media error" } }), ev("fallback", { props: { provider: "mux" } })]) expect(EventSchema.safeParse(e).success).toBe(true);
+  });
   it("rejects unknown events", () => expect(EventSchema.safeParse(ev("hack")).success).toBe(false));
   it("rejects arbitrary database fields", () => {
     expect(EventSchema.safeParse({ ...ev("click"), is_test: false }).success).toBe(false);
