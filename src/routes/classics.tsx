@@ -1,26 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BrowsePage, validateBrowseSearch } from "@/components/mb/BrowsePage";
-import { useI18n } from "@/i18n/I18nProvider";
+import { TmdbWorldView } from "@/components/mb/Tmdb";
+import { tmdbWorldQuery } from "@/features/tmdb/tmdb.functions";
+import { FullPageMessage } from "@/components/mb/States";
+import { StarLoader } from "@/components/mb/Brand";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/classics")({
-  validateSearch: validateBrowseSearch,
-  head: () => seo("Classics", "Restored heritage cinema from Morocco, the Arab world and beyond."),
-  component: Page,
+  loader: ({ context }) => context.queryClient.ensureQueryData(tmdbWorldQuery("classics", context.locale)),
+  head: () => seo("Classics", "Timeless cinema — golden-age films, Arabic classics and legendary series on MOROBEST."),
+  pendingComponent: () => <StarLoader className="min-h-screen" />,
+  errorComponent: () => <FullPageMessage title="The catalog is temporarily unavailable." body="Please try again in a moment." />,
+  component: () => <TmdbWorldView kind="classics"  />,
 });
-
-function Page() {
-  const { t } = useI18n();
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
-  return (
-    <BrowsePage
-      title={t.nav.classics}
-      eyebrow={t.section.worlds}
-      base={{ classic: true }}
-      search={search}
-      onSearch={(s) => navigate({ search: s, replace: true })}
-      showStatus={false}
-    />
-  );
-}
