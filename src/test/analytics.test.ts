@@ -132,7 +132,7 @@ describe("series / episode analytics", () => {
   const ep = (id: string) => computeMetrics(evs.filter((e) => e.episodeId === id));
   it("counts views per episode", () => { expect(ep(E1).views).toBe(100); expect(ep(E2).views).toBe(70); });
   it("counts completion per episode", () => { expect(ep(E1).completionRate).toBe(0); expect(ep(E2).completionRate).toBe(1); });
-  it("drop-off: 100 → 70 viewers is 30%", () => expect(dropOff([100, 70])).toEqual([0, 0.30000000000000004].map((x) => x)));
+  it("drop-off: 100 → 70 viewers is 30%", () => { const d = dropOff([100, 70]); expect(d[0]).toBe(0); expect(d[1]).toBeCloseTo(0.3); });
   it("drop-off never goes negative", () => expect(dropOff([10, 20])[1]).toBe(0));
   it("same viewer on two episodes is two views but one unique viewer", () => {
     const m = computeMetrics([
