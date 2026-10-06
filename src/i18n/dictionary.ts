@@ -45,7 +45,7 @@ const en = {
   },
   error: {
     notFound: "This page wandered off into the desert.", generic: "Something went wrong on our side.",
-    unavailable: "This title is not available right now.", playback: "Playback could not start.", offline: "You appear to be offline.",
+    unavailable: "This title is not available right now.", playback: "Playback could not start.", unsupported: "This video cannot be played in this browser.", offline: "You appear to be offline.",
   },
   hero: { tagline: "Cinema of the world. Soul of Morocco." },
   footer: { rights: "All rights reserved.", legal: "Only licensed and authorized content is streamed on MOROBEST.", privacy: "Privacy" },
@@ -98,7 +98,7 @@ const fr: Dict = {
   },
   error: {
     notFound: "Cette page s'est perdue dans le désert.", generic: "Une erreur est survenue.",
-    unavailable: "Ce titre n'est pas disponible.", playback: "La lecture n'a pas pu démarrer.", offline: "Vous semblez hors ligne.",
+    unavailable: "Ce titre n'est pas disponible.", playback: "La lecture n'a pas pu démarrer.",  unsupported: "Cette vidéo ne peut pas être lue dans ce navigateur.", offline: "Vous semblez hors ligne.",
   },
   hero: { tagline: "Le cinéma du monde. L'âme du Maroc." },
   footer: { rights: "Tous droits réservés.", legal: "MOROBEST ne diffuse que des contenus sous licence.", privacy: "Confidentialité" },
