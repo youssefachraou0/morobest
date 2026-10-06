@@ -9,6 +9,14 @@ export function publicDb() {
   if (!url || !key) throw new Error("Catalog backend is not configured");
   return createClient<Database>(url, key, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      },
+    },
   });
 }
 type Db = ReturnType<typeof publicDb>;
