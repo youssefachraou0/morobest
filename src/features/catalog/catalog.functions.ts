@@ -91,12 +91,12 @@ export const fetchTitle = createServerFn({ method: "GET" })
     const { data: row, error } = await db
       .from("titles")
       .select(
-        `${CARD_SELECT}, release_date, trailer_url, studios(name),
+        `${CARD_SELECT}, release_date, trailer_url, intro_start_s, intro_end_s, credits_start_s, studios(name),
          title_genres(genres(slug, name_en, name_fr, name_ar)),
          title_countries(countries(*)),
          title_languages(languages(*)),
          credits(role, character_name, ord, people(slug, name, name_ar, photo_url)),
-         seasons(id, number, name, year, episodes(id, number, title, synopsis, runtime_min, air_date, thumbnail_url, intro_start_s, intro_end_s, recap_end_s)),
+         seasons(id, number, name, year, episodes(id, number, title, synopsis, runtime_min, air_date, thumbnail_url, intro_start_s, intro_end_s, recap_start_s, recap_end_s, credits_start_s)),
          manga_volumes(id, number, release_date, cover_url),
          manga_chapters(id, volume_id, number, title, release_date, readable, official_url)`,
       )
@@ -124,6 +124,7 @@ export const fetchTitle = createServerFn({ method: "GET" })
       ...card,
       releaseDate: r.release_date,
       trailer: r.trailer_url,
+      markers: { introStart: r.intro_start_s ?? null, introEnd: r.intro_end_s ?? null, creditsStart: r.credits_start_s ?? null },
       studio: r.studios ?? null,
       genres,
       countries: (r.title_countries ?? []).map((c: any) => c.countries).filter(Boolean),

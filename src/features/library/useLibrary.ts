@@ -64,11 +64,12 @@ export function useProgress() {
 }
 
 export async function saveProgress(profileId: string, titleId: string, episodeId: string | null, position: number, duration: number) {
-  const completed = duration > 0 && position / duration > 0.92;
+  const completed = duration > 0 && position / duration >= 0.9;
   let q = supabase.from("playback_progress").select("id").eq("profile_id", profileId).eq("title_id", titleId);
   q = episodeId ? q.eq("episode_id", episodeId) : q.is("episode_id", null);
   const { data: existing } = await q.maybeSingle();
-  const row = { position_s: Math.floor(position), duration_s: Math.floor(duration), completed, updated_at: new Date().toISOString() };
+  const now = new Date().toISOString();
+  const row = { position_s: Math.floor(position), duration_s: Math.floor(duration), completed, updated_at: now, last_watched_at: now };
   const res = existing
     ? await supabase.from("playback_progress").update(row).eq("id", existing.id)
     : await supabase.from("playback_progress").insert({ ...row, profile_id: profileId, title_id: titleId, episode_id: episodeId });

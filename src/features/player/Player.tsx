@@ -178,7 +178,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   useEffect(() => {
     const v = video.current; if (!v) return;
     Array.from(v.textTracks).forEach((tt, i) => { tt.mode = i === subIdx ? "showing" : "disabled"; });
-  }, [subIdx]);
+  }, [subIdx, loading]);
 
   const m = markers ?? {};
   const showSkipIntro = m.introEnd != null && time >= (m.introStart ?? 0) && time < m.introEnd;
