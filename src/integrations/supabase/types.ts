@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_id: string
+          content_id: string | null
+          created_at: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Relationships: []
+      }
       admin_permissions: {
         Row: {
           granted_at: string
@@ -98,6 +128,92 @@ export type Database = {
         }
         Relationships: []
       }
+      content_links: {
+        Row: {
+          content_type: string
+          id: string
+          is_primary: boolean
+          linked_at: string
+          linked_by: string | null
+          provider: string
+          provider_id: string
+          title_id: string
+        }
+        Insert: {
+          content_type: string
+          id?: string
+          is_primary?: boolean
+          linked_at?: string
+          linked_by?: string | null
+          provider: string
+          provider_id: string
+          title_id: string
+        }
+        Update: {
+          content_type?: string
+          id?: string
+          is_primary?: boolean
+          linked_at?: string
+          linked_by?: string | null
+          provider?: string
+          provider_id?: string
+          title_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_links_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_overrides: {
+        Row: {
+          content_type: string
+          id: string
+          locale: string
+          overview: string | null
+          provider: string
+          provider_id: string
+          short_description: string | null
+          subtitle: string | null
+          tagline: string | null
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content_type: string
+          id?: string
+          locale: string
+          overview?: string | null
+          provider: string
+          provider_id: string
+          short_description?: string | null
+          subtitle?: string | null
+          tagline?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content_type?: string
+          id?: string
+          locale?: string
+          overview?: string | null
+          provider?: string
+          provider_id?: string
+          short_description?: string | null
+          subtitle?: string | null
+          tagline?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           code: string
@@ -164,6 +280,57 @@ export type Database = {
           {
             foreignKeyName: "credits_title_id_fkey"
             columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      episode_links: {
+        Row: {
+          episode_id: string | null
+          episode_number: number
+          id: string
+          is_manual: boolean
+          provider: string
+          provider_id: string
+          season_number: number
+          series_title_id: string
+          updated_at: string
+        }
+        Insert: {
+          episode_id?: string | null
+          episode_number: number
+          id?: string
+          is_manual?: boolean
+          provider: string
+          provider_id: string
+          season_number: number
+          series_title_id: string
+          updated_at?: string
+        }
+        Update: {
+          episode_id?: string | null
+          episode_number?: number
+          id?: string
+          is_manual?: boolean
+          provider?: string
+          provider_id?: string
+          season_number?: number
+          series_title_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episode_links_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "episode_links_series_title_id_fkey"
+            columns: ["series_title_id"]
             isOneToOne: false
             referencedRelation: "titles"
             referencedColumns: ["id"]
@@ -661,23 +828,47 @@ export type Database = {
       }
       ramadan_seasons: {
         Row: {
+          archived_at: string | null
+          description: string | null
           ends_on: string
+          hero_image: string | null
           id: string
+          is_active: boolean
           is_current: boolean
+          is_featured: boolean
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string | null
           starts_on: string
           year: number
         }
         Insert: {
+          archived_at?: string | null
+          description?: string | null
           ends_on: string
+          hero_image?: string | null
           id?: string
+          is_active?: boolean
           is_current?: boolean
+          is_featured?: boolean
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string | null
           starts_on: string
           year: number
         }
         Update: {
+          archived_at?: string | null
+          description?: string | null
           ends_on?: string
+          hero_image?: string | null
           id?: string
+          is_active?: boolean
           is_current?: boolean
+          is_featured?: boolean
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string | null
           starts_on?: string
           year?: number
         }
@@ -688,34 +879,49 @@ export type Database = {
           air_time: string | null
           country_code: string | null
           created_at: string
+          featured: boolean
           id: string
           media_type: string
+          notes: string | null
           ord: number
           provider: string
           provider_id: string
+          release_schedule: string | null
           season_id: string
+          status: string
+          title_id: string | null
         }
         Insert: {
           air_time?: string | null
           country_code?: string | null
           created_at?: string
+          featured?: boolean
           id?: string
           media_type?: string
+          notes?: string | null
           ord?: number
           provider?: string
           provider_id: string
+          release_schedule?: string | null
           season_id: string
+          status?: string
+          title_id?: string | null
         }
         Update: {
           air_time?: string | null
           country_code?: string | null
           created_at?: string
+          featured?: boolean
           id?: string
           media_type?: string
+          notes?: string | null
           ord?: number
           provider?: string
           provider_id?: string
+          release_schedule?: string | null
           season_id?: string
+          status?: string
+          title_id?: string | null
         }
         Relationships: [
           {
@@ -730,6 +936,13 @@ export type Database = {
             columns: ["season_id"]
             isOneToOne: false
             referencedRelation: "ramadan_seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ramadan_titles_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "titles"
             referencedColumns: ["id"]
           },
         ]
@@ -801,6 +1014,102 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seo_overrides: {
+        Row: {
+          canonical_url: string | null
+          content_type: string
+          follow_links: boolean
+          id: string
+          indexable: boolean
+          meta_description_ar: string | null
+          meta_description_en: string | null
+          meta_description_fr: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          provider: string
+          provider_id: string
+          schema: Json | null
+          seo_title_ar: string | null
+          seo_title_en: string | null
+          seo_title_fr: string | null
+          slug: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          canonical_url?: string | null
+          content_type: string
+          follow_links?: boolean
+          id?: string
+          indexable?: boolean
+          meta_description_ar?: string | null
+          meta_description_en?: string | null
+          meta_description_fr?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          provider: string
+          provider_id: string
+          schema?: Json | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
+          seo_title_fr?: string | null
+          slug?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          canonical_url?: string | null
+          content_type?: string
+          follow_links?: boolean
+          id?: string
+          indexable?: boolean
+          meta_description_ar?: string | null
+          meta_description_en?: string | null
+          meta_description_fr?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          provider?: string
+          provider_id?: string
+          schema?: Json | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
+          seo_title_fr?: string | null
+          slug?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      slug_redirects: {
+        Row: {
+          content_type: string
+          created_at: string
+          id: string
+          old_slug: string
+          provider: string
+          provider_id: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          id?: string
+          old_slug: string
+          provider: string
+          provider_id: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          old_slug?: string
+          provider?: string
+          provider_id?: string
+        }
+        Relationships: []
       }
       studios: {
         Row: {
@@ -1055,6 +1364,7 @@ export type Database = {
         Row: {
           age_rating: number
           backdrop_url: string | null
+          content_status: string
           created_at: string
           credits_start_s: number | null
           deleted_at: string | null
@@ -1063,6 +1373,7 @@ export type Database = {
           intro_end_s: number | null
           intro_start_s: number | null
           is_classic: boolean
+          is_demo: boolean
           is_kids: boolean
           kind: Database["public"]["Enums"]["title_kind"]
           original_title: string
@@ -1082,6 +1393,7 @@ export type Database = {
         Insert: {
           age_rating?: number
           backdrop_url?: string | null
+          content_status?: string
           created_at?: string
           credits_start_s?: number | null
           deleted_at?: string | null
@@ -1090,6 +1402,7 @@ export type Database = {
           intro_end_s?: number | null
           intro_start_s?: number | null
           is_classic?: boolean
+          is_demo?: boolean
           is_kids?: boolean
           kind: Database["public"]["Enums"]["title_kind"]
           original_title: string
@@ -1109,6 +1422,7 @@ export type Database = {
         Update: {
           age_rating?: number
           backdrop_url?: string | null
+          content_status?: string
           created_at?: string
           credits_start_s?: number | null
           deleted_at?: string | null
@@ -1117,6 +1431,7 @@ export type Database = {
           intro_end_s?: number | null
           intro_start_s?: number | null
           is_classic?: boolean
+          is_demo?: boolean
           is_kids?: boolean
           kind?: Database["public"]["Enums"]["title_kind"]
           original_title?: string
@@ -1328,6 +1643,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_content: { Args: { _user_id: string }; Returns: boolean }
       can_manage_media: { Args: { _user_id: string }; Returns: boolean }
       get_playback_source: {
         Args: { _episode?: string; _title: string }
@@ -1376,7 +1692,14 @@ export type Database = {
           url: string
         }[]
       }
+      public_playable_units: {
+        Args: { _title: string }
+        Returns: {
+          episode_id: string
+        }[]
+      }
       subtitle_vtt: { Args: { _id: string }; Returns: string }
+      title_is_public: { Args: { _title: string }; Returns: boolean }
     }
     Enums: {
       app_role:
