@@ -55,7 +55,7 @@ export type Dashboard = {
   titles: { title_id: string; name: string; slug: string; kind: string; views: number; unique: number; watch_seconds: number; completions: number; errors: number }[];
   searches: { q: string; n: number }[]; subtitles: { lang: string; n: number }[]; audio: { lang: string; n: number }[];
   error_list: { at: string; provider: string | null; message: string }[]; events: Record<string, number>;
-  trending: TrendingItem[];
+  trending: TrendingItem[]; ctx: Record<string, number>;
 };
 
 export const adminAnalyticsDashboard = createServerFn({ method: "POST" })
@@ -64,9 +64,12 @@ export const adminAnalyticsDashboard = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<Dashboard> => {
     const { data: d, error } = await context.supabase.rpc("analytics_dashboard", { _from: data.from, _to: data.to });
     if (error) throw new Error(error.message.includes("forbidden") ? "Forbidden" : "Analytics are temporarily unavailable.");
-    const { data: tr } = await context.supabase.rpc("trending_content", { _days: 14, _limit: 10 });
+    const [{ data: tr }, { data: cx }] = await Promise.all([
+      context.supabase.rpc("trending_content", { _days: 14, _limit: 10 }),
+      context.supabase.rpc("analytics_ctx", { _from: data.from, _to: data.to }),
+    ]);
     const trending = tr?.length ? await resolveKeys(tr as any, "en") : [];
-    return { ...(d as any), trending };
+    return { ...(d as any), trending, ctx: (cx ?? {}) as Record<string, number> };
   });
 
 export type TitleAnalytics = {

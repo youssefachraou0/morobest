@@ -50,6 +50,7 @@ function Admin() {
         {canManageContent && <>
           <Link to="/admin-content" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Content · Title Linking</Link>
           <Link to="/admin-content" search={{ tab: "titles" }} className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Content · MOROBEST titles</Link>
+          <Link to="/admin-analytics" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Analytics</Link>
           <Link to="/admin-ramadan" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Content · Ramadan</Link>
           <Link to="/admin-content" search={{ tab: "audit" }} className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Audit log</Link>
         </>}

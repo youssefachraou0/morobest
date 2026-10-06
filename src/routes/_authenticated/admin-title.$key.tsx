@@ -16,6 +16,7 @@ import { Badge } from "@/components/mb/Cards";
 import { AuditTable, field } from "@/components/mb/AdminBits";
 import { cn } from "@/lib/utils";
 import { validateSlug } from "@/features/editorial/slug";
+import { TitleAnalyticsView } from "@/components/mb/AnalyticsBits";
 
 const TABS = ["overview", "metadata", "localization", "video", "subtitles", "audio", "episodes", "ramadan", "seo", "availability", "analytics", "audit"] as const;
 type Tab = (typeof TABS)[number];
@@ -76,7 +77,7 @@ function TitleAdmin() {
         {tab === "episodes" && (ext.ct === "series" ? <Episodes ext={ext} seasons={d.meta?.seasons ?? []} linked={!!titleId} /> : <p className="text-muted-foreground">Only TMDB series have seasons and episodes.</p>)}
         {tab === "ramadan" && <RamadanTab d={d} />}
         {(tab === "video" || tab === "subtitles" || tab === "audio" || tab === "availability") && <MediaTab tab={tab} d={d} />}
-        {tab === "analytics" && <p className="text-muted-foreground">Viewing analytics are not collected yet. Watch progress is stored per profile and will feed this view once analytics are enabled.</p>}
+        {tab === "analytics" && (d.link?.titles?.id ? <TitleAnalyticsView titleId={d.link.titles.id} /> : <p className="text-muted-foreground">Viewing analytics appear once this title is linked to a MOROBEST title with playable video.</p>)}
         {tab === "audit" && <AuditTable contentId={d.ref} />}
       </div>
     </div>

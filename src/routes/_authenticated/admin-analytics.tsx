@@ -14,11 +14,11 @@ export const Route = createFileRoute("/_authenticated/admin-analytics")({
 });
 
 function AdminAnalytics() {
-  const { isStaff, loading } = useAuth() as ReturnType<typeof useAuth> & { isStaff?: boolean; loading?: boolean };
+  const { isStaff } = useAuth();
   const { range, picker } = useRange();
   const fn = useServerFn(adminAnalyticsDashboard);
   const q = useQuery({ queryKey: ["admin-analytics", range], queryFn: () => fn({ data: range }), refetchInterval: 60_000, retry: false });
-  if (!loading && isStaff === false) return <FullPageMessage title="This area is for MOROBEST staff only." />;
+  if (!isStaff && q.isError) return <FullPageMessage title="This area is for MOROBEST staff only." />;
   if (q.error && (q.error as Error).message === "Forbidden") return <FullPageMessage title="This area is for MOROBEST staff only." />;
   const d = q.data;
   return (
@@ -51,6 +51,7 @@ function Body({ d }: { d: Dashboard }) {
   const canonical = useCanonical();
   const byKind = (k: string) => d.titles.filter((t) => t.kind === k).slice(0, 8).map((t) => [t.name, `${t.views} views · ${hm(t.watch_seconds)}`] as [string, string]);
   const ev = d.events ?? {};
+  const rec = (e: string) => ["rec", "similar", "related"].reduce((n, c) => n + (d.ctx?.[`${e}:${c}`] ?? 0), 0);
   return (
     <>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
@@ -85,7 +86,7 @@ function Body({ d }: { d: Dashboard }) {
         <List title="Audio languages" rows={d.audio.map((s) => [s.lang ?? "original", s.n])} />
         <List title="Engagement" rows={[
           ["Title impressions", ev.impression ?? 0], ["Title clicks", ev.click ?? 0], ["Search result clicks", ev.search_click ?? 0],
-          ["Recommendation clicks", "see events"], ["Watch button clicks", ev.watch_click ?? 0], ["Continue Watching clicks", ev.continue_click ?? 0],
+          ["Recommendation impressions / clicks", `${rec("impression")} / ${rec("click")}`], ["Watch button clicks", ev.watch_click ?? 0], ["Continue Watching clicks", ev.continue_click ?? 0],
           ["Watchlist adds / removes", `${ev.watchlist_add ?? 0} / ${ev.watchlist_remove ?? 0}`], ["Favorites adds / removes", `${ev.favorite_add ?? 0} / ${ev.favorite_remove ?? 0}`],
           ["Autoplay next episode", ev.autoplay_next ?? 0], ["Pauses / resumes", `${ev.pause ?? 0} / ${ev.resume ?? 0}`], ["Completions", ev.complete ?? 0],
         ]} />
