@@ -19,7 +19,7 @@ import { MediaIngest } from "@/components/mb/MediaIngest";
 
 type Tab = "import" | "sources" | "subtitles" | "markers";
 export const Route = createFileRoute("/_authenticated/admin-media")({
-  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" || s.tab === "import" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
   head: () => ({ meta: [{ title: "Media · MOROBEST Admin" }, { name: "description", content: "Manage MOROBEST video sources, subtitles and markers." }, { name: "robots", content: "noindex" }] }),
   component: MediaAdmin,
 });
@@ -116,7 +116,7 @@ function MediaAdmin() {
                   <button key={t} onClick={() => navigate({ search: { tab: t === "sources" ? undefined : t }, replace: true })} className={cn("flex-1 rounded-md px-2 py-1.5 capitalize", tab === t ? "bg-background text-gold" : "text-muted-foreground")}>{t === "markers" ? "Intro / recap / credits" : t === "import" ? "Import / Upload" : t}</button>
                 ))}
               </div>
-              {tab === "import" && <MediaIngest key={sel.id} titleId={sel.id} titleName={sel.original_title} isSeries={sel.kind !== "movie"} episodes={ingestEpisodes} muxReady={!!cfg.data?.mux} />}
+              {null}
               {tab === "sources" && <Sources titleId={sel.id} episodeId={episodeId} episodes={episodes} />}
               {tab === "subtitles" && <Subtitles titleId={sel.id} episodeId={episodeId} needsEpisode={episodes.length > 0} />}
               {tab === "markers" && (
