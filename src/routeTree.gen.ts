@@ -10,33 +10,141 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnimeRouteImport } from './routes/anime'
+import { Route as ClassicsRouteImport } from './routes/classics'
+import { Route as KidsRouteImport } from './routes/kids'
+import { Route as MangaRouteImport } from './routes/manga'
+import { Route as MoviesRouteImport } from './routes/movies'
+import { Route as NewRouteImport } from './routes/new'
+import { Route as SeriesRouteImport } from './routes/series'
+import { Route as TrendingRouteImport } from './routes/trending'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnimeRoute = AnimeRouteImport.update({
+  id: '/anime',
+  path: '/anime',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassicsRoute = ClassicsRouteImport.update({
+  id: '/classics',
+  path: '/classics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KidsRoute = KidsRouteImport.update({
+  id: '/kids',
+  path: '/kids',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MangaRoute = MangaRouteImport.update({
+  id: '/manga',
+  path: '/manga',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviesRoute = MoviesRouteImport.update({
+  id: '/movies',
+  path: '/movies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewRoute = NewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeriesRoute = SeriesRouteImport.update({
+  id: '/series',
+  path: '/series',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrendingRoute = TrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
+  '/classics': typeof ClassicsRoute
+  '/kids': typeof KidsRoute
+  '/manga': typeof MangaRoute
+  '/movies': typeof MoviesRoute
+  '/new': typeof NewRoute
+  '/series': typeof SeriesRoute
+  '/trending': typeof TrendingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
+  '/classics': typeof ClassicsRoute
+  '/kids': typeof KidsRoute
+  '/manga': typeof MangaRoute
+  '/movies': typeof MoviesRoute
+  '/new': typeof NewRoute
+  '/series': typeof SeriesRoute
+  '/trending': typeof TrendingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
+  '/classics': typeof ClassicsRoute
+  '/kids': typeof KidsRoute
+  '/manga': typeof MangaRoute
+  '/movies': typeof MoviesRoute
+  '/new': typeof NewRoute
+  '/series': typeof SeriesRoute
+  '/trending': typeof TrendingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/anime'
+    | '/classics'
+    | '/kids'
+    | '/manga'
+    | '/movies'
+    | '/new'
+    | '/series'
+    | '/trending'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/anime'
+    | '/classics'
+    | '/kids'
+    | '/manga'
+    | '/movies'
+    | '/new'
+    | '/series'
+    | '/trending'
+  id:
+    | '__root__'
+    | '/'
+    | '/anime'
+    | '/classics'
+    | '/kids'
+    | '/manga'
+    | '/movies'
+    | '/new'
+    | '/series'
+    | '/trending'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnimeRoute: typeof AnimeRoute
+  ClassicsRoute: typeof ClassicsRoute
+  KidsRoute: typeof KidsRoute
+  MangaRoute: typeof MangaRoute
+  MoviesRoute: typeof MoviesRoute
+  NewRoute: typeof NewRoute
+  SeriesRoute: typeof SeriesRoute
+  TrendingRoute: typeof TrendingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +156,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/anime': {
+      id: '/anime'
+      path: '/anime'
+      fullPath: '/anime'
+      preLoaderRoute: typeof AnimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classics': {
+      id: '/classics'
+      path: '/classics'
+      fullPath: '/classics'
+      preLoaderRoute: typeof ClassicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kids': {
+      id: '/kids'
+      path: '/kids'
+      fullPath: '/kids'
+      preLoaderRoute: typeof KidsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manga': {
+      id: '/manga'
+      path: '/manga'
+      fullPath: '/manga'
+      preLoaderRoute: typeof MangaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movies': {
+      id: '/movies'
+      path: '/movies'
+      fullPath: '/movies'
+      preLoaderRoute: typeof MoviesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new': {
+      id: '/new'
+      path: '/new'
+      fullPath: '/new'
+      preLoaderRoute: typeof NewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/series': {
+      id: '/series'
+      path: '/series'
+      fullPath: '/series'
+      preLoaderRoute: typeof SeriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trending': {
+      id: '/trending'
+      path: '/trending'
+      fullPath: '/trending'
+      preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnimeRoute: AnimeRoute,
+  ClassicsRoute: ClassicsRoute,
+  KidsRoute: KidsRoute,
+  MangaRoute: MangaRoute,
+  MoviesRoute: MoviesRoute,
+  NewRoute: NewRoute,
+  SeriesRoute: SeriesRoute,
+  TrendingRoute: TrendingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

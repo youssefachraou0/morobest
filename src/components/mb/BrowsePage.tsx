@@ -29,7 +29,8 @@ export function BrowsePage({
   const { t, locale } = useI18n();
   const { maxAge } = useAuth();
   const tax = useQuery(taxonomyQuery());
-  const params: ListParams = { ...base, ...search, maxAge: base.maxAge ?? maxAge, limit: 60 };
+  const cleanSearch = Object.fromEntries(Object.entries(search).filter(([, v]) => v !== undefined));
+  const params: ListParams = { ...base, ...cleanSearch, maxAge: base.maxAge ?? maxAge, limit: 60 };
   const list = useQuery(titlesQuery(params));
 
   const sorts: [ListSort, string][] = [["popular", t.label.popular], ["newest", t.label.newest], ["rating", t.label.topRated], ["oldest", t.label.oldest], ["az", t.label.az]];
