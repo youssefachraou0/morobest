@@ -12,6 +12,8 @@ import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { fetchAniSuggest } from "@/features/anilist/anilist.functions";
 import { AniPoster } from "@/components/mb/Ani";
+import { tmdbSearchQuery } from "@/features/tmdb/tmdb.functions";
+import { TL, TmdbPersonTile, TmdbPoster } from "@/components/mb/Tmdb";
 
 const KINDS: TitleKind[] = ["movie", "series", "anime", "manga"];
 
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/search")({
 function SearchPage() {
   const { q = "", kind } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { maxAge } = useAuth();
   const [text, setText] = useState(q);
 
@@ -40,6 +42,7 @@ function SearchPage() {
 
   const res = useQuery({ ...titlesQuery({ q, kind, maxAge, limit: 60 }), enabled: q.trim().length > 0 });
   const ani = useQuery({ queryKey: ["al-suggest", q.trim().toLowerCase()], queryFn: () => fetchAniSuggest({ data: { q: q.trim() } }), enabled: q.trim().length >= 2 && (!kind || kind === "anime" || kind === "manga"), staleTime: 10 * 60_000 });
+  const tm = useQuery({ ...tmdbSearchQuery(q, locale), enabled: q.trim().length >= 2 && (!kind || kind === "movie" || kind === "series") });
   const kindLabel: Record<TitleKind, string> = { movie: t.nav.movies, series: t.nav.series, anime: t.nav.anime, manga: t.nav.manga };
 
   return (
@@ -66,6 +69,22 @@ function SearchPage() {
           </button>
         ))}
       </div>
+      {tm.data && (
+        <>
+          {kind !== "series" && tm.data.movies.length > 0 && (
+            <div className="mt-8"><p className="eyebrow mb-3">{TL.movies[locale]}</p>
+              <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">{tm.data.movies.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</div></div>
+          )}
+          {kind !== "movie" && tm.data.tv.length > 0 && (
+            <div className="mt-8"><p className="eyebrow mb-3">{TL.series[locale]}</p>
+              <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">{tm.data.tv.map((x) => <TmdbPoster key={x.tmdbId} item={x} />)}</div></div>
+          )}
+          {!kind && tm.data.people.length > 0 && (
+            <div className="mt-8"><p className="eyebrow mb-3">{TL.people[locale]}</p>
+              <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">{tm.data.people.map((p) => <TmdbPersonTile key={p.id} p={p} />)}</div></div>
+          )}
+        </>
+      )}
       {ani.data && ani.data.length > 0 && (
         <div className="mt-8">
           <p className="eyebrow mb-3">Anime &amp; Manga</p>

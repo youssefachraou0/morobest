@@ -1,19 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { tmdbWorldQuery } from "@/features/tmdb/tmdb.functions";
+import { aniHomeQuery } from "@/features/anilist/anilist.functions";
+import { TmdbAttribution, TmdbHero, TmdbRows } from "@/components/mb/Tmdb";
+import { AniPoster } from "@/components/mb/Ani";
 import { homeQuery } from "@/features/catalog/queries";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { nameOf } from "@/features/catalog/localize";
-import { Hero } from "@/components/mb/Hero";
 import { Row } from "@/components/mb/Row";
-import { PosterCard, LandscapeCard } from "@/components/mb/Cards";
+import { LandscapeCard } from "@/components/mb/Cards";
 import { ContinueRow } from "@/components/mb/ContinueRow";
 import { StarDivider, StarLoader } from "@/components/mb/Brand";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   head: () => seo("Movies, Series, Anime & Ramadan", "MOROBEST — a premium streaming home for world cinema, Arabic series, Ramadan, anime, manga and family entertainment."),
-  loader: ({ context }) => context.queryClient.ensureQueryData(homeQuery()),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(homeQuery()),
+    context.queryClient.ensureQueryData(tmdbWorldQuery("home", context.locale)),
+  ]),
   pendingComponent: () => <StarLoader className="min-h-screen" />,
   component: Home,
 });
@@ -23,33 +29,27 @@ function Home() {
   const { data } = useSuspenseQuery(homeQuery(maxAge));
   const { t, locale } = useI18n();
   const kidsMode = maxAge != null;
+  const { data: world } = useSuspenseQuery(tmdbWorldQuery("home", locale, kidsMode));
+  const anime = useQuery({ ...aniHomeQuery("ANIME"), enabled: !kidsMode });
+  const manga = useQuery({ ...aniHomeQuery("MANGA"), enabled: !kidsMode });
+  const [first, ...rest] = world.rows;
 
   return (
     <div className="pb-8">
-      <Hero items={kidsMode ? data.kids.filter((k) => k.backdrop).slice(0, 3) : data.hero} />
+      <TmdbHero items={world.hero} />
       <div className="relative z-10 -mt-20">
         <ContinueRow />
         {kidsMode ? (
-          <>
-            <Row title={t.section.kids}>{data.kids.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
-            <Row title={t.section.anime}>{data.anime.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
-          </>
+          <TmdbRows rows={world.rows} />
         ) : (
           <>
-            <Row title={t.section.top10} eyebrow={t.section.trending}>
-              {data.trending.map((x, i) => <PosterCard key={x.id} title={x} rank={i + 1} />)}
-            </Row>
-            <Row title={t.section.new} seeAll={{ to: "/new" }}>{data.newReleases.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
+            {first && <TmdbRows rows={[first]} rankFirst />}
             {data.ramadan.length > 0 && (
               <Row title={`${t.section.ramadan} ${data.ramadanYear ?? ""}`} eyebrow="رمضان كريم" seeAll={{ to: "/ramadan" }}>
                 {data.ramadan.map((x) => <LandscapeCard key={x.id} title={x} />)}
               </Row>
             )}
-            <Row title={t.section.moroccan} eyebrow={t.nav.arabic} seeAll={{ to: "/arabic/$country", params: { country: "morocco" } }}>
-              {data.moroccan.map((x) => <PosterCard key={x.id} title={x} />)}
-            </Row>
-            <Row title={t.section.movies} seeAll={{ to: "/movies" }}>{data.movies.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
-            <Row title={t.section.series} seeAll={{ to: "/series" }}>{data.series.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
+            <TmdbRows rows={rest.slice(0, 4)} />
 
             <section className="px-4 py-8 sm:px-8 lg:px-14">
               <StarDivider className="mb-8" />
@@ -71,10 +71,9 @@ function Home() {
               </div>
             </section>
 
-            <Row title={t.section.anime} seeAll={{ to: "/anime" }}>{data.anime.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
-            <Row title={t.section.kids} seeAll={{ to: "/kids" }}>{data.kids.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
-            <Row title={t.section.manga} seeAll={{ to: "/manga" }}>{data.manga.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
-            <Row title={t.section.classics} seeAll={{ to: "/classics" }}>{data.classics.map((x) => <PosterCard key={x.id} title={x} />)}</Row>
+            {anime.data?.rows[0] && <Row title={t.section.anime} seeAll={{ to: "/anime" }}>{anime.data.rows[0].items.map((x) => <AniPoster key={x.aniListId} item={x} />)}</Row>}
+            <TmdbRows rows={rest.slice(4)} />
+            {manga.data?.rows[0] && <Row title={t.section.manga} seeAll={{ to: "/manga" }}>{manga.data.rows[0].items.map((x) => <AniPoster key={x.aniListId} item={x} />)}</Row>}
 
             {data.collections.length > 0 && (
               <section className="px-4 py-6 sm:px-8 lg:px-14">
@@ -90,10 +89,10 @@ function Home() {
                 </div>
               </section>
             )}
-            {data.gems.length > 0 && <Row title={t.section.gems}>{data.gems.map((x) => <PosterCard key={x.id} title={x} />)}</Row>}
           </>
         )}
       </div>
+      <TmdbAttribution />
     </div>
   );
 }

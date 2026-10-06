@@ -1,12 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { taxonomyQuery, titlesQuery } from "@/features/catalog/queries";
+import { taxonomyQuery } from "@/features/catalog/queries";
+import { tmdbWorldQuery } from "@/features/tmdb/tmdb.functions";
+import { TmdbRows, TmdbAttribution } from "@/components/mb/Tmdb";
 import { useI18n } from "@/i18n/I18nProvider";
-import { useAuth } from "@/features/auth/AuthProvider";
 import { nameOf } from "@/features/catalog/localize";
 import { PageHeader } from "@/components/mb/States";
-import { Row } from "@/components/mb/Row";
-import { PosterCard } from "@/components/mb/Cards";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/arabic/")({
@@ -19,17 +18,14 @@ const REGIONS = [["maghreb", "Maghreb · المغرب العربي"], ["egypt", 
 
 function ArabicHub() {
   const { t, locale } = useI18n();
-  const { maxAge } = useAuth();
   const { data: tax } = useSuspenseQuery(taxonomyQuery());
-  const movies = useQuery(titlesQuery({ arab: true, kind: "movie", maxAge, limit: 20 }));
-  const series = useQuery(titlesQuery({ arab: true, kind: "series", maxAge, limit: 20 }));
+  const world = useQuery(tmdbWorldQuery("arabic", locale));
   const arab = tax.countries.filter((c) => c.is_arab);
 
   return (
     <div>
       <PageHeader eyebrow={t.nav.arabic} title={t.section.arabicCinema} subtitle="السينما والدراما العربية — من المحيط إلى الخليج" />
-      {movies.data && movies.data.length > 0 && <Row title={t.section.arabicCinema}>{movies.data.map((x) => <PosterCard key={x.id} title={x} />)}</Row>}
-      {series.data && series.data.length > 0 && <Row title={t.section.arabicSeries}>{series.data.map((x) => <PosterCard key={x.id} title={x} />)}</Row>}
+      {world.data && <TmdbRows rows={world.data.rows} />}
       <section className="space-y-8 px-4 py-8 sm:px-8 lg:px-14">
         {REGIONS.map(([r, label]) => {
           const list = arab.filter((c) => c.region === r);
@@ -50,6 +46,7 @@ function ArabicHub() {
           );
         })}
       </section>
+      <TmdbAttribution />
     </div>
   );
 }

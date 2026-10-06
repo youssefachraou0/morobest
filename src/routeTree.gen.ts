@@ -33,9 +33,12 @@ import { Route as CollectionsIndexRouteImport } from './routes/collections.index
 import { Route as CollectionsSlugRouteImport } from './routes/collections.$slug'
 import { Route as MangaIndexRouteImport } from './routes/manga.index'
 import { Route as MangaSlugRouteImport } from './routes/manga.$slug'
+import { Route as MovieSlugRouteImport } from './routes/movie.$slug'
+import { Route as PersonSlugRouteImport } from './routes/person.$slug'
 import { Route as RamadanIndexRouteImport } from './routes/ramadan.index'
 import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
 import { Route as TitleSlugRouteImport } from './routes/title.$slug'
+import { Route as TvSlugRouteImport } from './routes/tv.$slug'
 import { Route as WatchSlugRouteImport } from './routes/watch.$slug'
 import { Route as ApiPublicWebhooksMuxRouteImport } from './routes/api/public/webhooks/mux'
 
@@ -158,6 +161,16 @@ const MangaSlugRoute = MangaSlugRouteImport.update({
   path: '/manga/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MovieSlugRoute = MovieSlugRouteImport.update({
+  id: '/movie/$slug',
+  path: '/movie/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersonSlugRoute = PersonSlugRouteImport.update({
+  id: '/person/$slug',
+  path: '/person/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RamadanIndexRoute = RamadanIndexRouteImport.update({
   id: '/ramadan/',
   path: '/ramadan/',
@@ -171,6 +184,11 @@ const RamadanYearRoute = RamadanYearRouteImport.update({
 const TitleSlugRoute = TitleSlugRouteImport.update({
   id: '/title/$slug',
   path: '/title/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TvSlugRoute = TvSlugRouteImport.update({
+  id: '/tv/$slug',
+  path: '/tv/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WatchSlugRoute = WatchSlugRouteImport.update({
@@ -204,8 +222,11 @@ export interface FileRoutesByFullPath {
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/manga/$slug': typeof MangaSlugRoute
+  '/movie/$slug': typeof MovieSlugRoute
+  '/person/$slug': typeof PersonSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
   '/title/$slug': typeof TitleSlugRoute
+  '/tv/$slug': typeof TvSlugRoute
   '/watch/$slug': typeof WatchSlugRoute
   '/anime/': typeof AnimeIndexRoute
   '/arabic/': typeof ArabicIndexRoute
@@ -234,8 +255,11 @@ export interface FileRoutesByTo {
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/manga/$slug': typeof MangaSlugRoute
+  '/movie/$slug': typeof MovieSlugRoute
+  '/person/$slug': typeof PersonSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
   '/title/$slug': typeof TitleSlugRoute
+  '/tv/$slug': typeof TvSlugRoute
   '/watch/$slug': typeof WatchSlugRoute
   '/anime': typeof AnimeIndexRoute
   '/arabic': typeof ArabicIndexRoute
@@ -266,8 +290,11 @@ export interface FileRoutesById {
   '/arabic/$country': typeof ArabicCountryRoute
   '/collections/$slug': typeof CollectionsSlugRoute
   '/manga/$slug': typeof MangaSlugRoute
+  '/movie/$slug': typeof MovieSlugRoute
+  '/person/$slug': typeof PersonSlugRoute
   '/ramadan/$year': typeof RamadanYearRoute
   '/title/$slug': typeof TitleSlugRoute
+  '/tv/$slug': typeof TvSlugRoute
   '/watch/$slug': typeof WatchSlugRoute
   '/anime/': typeof AnimeIndexRoute
   '/arabic/': typeof ArabicIndexRoute
@@ -298,8 +325,11 @@ export interface FileRouteTypes {
     | '/arabic/$country'
     | '/collections/$slug'
     | '/manga/$slug'
+    | '/movie/$slug'
+    | '/person/$slug'
     | '/ramadan/$year'
     | '/title/$slug'
+    | '/tv/$slug'
     | '/watch/$slug'
     | '/anime/'
     | '/arabic/'
@@ -328,8 +358,11 @@ export interface FileRouteTypes {
     | '/arabic/$country'
     | '/collections/$slug'
     | '/manga/$slug'
+    | '/movie/$slug'
+    | '/person/$slug'
     | '/ramadan/$year'
     | '/title/$slug'
+    | '/tv/$slug'
     | '/watch/$slug'
     | '/anime'
     | '/arabic'
@@ -359,8 +392,11 @@ export interface FileRouteTypes {
     | '/arabic/$country'
     | '/collections/$slug'
     | '/manga/$slug'
+    | '/movie/$slug'
+    | '/person/$slug'
     | '/ramadan/$year'
     | '/title/$slug'
+    | '/tv/$slug'
     | '/watch/$slug'
     | '/anime/'
     | '/arabic/'
@@ -387,8 +423,11 @@ export interface RootRouteChildren {
   ArabicCountryRoute: typeof ArabicCountryRoute
   CollectionsSlugRoute: typeof CollectionsSlugRoute
   MangaSlugRoute: typeof MangaSlugRoute
+  MovieSlugRoute: typeof MovieSlugRoute
+  PersonSlugRoute: typeof PersonSlugRoute
   RamadanYearRoute: typeof RamadanYearRoute
   TitleSlugRoute: typeof TitleSlugRoute
+  TvSlugRoute: typeof TvSlugRoute
   WatchSlugRoute: typeof WatchSlugRoute
   AnimeIndexRoute: typeof AnimeIndexRoute
   ArabicIndexRoute: typeof ArabicIndexRoute
@@ -568,6 +607,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MangaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/movie/$slug': {
+      id: '/movie/$slug'
+      path: '/movie/$slug'
+      fullPath: '/movie/$slug'
+      preLoaderRoute: typeof MovieSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/person/$slug': {
+      id: '/person/$slug'
+      path: '/person/$slug'
+      fullPath: '/person/$slug'
+      preLoaderRoute: typeof PersonSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ramadan/': {
       id: '/ramadan/'
       path: '/ramadan'
@@ -587,6 +640,13 @@ declare module '@tanstack/react-router' {
       path: '/title/$slug'
       fullPath: '/title/$slug'
       preLoaderRoute: typeof TitleSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tv/$slug': {
+      id: '/tv/$slug'
+      path: '/tv/$slug'
+      fullPath: '/tv/$slug'
+      preLoaderRoute: typeof TvSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/watch/$slug': {
@@ -640,8 +700,11 @@ const rootRouteChildren: RootRouteChildren = {
   ArabicCountryRoute: ArabicCountryRoute,
   CollectionsSlugRoute: CollectionsSlugRoute,
   MangaSlugRoute: MangaSlugRoute,
+  MovieSlugRoute: MovieSlugRoute,
+  PersonSlugRoute: PersonSlugRoute,
   RamadanYearRoute: RamadanYearRoute,
   TitleSlugRoute: TitleSlugRoute,
+  TvSlugRoute: TvSlugRoute,
   WatchSlugRoute: WatchSlugRoute,
   AnimeIndexRoute: AnimeIndexRoute,
   ArabicIndexRoute: ArabicIndexRoute,

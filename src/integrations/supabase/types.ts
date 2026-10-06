@@ -202,6 +202,53 @@ export type Database = {
           },
         ]
       }
+      external_titles: {
+        Row: {
+          created_at: string
+          custom_translations: Json
+          id: string
+          media_type: string
+          provider: string
+          provider_id: string
+          seo_description: string | null
+          seo_title: string | null
+          title_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_translations?: Json
+          id?: string
+          media_type: string
+          provider?: string
+          provider_id: string
+          seo_description?: string | null
+          seo_title?: string | null
+          title_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_translations?: Json
+          id?: string
+          media_type?: string
+          provider?: string
+          provider_id?: string
+          seo_description?: string | null
+          seo_title?: string | null
+          title_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_titles_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
@@ -593,6 +640,57 @@ export type Database = {
           year?: number
         }
         Relationships: []
+      }
+      ramadan_titles: {
+        Row: {
+          air_time: string | null
+          country_code: string | null
+          created_at: string
+          id: string
+          media_type: string
+          ord: number
+          provider: string
+          provider_id: string
+          season_id: string
+        }
+        Insert: {
+          air_time?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          media_type?: string
+          ord?: number
+          provider?: string
+          provider_id: string
+          season_id: string
+        }
+        Update: {
+          air_time?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          media_type?: string
+          ord?: number
+          provider?: string
+          provider_id?: string
+          season_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ramadan_titles_country_code_fkey"
+            columns: ["country_code"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "ramadan_titles_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "ramadan_seasons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ratings: {
         Row: {

@@ -17,3 +17,4 @@
 - Reusable UI primitives live in `src/components/mb/*`; pages compose them rather than duplicating cards/rows.
 - AniList anime/manga metadata goes through `src/features/anilist/` (server-only provider with throttle, retry, memory + `provider_cache` table cache, stale fallback, normalized models); why: the UI never sees raw GraphQL and AniList outages don't break pages.
 - AniList detail URLs are `/anime|manga/<romaji-slug>-<anilistId>`; why: the trailing id gives stable, collision-free lookups without importing the catalog.
+- TMDB movie/TV metadata goes through `src/features/tmdb/` (server-only provider with Bearer auth, retry, memory + `provider_cache` cache, stale fallback, normalized models); detail URLs are `/movie|tv|person/<slug>-<tmdbId>`; MOROBEST stores only links/overrides in `external_titles` and Ramadan picks in `ramadan_titles`; why: secrets stay server-side and TMDB stays metadata-only, separate from streaming.

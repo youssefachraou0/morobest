@@ -1,26 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BrowsePage, validateBrowseSearch } from "@/components/mb/BrowsePage";
-import { useI18n } from "@/i18n/I18nProvider";
+import { TmdbWorldView } from "@/components/mb/Tmdb";
+import { tmdbWorldQuery } from "@/features/tmdb/tmdb.functions";
+import { FullPageMessage } from "@/components/mb/States";
+import { StarLoader } from "@/components/mb/Brand";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/movies")({
-  validateSearch: validateBrowseSearch,
-  head: () => seo("Movies", "International and Arabic films — drama, thriller, sci-fi, romance and more."),
-  component: Page,
+  loader: ({ context }) => context.queryClient.ensureQueryData(tmdbWorldQuery("movies", context.locale)),
+  head: () => seo("Movies — trending, popular & classics", "Trending, popular, top rated, now playing and upcoming movies with real posters, cast and trailers on MOROBEST."),
+  pendingComponent: () => <StarLoader className="min-h-screen" />,
+  errorComponent: () => <FullPageMessage title="The catalog is temporarily unavailable." body="Please try again in a moment." />,
+  component: () => <TmdbWorldView kind="movies" grid="movie" />,
 });
-
-function Page() {
-  const { t } = useI18n();
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
-  return (
-    <BrowsePage
-      title={t.nav.movies}
-      eyebrow={t.section.worlds}
-      base={{ kind: "movie" }}
-      search={search}
-      onSearch={(s) => navigate({ search: s, replace: true })}
-      showStatus={false}
-    />
-  );
-}
