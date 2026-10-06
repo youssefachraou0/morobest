@@ -104,6 +104,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
     return () => { flush(); v.removeEventListener("play", onPlay); v.removeEventListener("pause", onPause); v.removeEventListener("timeupdate", onTime); v.removeEventListener("ended", onEnd); v.removeEventListener("seeked", onSeek); };
   }, [source.url]);
   const fail = useCallback((m: string) => {
+    console.info('MBDBG fail', m);
     startedRef.current = true; // settles the startup watchdog
     setLoading(false);
     if (fatalRef.current?.(m)) return;
@@ -123,6 +124,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   useEffect(() => {
     const v = video.current;
     if (!v) return;
+    console.info('MBDBG effect', attempt, unsupportedAt.current);
     attemptRef.current = attempt;
     // A refreshed token URL must not silently re-run a stream this browser already can't decode.
     if (unsupportedAt.current === attempt) return;
