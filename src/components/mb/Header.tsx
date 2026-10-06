@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Compass, Globe, Home, Bookmark, Search, User, LogOut, Shield, Users } from "lucide-react";
+import { Compass, Globe, Home, Bookmark, Search, User, LogOut, Shield, Users, Sparkles } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -55,6 +55,7 @@ export function Header() {
           )}
         </nav>
         <div className="ms-auto flex items-center gap-1 sm:gap-2">
+          <Link to="/ask" aria-label="Ask MOROBEST" title="Ask MOROBEST" className={mbButton({ variant: "ghost", size: "icon" })}><Sparkles /></Link>
           <Link to="/search" aria-label={t.nav.search} className={mbButton({ variant: "ghost", size: "icon" })}><Search /></Link>
           <DropdownMenu>
             <DropdownMenuTrigger aria-label="Language" className={mbButton({ variant: "ghost", size: "sm" })}>
