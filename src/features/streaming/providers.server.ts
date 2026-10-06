@@ -2,9 +2,13 @@
 export type SourceRow = {
   id: string; provider: string; kind: string; url: string; playback_id: string | null; provider_asset_id: string | null;
   requires_signed_token: boolean; language: string | null; quality: string | null; is_dubbed: boolean;
-  subtitles: { lang: string; label: string; url: string }[];
+  audio_language?: string | null; is_test_source?: boolean;
+  subtitles: { id?: string; lang: string; label: string; url: string; forced?: boolean; sdh?: boolean; default?: boolean }[];
 };
-export type Playable = { id: string; kind: "hls" | "dash" | "mp4" | "embed"; url: string; language: string | null; quality: string | null; isDubbed: boolean; subtitles: SourceRow["subtitles"]; expiresAt: number | null };
+export type Playable = {
+  id: string; provider: string; kind: "hls" | "dash" | "mp4" | "embed"; url: string; language: string | null; audioLanguage: string | null;
+  quality: string | null; isDubbed: boolean; isTest: boolean; subtitles: SourceRow["subtitles"]; expiresAt: number | null;
+};
 export type UploadTicket = { uploadUrl: string; uploadId: string; method: "PUT" | "POST" };
 export type ProviderStatus = { status: "uploading" | "processing" | "ready" | "failed"; playbackId?: string; assetId?: string; error?: string };
 
@@ -55,7 +59,19 @@ async function signMux(playbackId: string, type: "v" | "t" = "v") {
   return { token: `${unsigned}.${b64url(sig)}`, exp: exp * 1000 };
 }
 
-const base = (s: SourceRow) => ({ id: s.id, language: s.language, quality: s.quality, isDubbed: s.is_dubbed, subtitles: s.subtitles ?? [] });
+const base = (s: SourceRow) => ({
+  id: s.id, provider: s.provider, language: s.language, audioLanguage: s.audio_language ?? s.language ?? null, quality: s.quality,
+  isDubbed: s.is_dubbed, isTest: !!s.is_test_source, subtitles: s.subtitles ?? [],
+});
+
+/** Verifies Mux credentials with a harmless read; never returns or logs the credentials. */
+export async function testMuxConnection(): Promise<"not_configured" | "connected" | "failed"> {
+  if (!(env("MUX_TOKEN_ID") && env("MUX_TOKEN_SECRET"))) return "not_configured";
+  try {
+    const r = await fetch("https://api.mux.com/video/v1/assets?limit=1", { headers: { Authorization: muxAuth() } });
+    return r.ok ? "connected" : "failed";
+  } catch { return "failed"; }
+}
 
 // ---------- Mux ----------
 const muxAuth = () => "Basic " + btoa(`${env("MUX_TOKEN_ID")}:${env("MUX_TOKEN_SECRET")}`);
