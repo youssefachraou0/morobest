@@ -15,3 +15,5 @@
 - Video source URLs are never selectable by clients; they are resolved only through the `get_playback_source` security-definer function; why: keeps provider URLs out of page markup and lets new providers plug in.
 - All UI text lives in `src/i18n/dictionary.ts` (en/fr/ar); locale comes from the `mb_locale` cookie and sets `dir` on `<html>`; why: instant switching with correct SSR direction.
 - Reusable UI primitives live in `src/components/mb/*`; pages compose them rather than duplicating cards/rows.
+- AniList anime/manga metadata goes through `src/features/anilist/` (server-only provider with throttle, retry, memory + `provider_cache` table cache, stale fallback, normalized models); why: the UI never sees raw GraphQL and AniList outages don't break pages.
+- AniList detail URLs are `/anime|manga/<romaji-slug>-<anilistId>`; why: the trailing id gives stable, collision-free lookups without importing the catalog.
