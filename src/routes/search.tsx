@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const KINDS: TitleKind[] = ["movie", "series", "anime", "manga"];
 
 export const Route = createFileRoute("/search")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { q?: string; kind?: TitleKind } => ({
     q: typeof s.q === "string" ? s.q.slice(0, 100) : undefined,
     kind: KINDS.includes(s.kind as TitleKind) ? (s.kind as TitleKind) : undefined,
   }),

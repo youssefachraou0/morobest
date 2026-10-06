@@ -13,7 +13,7 @@ import { FullPageMessage } from "@/components/mb/States";
 import { StarLoader } from "@/components/mb/Brand";
 
 export const Route = createFileRoute("/watch/$slug")({
-  validateSearch: (s: Record<string, unknown>) => ({ ep: typeof s.ep === "string" ? s.ep : undefined }),
+  validateSearch: (s: Record<string, unknown>): { ep?: string } => ({ ep: typeof s.ep === "string" ? s.ep : undefined }),
   loader: async ({ context, params }) => {
     const d = await context.queryClient.ensureQueryData(titleQuery(params.slug));
     if (!d || d.kind === "manga") throw notFound();
