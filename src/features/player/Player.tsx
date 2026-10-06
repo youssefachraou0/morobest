@@ -224,12 +224,12 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
       )}
 
       {showSkipIntro && !error && (
-        <button onClick={() => { const v = video.current; if (v && m.introEnd != null) v.currentTime = m.introEnd; }} className="absolute bottom-28 end-6 rounded-lg border border-foreground/30 bg-background/70 px-4 py-2 text-sm backdrop-blur hover:border-gold hover:text-gold">
+        <button onClick={() => { const v = video.current; if (v && m.introEnd != null) v.currentTime = m.introEnd; }} className="absolute bottom-28 end-6 z-20 rounded-lg border border-foreground/30 bg-background/70 px-4 py-2 text-sm backdrop-blur hover:border-gold hover:text-gold">
           Skip intro
         </button>
       )}
       {showSkipRecap && !error && (
-        <button onClick={() => { const v = video.current; if (v && m.recapEnd != null) v.currentTime = m.recapEnd; }} className="absolute bottom-28 end-6 rounded-lg border border-foreground/30 bg-background/70 px-4 py-2 text-sm backdrop-blur hover:border-gold hover:text-gold">
+        <button onClick={() => { const v = video.current; if (v && m.recapEnd != null) v.currentTime = m.recapEnd; }} className="absolute bottom-28 end-6 z-20 rounded-lg border border-foreground/30 bg-background/70 px-4 py-2 text-sm backdrop-blur hover:border-gold hover:text-gold">
           Skip recap
         </button>
       )}
@@ -245,7 +245,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
         </div>
       )}
       {nearEnd && onNext && countdown == null && (
-        <button onClick={onNext} className="absolute bottom-28 end-6 inline-flex items-center gap-2 rounded-lg bg-gold-gradient px-5 py-2.5 font-semibold text-primary-foreground shadow-glow">
+        <button onClick={onNext} className="absolute bottom-28 end-6 z-20 inline-flex items-center gap-2 rounded-lg bg-gold-gradient px-5 py-2.5 font-semibold text-primary-foreground shadow-glow">
           <SkipForward className="h-4 w-4" /> {nextLabel}
         </button>
       )}
