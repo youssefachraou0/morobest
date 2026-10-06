@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { fetchTmdbRamadan } from "@/features/tmdb/tmdb.functions";
+import { TmdbPoster } from "@/components/mb/Tmdb";
 import { Clock } from "lucide-react";
 import { ramadanQuery } from "@/features/catalog/queries";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -34,6 +36,8 @@ function RamadanPage() {
   const entries = data.entries;
   const schedule = [...entries].filter((e) => e.airTime).sort((a, b) => (a.airTime! < b.airTime! ? -1 : 1));
   const featured = entries[0]?.card;
+  const tm = useQuery({ queryKey: ["tmdb-ramadan", year, locale], queryFn: () => fetchTmdbRamadan({ data: { year: Number(year), locale } }), staleTime: 10 * 60_000 });
+  const tmList = tm.data ?? [];
 
   return (
     <div>
@@ -63,7 +67,14 @@ function RamadanPage() {
         </div>
       </section>
 
-      {entries.length === 0 ? (
+      {tmList.length > 0 && GROUPS.map(([label, codes, arLabel]) => {
+        const list = tmList.filter((e) => e.country && codes.includes(e.country));
+        return list.length ? <Row key={"tm" + label} title={locale === "ar" ? arLabel : label}>{list.map((e) => <TmdbPoster key={e.card.type + e.card.tmdbId} item={e.card} />)}</Row> : null;
+      })}
+      {tmList.some((e) => !e.country || !GROUPS.some(([, c]) => c.includes(e.country!))) && (
+        <Row title={t.nav.ramadan}>{tmList.filter((e) => !e.country || !GROUPS.some(([, c]) => c.includes(e.country!))).map((e) => <TmdbPoster key={e.card.type + e.card.tmdbId} item={e.card} />)}</Row>
+      )}
+      {entries.length === 0 && tmList.length === 0 ? (
         <div className="px-4 py-10"><EmptyState title={t.section.upcoming} body={t.empty.generic} /></div>
       ) : (
         <>
