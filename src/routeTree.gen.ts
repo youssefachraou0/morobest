@@ -22,6 +22,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin-media'
 import { Route as AuthenticatedProfilesRouteImport } from './routes/_authenticated/profiles'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
 import { Route as AnimeIndexRouteImport } from './routes/anime.index'
@@ -36,6 +37,7 @@ import { Route as RamadanIndexRouteImport } from './routes/ramadan.index'
 import { Route as RamadanYearRouteImport } from './routes/ramadan.$year'
 import { Route as TitleSlugRouteImport } from './routes/title.$slug'
 import { Route as WatchSlugRouteImport } from './routes/watch.$slug'
+import { Route as ApiPublicWebhooksMuxRouteImport } from './routes/api/public/webhooks/mux'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -99,6 +101,11 @@ const TrendingRoute = TrendingRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
+  id: '/admin-media',
+  path: '/admin-media',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProfilesRoute = AuthenticatedProfilesRouteImport.update({
@@ -171,6 +178,11 @@ const WatchSlugRoute = WatchSlugRouteImport.update({
   path: '/watch/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksMuxRoute = ApiPublicWebhooksMuxRouteImport.update({
+  id: '/api/public/webhooks/mux',
+  path: '/api/public/webhooks/mux',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -185,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/anime/$slug': typeof AnimeSlugRoute
@@ -199,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/collections/': typeof CollectionsIndexRoute
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
+  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -213,6 +227,7 @@ export interface FileRoutesByTo {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-media': typeof AuthenticatedAdminMediaRoute
   '/profiles': typeof AuthenticatedProfilesRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/anime/$slug': typeof AnimeSlugRoute
@@ -227,6 +242,7 @@ export interface FileRoutesByTo {
   '/collections': typeof CollectionsIndexRoute
   '/manga': typeof MangaIndexRoute
   '/ramadan': typeof RamadanIndexRoute
+  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -243,6 +259,7 @@ export interface FileRoutesById {
   '/series': typeof SeriesRoute
   '/trending': typeof TrendingRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/profiles': typeof AuthenticatedProfilesRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
   '/anime/$slug': typeof AnimeSlugRoute
@@ -257,6 +274,7 @@ export interface FileRoutesById {
   '/collections/': typeof CollectionsIndexRoute
   '/manga/': typeof MangaIndexRoute
   '/ramadan/': typeof RamadanIndexRoute
+  '/api/public/webhooks/mux': typeof ApiPublicWebhooksMuxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -273,6 +291,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-media'
     | '/profiles'
     | '/watchlist'
     | '/anime/$slug'
@@ -287,6 +306,7 @@ export interface FileRouteTypes {
     | '/collections/'
     | '/manga/'
     | '/ramadan/'
+    | '/api/public/webhooks/mux'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -301,6 +321,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/admin'
+    | '/admin-media'
     | '/profiles'
     | '/watchlist'
     | '/anime/$slug'
@@ -315,6 +336,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/manga'
     | '/ramadan'
+    | '/api/public/webhooks/mux'
   id:
     | '__root__'
     | '/'
@@ -330,6 +352,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/trending'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-media'
     | '/_authenticated/profiles'
     | '/_authenticated/watchlist'
     | '/anime/$slug'
@@ -344,6 +367,7 @@ export interface FileRouteTypes {
     | '/collections/'
     | '/manga/'
     | '/ramadan/'
+    | '/api/public/webhooks/mux'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -371,6 +395,7 @@ export interface RootRouteChildren {
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   MangaIndexRoute: typeof MangaIndexRoute
   RamadanIndexRoute: typeof RamadanIndexRoute
+  ApiPublicWebhooksMuxRoute: typeof ApiPublicWebhooksMuxRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -464,6 +489,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-media': {
+      id: '/_authenticated/admin-media'
+      path: '/admin-media'
+      fullPath: '/admin-media'
+      preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/profiles': {
@@ -564,17 +596,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatchSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/mux': {
+      id: '/api/public/webhooks/mux'
+      path: '/api/public/webhooks/mux'
+      fullPath: '/api/public/webhooks/mux'
+      preLoaderRoute: typeof ApiPublicWebhooksMuxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedProfilesRoute: typeof AuthenticatedProfilesRoute
   AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedProfilesRoute: AuthenticatedProfilesRoute,
   AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
 }
@@ -607,6 +648,7 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsIndexRoute: CollectionsIndexRoute,
   MangaIndexRoute: MangaIndexRoute,
   RamadanIndexRoute: RamadanIndexRoute,
+  ApiPublicWebhooksMuxRoute: ApiPublicWebhooksMuxRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

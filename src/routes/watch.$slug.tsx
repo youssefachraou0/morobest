@@ -1,9 +1,9 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { titleQuery } from "@/features/catalog/queries";
-import { fetchPlayback } from "@/features/catalog/catalog.functions";
+import { authorizePlayback, reportPlaybackError } from "@/features/streaming/streaming.functions";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { saveProgress, useProgress } from "@/features/library/useLibrary";
@@ -43,11 +43,26 @@ function Watch() {
   const prev = idx > 0 ? episodes[idx - 1] : undefined;
 
   const src = useQuery({
-    queryKey: ["playback", d?.id, current?.id ?? null],
+    queryKey: ["playback", d?.id, current?.id ?? null, activeProfile?.id ?? null],
     enabled: !!d,
-    queryFn: () => fetchPlayback({ data: { titleId: d!.id, episodeId: current?.id } }),
-    staleTime: 60_000,
+    queryFn: () => authorizePlayback({ data: { titleId: d!.id, episodeId: current?.id, profileId: activeProfile?.id } }),
+    staleTime: 30 * 60_000,
+    gcTime: 30 * 60_000,
   });
+  const sources = src.data?.ok ? src.data.sources : [];
+  const [srcIdx, setSrcIdx] = useState(0);
+  useEffect(() => setSrcIdx(0), [current?.id]);
+  const active = sources[srcIdx];
+  const audioOptions = useMemo(() => {
+    const seen = new Map<string, number>();
+    sources.forEach((s, i) => { const k = `${s.language ?? "orig"}${s.isDubbed ? "-dub" : ""}`; if (!seen.has(k)) seen.set(k, i); });
+    return Array.from(seen.entries()).map(([k, i]) => [String(i), `${(sources[i]!.language ?? "Original").toUpperCase()}${sources[i]!.isDubbed ? " (dub)" : ""}`] as [string, string]);
+  }, [sources]);
+  const onFatal = useCallback((message: string) => {
+    if (active) reportPlaybackError({ data: { sourceId: active.id, message } }).catch(() => {});
+    if (srcIdx + 1 < sources.length) { setSrcIdx(srcIdx + 1); return true; }
+    return false;
+  }, [active, srcIdx, sources.length]);
 
   const saved = (progress.data ?? []).find((p) => p.title_id === d?.id && (p.episode_id ?? null) === (current?.id ?? null));
   const pid = activeProfile?.id;
@@ -58,6 +73,7 @@ function Watch() {
     },
     [pid, d, current?.id, qc],
   );
+  const goPrev = prev ? () => navigate({ to: "/watch/$slug", params: { slug }, search: { ep: prev.id } }) : undefined;
   const goNext = next ? () => navigate({ to: "/watch/$slug", params: { slug }, search: { ep: next.id } }) : undefined;
 
   if (!d) return null;
@@ -80,16 +96,23 @@ function Watch() {
       </div>
       {src.isLoading || progress.isLoading ? (
         <StarLoader className="h-full" />
-      ) : !src.data ? (
-        <FullPageMessage title={t.error.unavailable} homeLabel={t.nav.home} />
+      ) : !active ? (
+        <FullPageMessage title={src.data?.reason === "forbidden" ? t.error.unavailable : "Not currently available to watch"} homeLabel={t.nav.home} />
+      ) : active.kind === "embed" ? (
+        <iframe src={active.url} title={name} className="h-full w-full" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation" />
       ) : (
         <Player
-          key={current?.id ?? d.id}
-          source={src.data}
+          key={`${current?.id ?? d.id}-${active.id}`}
+          source={active}
+          onPrev={goPrev}
+          onFatal={onFatal}
+          markers={current ? { introStart: current.intro_start_s, introEnd: current.intro_end_s, recapEnd: current.recap_end_s } : undefined}
+          audioOptions={audioOptions}
+          audio={String(srcIdx)}
+          onAudio={(v) => setSrcIdx(Number(v))}
           title={name}
           startAt={saved && !saved.completed ? saved.position_s : 0}
           onProgress={onProgress}
-          onEnded={goNext}
           onNext={goNext}
           nextLabel={t.action.next}
           errorLabel={t.error.playback}

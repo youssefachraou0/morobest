@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Maximize, Minimize, Pause, Play, PictureInPicture2, RotateCcw, RotateCw, SkipForward, Volume2, VolumeX, Settings } from "lucide-react";
+import { Maximize, Minimize, Pause, Play, PictureInPicture2, RotateCcw, RotateCw, SkipForward, SkipBack, Volume2, VolumeX, Settings } from "lucide-react";
 import { Star8 } from "@/components/mb/Brand";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,13 @@ type Props = {
   nextLabel?: string;
   errorLabel: string;
   retryLabel: string;
+  onPrev?: () => void;
+  /** Return true when the caller handled the failure (e.g. switched to a fallback source). */
+  onFatal?: (message: string) => boolean;
+  markers?: { introStart?: number | null; introEnd?: number | null; recapEnd?: number | null };
+  audioOptions?: [string, string][];
+  audio?: string;
+  onAudio?: (v: string) => void;
 };
 
 const fmt = (s: number) => {
@@ -24,7 +31,7 @@ const fmt = (s: number) => {
 };
 
 /** Provider-agnostic player: HLS via hls.js (or native), MP4 direct. DASH/embeds plug in by `kind`. */
-export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext, nextLabel, errorLabel, retryLabel }: Props) {
+export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext, nextLabel, errorLabel, retryLabel, onPrev, onFatal, markers, audioOptions, audio, onAudio }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -44,6 +51,16 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   const [attempt, setAttempt] = useState(0);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hlsRef = useRef<any>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const fatalRef = useRef(onFatal);
+  fatalRef.current = onFatal;
+  const fail = useCallback((m: string) => { if (fatalRef.current?.(m)) return; setError(true); }, []);
+  useEffect(() => {
+    if (countdown == null) return;
+    if (countdown <= 0) { setCountdown(null); onNext?.(); return; }
+    const id = setTimeout(() => setCountdown((c) => (c == null ? null : c - 1)), 1000);
+    return () => clearTimeout(id);
+  }, [countdown, onNext]);
 
   useEffect(() => {
     const v = video.current;
@@ -55,7 +72,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
     if (source.kind === "hls" && !v.canPlayType("application/vnd.apple.mpegurl")) {
       import("hls.js").then(({ default: Hls }) => {
         if (destroyed) return;
-        if (!Hls.isSupported()) return setError(true);
+        if (!Hls.isSupported()) return fail("HLS not supported");
         const hls = new Hls({ capLevelToPlayerSize: true });
         hlsRef.current = hls;
         hls.loadSource(source.url);
@@ -65,9 +82,18 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
           if (!d.fatal) return;
           if (d.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
           else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
-          else setError(true);
+          else fail(`hls: ${d.details}`);
         });
-      }).catch(() => setError(true));
+      }).catch(() => fail("hls load failed"));
+    } else if (source.kind === "dash") {
+      import("dashjs").then((dashjs) => {
+        if (destroyed) return;
+        const pl = dashjs.MediaPlayer().create();
+        hlsRef.current = { destroy: () => pl.reset() };
+        pl.initialize(v, source.url, false);
+        pl.on(dashjs.MediaPlayer.events.ERROR, () => fail("dash error"));
+        v.addEventListener("loadedmetadata", start, { once: true });
+      }).catch(() => fail("dash load failed"));
     } else {
       v.src = source.url;
       v.addEventListener("loadedmetadata", start, { once: true });
@@ -124,7 +150,9 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
     Array.from(v.textTracks).forEach((tt, i) => { tt.mode = i === subIdx ? "showing" : "disabled"; });
   }, [subIdx]);
 
-  const showSkipIntro = time > 5 && time < 85;
+  const m = markers ?? {};
+  const showSkipIntro = m.introEnd != null && time >= (m.introStart ?? 0) && time < m.introEnd;
+  const showSkipRecap = !showSkipIntro && m.recapEnd != null && time < m.recapEnd;
   const nearEnd = dur > 0 && dur - time < 25;
 
   return (
@@ -144,8 +172,8 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
         onWaiting={() => setLoading(true)}
         onPlaying={() => setLoading(false)}
         onCanPlay={() => setLoading(false)}
-        onEnded={() => { const v = video.current; if (v) onProgress?.(v.duration, v.duration); onEnded?.(); }}
-        onError={() => setError(true)}
+        onEnded={() => { const v = video.current; if (v) onProgress?.(v.duration, v.duration); onEnded?.(); if (onNext) setCountdown(6); }}
+        onError={() => { if (source.kind !== "hls" && source.kind !== "dash") fail("media error"); }}
       >
         {source.subtitles.map((s) => <track key={s.lang} kind="subtitles" srcLang={s.lang} label={s.label} src={s.url} />)}
       </video>
@@ -161,11 +189,26 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
       )}
 
       {showSkipIntro && !error && (
-        <button onClick={() => { const v = video.current; if (v) v.currentTime = 90; }} className="absolute bottom-28 end-6 rounded-lg border border-foreground/30 bg-background/70 px-4 py-2 text-sm backdrop-blur hover:border-gold hover:text-gold">
+        <button onClick={() => { const v = video.current; if (v && m.introEnd != null) v.currentTime = m.introEnd; }} className="absolute bottom-28 end-6 rounded-lg border border-foreground/30 bg-background/70 px-4 py-2 text-sm backdrop-blur hover:border-gold hover:text-gold">
           Skip intro
         </button>
       )}
-      {nearEnd && onNext && (
+      {showSkipRecap && !error && (
+        <button onClick={() => { const v = video.current; if (v && m.recapEnd != null) v.currentTime = m.recapEnd; }} className="absolute bottom-28 end-6 rounded-lg border border-foreground/30 bg-background/70 px-4 py-2 text-sm backdrop-blur hover:border-gold hover:text-gold">
+          Skip recap
+        </button>
+      )}
+      {countdown != null && onNext && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-background/85">
+          <p className="text-muted-foreground">{nextLabel}</p>
+          <p className="font-display text-6xl text-gold">{countdown}</p>
+          <div className="flex gap-3">
+            <button onClick={() => { setCountdown(null); onNext(); }} className="rounded-lg bg-gold-gradient px-5 py-2.5 font-semibold text-primary-foreground">{nextLabel}</button>
+            <button onClick={() => setCountdown(null)} className="rounded-lg border border-border px-5 py-2.5">Cancel</button>
+          </div>
+        </div>
+      )}
+      {nearEnd && onNext && countdown == null && (
         <button onClick={onNext} className="absolute bottom-28 end-6 inline-flex items-center gap-2 rounded-lg bg-gold-gradient px-5 py-2.5 font-semibold text-primary-foreground shadow-glow">
           <SkipForward className="h-4 w-4" /> {nextLabel}
         </button>
@@ -186,6 +229,7 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
           <input type="range" min={0} max={1} step={0.05} value={muted ? 0 : vol} aria-label="Volume" onChange={(e) => { const v = video.current; if (v) { v.volume = Number(e.target.value); v.muted = false; } }} className="hidden w-24 accent-[var(--gold)] sm:block" />
           <span className="ms-2 text-xs tabular-nums text-foreground/80">{fmt(time)} / {fmt(dur)}</span>
           <div className="ms-auto flex items-center gap-1 sm:gap-3">
+            {onPrev && <Ctl label="Previous episode" onClick={onPrev}><SkipBack /></Ctl>}
             {onNext && <Ctl label={nextLabel ?? "Next"} onClick={onNext}><SkipForward /></Ctl>}
             <div className="relative">
               <Ctl label="Settings" onClick={() => setMenu((m) => !m)}><Settings /></Ctl>
@@ -196,6 +240,9 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
                   {levels.length > 0 && (
                     <Sel label="Quality" value={String(level)} onChange={(v) => { setLevel(Number(v)); if (hlsRef.current) hlsRef.current.currentLevel = Number(v); }}
                       options={[["-1", "Auto"], ...levels.map((l, i) => [String(i), `${l.height}p`] as [string, string])]} />
+                  )}
+                  {audioOptions && audioOptions.length > 1 && onAudio && (
+                    <Sel label="Audio" value={audio ?? ""} onChange={onAudio} options={audioOptions} />
                   )}
                   <Sel label="Subtitles" value={String(subIdx)} onChange={(v) => setSubIdx(Number(v))}
                     options={[["-1", "Off"], ...source.subtitles.map((s, i) => [String(i), s.label] as [string, string])]} />

@@ -156,7 +156,10 @@ export type Database = {
         Row: {
           air_date: string | null
           id: string
+          intro_end_s: number | null
+          intro_start_s: number | null
           number: number
+          recap_end_s: number | null
           runtime_min: number | null
           season_id: string
           synopsis: string | null
@@ -166,7 +169,10 @@ export type Database = {
         Insert: {
           air_date?: string | null
           id?: string
+          intro_end_s?: number | null
+          intro_start_s?: number | null
           number: number
+          recap_end_s?: number | null
           runtime_min?: number | null
           season_id: string
           synopsis?: string | null
@@ -176,7 +182,10 @@ export type Database = {
         Update: {
           air_date?: string | null
           id?: string
+          intro_end_s?: number | null
+          intro_start_s?: number | null
           number?: number
+          recap_end_s?: number | null
           runtime_min?: number | null
           season_id?: string
           synopsis?: string | null
@@ -380,6 +389,35 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      playback_errors: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          source_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          source_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          source_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playback_errors_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "video_sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       playback_progress: {
         Row: {
@@ -936,35 +974,110 @@ export type Database = {
         }
         Relationships: []
       }
+      video_source_audit: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          source_id: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          source_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          source_id?: string | null
+        }
+        Relationships: []
+      }
       video_sources: {
         Row: {
+          availability_country: string[] | null
+          available_from: string | null
+          available_until: string | null
           created_at: string
           episode_id: string | null
+          error_message: string | null
           id: string
           is_active: boolean
+          is_default: boolean
+          is_dubbed: boolean
+          is_subbed: boolean
           kind: string
+          language: string | null
+          playback_id: string | null
+          priority: number
           provider: string | null
+          provider_asset_id: string | null
+          quality: string | null
+          requires_signed_token: boolean
+          status: string
           title_id: string
+          updated_at: string
+          upload_id: string | null
           url: string
         }
         Insert: {
+          availability_country?: string[] | null
+          available_from?: string | null
+          available_until?: string | null
           created_at?: string
           episode_id?: string | null
+          error_message?: string | null
           id?: string
           is_active?: boolean
+          is_default?: boolean
+          is_dubbed?: boolean
+          is_subbed?: boolean
           kind?: string
+          language?: string | null
+          playback_id?: string | null
+          priority?: number
           provider?: string | null
+          provider_asset_id?: string | null
+          quality?: string | null
+          requires_signed_token?: boolean
+          status?: string
           title_id: string
+          updated_at?: string
+          upload_id?: string | null
           url: string
         }
         Update: {
+          availability_country?: string[] | null
+          available_from?: string | null
+          available_until?: string | null
           created_at?: string
           episode_id?: string | null
+          error_message?: string | null
           id?: string
           is_active?: boolean
+          is_default?: boolean
+          is_dubbed?: boolean
+          is_subbed?: boolean
           kind?: string
+          language?: string | null
+          playback_id?: string | null
+          priority?: number
           provider?: string | null
+          provider_asset_id?: string | null
+          quality?: string | null
+          requires_signed_token?: boolean
+          status?: string
           title_id?: string
+          updated_at?: string
+          upload_id?: string | null
           url?: string
         }
         Relationships: [
@@ -1038,6 +1151,28 @@ export type Database = {
         Returns: boolean
       }
       owns_profile: { Args: { _profile: string }; Returns: boolean }
+      playable_units: {
+        Args: { _title: string }
+        Returns: {
+          episode_id: string
+        }[]
+      }
+      playback_candidates: {
+        Args: { _country?: string; _episode?: string; _title: string }
+        Returns: {
+          id: string
+          is_dubbed: boolean
+          kind: string
+          language: string
+          playback_id: string
+          provider: string
+          provider_asset_id: string
+          quality: string
+          requires_signed_token: boolean
+          subtitles: Json
+          url: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "editor" | "user"

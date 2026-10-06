@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { fetchPlayable } from "@/features/streaming/streaming.functions";
 import { Bookmark, BookmarkCheck, Heart, Play, Share2, Star, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { titleQuery } from "@/features/catalog/queries";
@@ -38,6 +39,7 @@ function TitlePage() {
   const lib = useLibrary();
   const progress = useProgress();
   const [seasonIdx, setSeasonIdx] = useState(0);
+  const playable = useQuery({ queryKey: ["playable", d?.id], enabled: !!d, queryFn: () => fetchPlayable({ data: { titleId: d!.id } }), staleTime: 60_000 });
   if (!d) return null;
 
   if (maxAge != null && d.ageRating > maxAge) {
@@ -50,7 +52,7 @@ function TitlePage() {
   const isManga = d.kind === "manga";
   const season = d.seasons[seasonIdx];
   const myProgress = (progress.data ?? []).filter((p) => p.title_id === d.id);
-  const resume = myProgress.find((p) => !p.completed);
+  const resume = myProgress.find((p) => !p.completed && p.duration_s > 0 && p.position_s / p.duration_s > 0.05);
   const directors = d.credits.filter((c) => c.role !== "actor");
 
   const requireUser = (fn: () => void) => () => {
@@ -92,8 +94,11 @@ function TitlePage() {
             </div>
             {l.synopsis && <p className="mt-5 text-lg text-foreground/85">{l.synopsis}</p>}
             <div className="mt-7 flex flex-wrap gap-3">
-              {!isManga && (
-                <Link to="/watch/$slug" params={{ slug: d.slug }} search={resume?.episode_id ? { ep: resume.episode_id } : {}} className={mbButton({ size: "lg" })}>
+              {!isManga && playable.data && !playable.data.whole && playable.data.episodes.length === 0 && (
+                <span className={mbButton({ variant: "subtle", size: "lg", className: "pointer-events-none opacity-70" })}>Not currently available to watch</span>
+              )}
+              {!isManga && (playable.data?.whole || (playable.data?.episodes.length ?? 0) > 0) && (
+                <Link to="/watch/$slug" params={{ slug: d.slug }} search={resume?.episode_id ? { ep: resume.episode_id } : !playable.data?.whole && playable.data?.episodes[0] ? { ep: playable.data.episodes[0] } : {}} className={mbButton({ size: "lg" })}>
                   <Play className="fill-current" />{resume ? t.action.continue : t.action.play}
                 </Link>
               )}

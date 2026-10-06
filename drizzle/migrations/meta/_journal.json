@@ -15,6 +15,20 @@
       "when": 1791314780539,
       "tag": "0001_anilist_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791315169482,
+      "tag": "0002_streaming_sources",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791315207958,
+      "tag": "0003_episode_markers",
+      "breakpoints": true
     }
   ]
 }
