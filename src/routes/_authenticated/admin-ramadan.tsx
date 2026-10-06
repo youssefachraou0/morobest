@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/admin-ramadan")({
   component: RamadanAdmin,
 });
 
-export const COUNTRIES: [string, string][] = [
+const COUNTRIES: [string, string][] = [
   ["MA", "Morocco"], ["EG", "Egypt"], ["DZ", "Algeria"], ["TN", "Tunisia"], ["SA", "Saudi Arabia"], ["AE", "UAE"], ["KW", "Kuwait"], ["QA", "Qatar"], ["BH", "Bahrain"], ["OM", "Oman"],
   ["SY", "Syria"], ["LB", "Lebanon"], ["IQ", "Iraq"], ["LY", "Libya"], ["JO", "Jordan"], ["PS", "Palestine"], ["SD", "Sudan"], ["YE", "Yemen"], ["MR", "Mauritania"],
 ];
