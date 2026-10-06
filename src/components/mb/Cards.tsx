@@ -22,10 +22,10 @@ export function Badge({ children, tone = "default", className }: { children: Rea
 export function PosterCard({ title, rank, className }: { title: TitleCard; rank?: number; className?: string }) {
   const { locale, t } = useI18n();
   const name = tr(title, locale).title;
+  const canonical = useCanonical();
   return (
     <Link
-      to="/title/$slug"
-      params={{ slug: title.slug }}
+      {...canonical({ kind: "title", slug: title.slug })}
       className={cn("group relative block shrink-0 focus-visible:outline-none", rank ? "w-[150px] ps-10 sm:w-[190px] sm:ps-14" : "w-[136px] sm:w-[168px] lg:w-[184px]", className)}
     >
       {rank && (
@@ -61,7 +61,7 @@ export function LandscapeCard({ title, progress, className, subtitle, to }: { ti
   const { locale } = useI18n();
   const name = tr(title, locale).title;
   return (
-    <Link {...(to ? { to: "/watch/$slug" as const, params: { slug: to.slug }, search: to.ep ? { ep: to.ep } : {} } : { to: "/title/$slug" as const, params: { slug: title.slug } })} className={cn("group relative block w-[260px] shrink-0 sm:w-[320px]", className)}>
+    <Link {...(to ? { to: "/watch/$slug" as const, params: { slug: to.slug }, search: to.ep ? { ep: to.ep } : {} } : canonical({ kind: "title", slug: title.slug }))} className={cn("group relative block w-[260px] shrink-0 sm:w-[320px]", className)}>
       <div className="relative aspect-video overflow-hidden rounded-lg bg-surface-2 ring-1 ring-foreground/10 transition group-hover:ring-gold/60">
         {(title.backdrop ?? title.poster) && (
           <img src={title.backdrop ?? title.poster!} alt={name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />

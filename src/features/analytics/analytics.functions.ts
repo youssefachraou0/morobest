@@ -47,12 +47,14 @@ export const fetchBehavioralTrending = createServerFn({ method: "GET" })
 export const behavioralTrendingQuery = (locale: "en" | "fr" | "ar") =>
   queryOptions({ queryKey: ["mb-trending", locale], queryFn: () => fetchBehavioralTrending({ data: { locale } }), staleTime: 10 * 60_000 });
 
-const range = z.object({ from: z.string().datetime(), to: z.string().datetime() });
+const rangeBase = z.object({ from: z.string().datetime(), to: z.string().datetime(), includeTest: z.boolean().optional() });
+const validRange = (r: { from: string; to: string }) => new Date(r.from) < new Date(r.to) && new Date(r.to).getTime() - new Date(r.from).getTime() <= 400 * 864e5;
+const range = rangeBase.refine(validRange, "Invalid date range");
 
 export type Dashboard = {
   active_viewers: number; views_today: number; views_week: number; views: number; unique_viewers: number; page_views: number;
-  watch_seconds: number; errors: number; fallbacks: number;
-  titles: { title_id: string; name: string; slug: string; kind: string; views: number; unique: number; watch_seconds: number; completions: number; errors: number }[];
+  watch_seconds: number; errors: number; fallbacks: number; completions: number; attempts: number; failed: number; test_events: number;
+  titles: { title_id: string; name: string; slug: string; kind: string; views: number; unique: number; watch_seconds: number; completions: number; attempts: number; failed: number; link: { provider: string; content_type: string; provider_id: string } | null }[];
   searches: { q: string; n: number }[]; subtitles: { lang: string; n: number }[]; audio: { lang: string; n: number }[];
   error_list: { at: string; provider: string | null; message: string }[]; events: Record<string, number>;
   trending: TrendingItem[]; ctx: Record<string, number>;
@@ -62,25 +64,41 @@ export const adminAnalyticsDashboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.input<typeof range>) => range.parse(d))
   .handler(async ({ data, context }): Promise<Dashboard> => {
-    const { data: d, error } = await context.supabase.rpc("analytics_dashboard", { _from: data.from, _to: data.to });
-    if (error) throw new Error(error.message.includes("forbidden") ? "Forbidden" : "Analytics are temporarily unavailable.");
-    const [{ data: tr }, { data: cx }] = await Promise.all([
+    const [{ data: d, error }, { data: tr }] = await Promise.all([
+      context.supabase.rpc("analytics_dashboard", { _from: data.from, _to: data.to, _include_test: !!data.includeTest }),
       context.supabase.rpc("trending_content", { _days: 14, _limit: 10 }),
-      context.supabase.rpc("analytics_ctx", { _from: data.from, _to: data.to }),
     ]);
-    const trending = tr?.length ? await resolveKeys(tr as any, "en") : [];
-    return { ...(d as any), trending, ctx: (cx ?? {}) as Record<string, number> };
+    if (error) throw new Error(error.message.includes("forbidden") ? "Forbidden" : "Analytics are temporarily unavailable.");
+    const trending = tr?.length ? await resolveKeys(tr as any, "en").catch(() => []) : [];
+    return { ...(d as any), trending };
   });
 
 export type TitleAnalytics = {
-  views: number; unique: number; watch_seconds: number; completions: number; errors: number;
-  episodes: { episode_id: string; season: number; number: number; title: string; views: number; unique: number; completions: number }[];
+  views: number; unique: number; watch_seconds: number; completions: number; errors: number; attempts: number; failed: number;
+  episodes: { episode_id: string; season: number; number: number; title: string; views: number; unique: number; completions: number; watch_seconds: number }[];
 };
 export const adminTitleAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { titleId: string } & z.input<typeof range>) => range.extend({ titleId: z.string().uuid() }).parse(d))
+  .inputValidator((d: { titleId: string } & z.input<typeof rangeBase>) => rangeBase.extend({ titleId: z.string().uuid() }).refine(validRange, "Invalid date range").parse(d))
   .handler(async ({ data, context }): Promise<TitleAnalytics> => {
-    const { data: d, error } = await context.supabase.rpc("analytics_title", { _title: data.titleId, _from: data.from, _to: data.to });
+    const { data: d, error } = await context.supabase.rpc("analytics_title", { _title: data.titleId, _from: data.from, _to: data.to, _include_test: !!data.includeTest });
     if (error) throw new Error(error.message.includes("forbidden") ? "Forbidden" : "Analytics are temporarily unavailable.");
     return d as any;
+  });
+
+/** Admin maintenance: roll up + retention now (admin/super_admin only, enforced in SQL). */
+export const adminRunAnalyticsCleanup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("admin_analytics_cleanup");
+    if (error) throw new Error(error.message.includes("forbidden") ? "Forbidden" : "Cleanup failed.");
+    return data as { ran_at: string; raw_deleted: number; errors_deleted: number };
+  });
+/** Admin maintenance: delete all events flagged as test/QA traffic. */
+export const adminPurgeTestAnalytics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("admin_analytics_purge_test");
+    if (error) throw new Error(error.message.includes("forbidden") ? "Forbidden" : "Purge failed.");
+    return { deleted: Number(data ?? 0) };
   });

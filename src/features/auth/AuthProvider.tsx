@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { setAnalyticsTestMode } from "@/features/analytics/track";
 
 export type Profile = {
   id: string; display_name: string; avatar: string; is_kids: boolean; max_age: number; locale: string;
@@ -87,6 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const profiles = profilesQ.data ?? [];
   const activeProfile = profiles.find((p) => p.id === activeId) ?? profiles[0] ?? null;
 
+  const staff = roles.some((r) => STAFF.includes(r));
+  useEffect(() => { setAnalyticsTestMode(staff); }, [staff]);
   const value: Ctx = {
     user, ready, profiles, activeProfile,
     setActiveProfile: (id) => {

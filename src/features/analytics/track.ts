@@ -11,6 +11,7 @@ export type AnalyticsEvent =
   | "continue_click" | "watchlist_add" | "watchlist_remove" | "favorite_add" | "favorite_remove"
   | "autoplay_next" | "subtitle_select" | "audio_select";
 export type TrackFields = {
+  test?: boolean;
   key?: string | null; titleId?: string | null; episodeId?: string | null; ctx?: string | null; value?: number | null;
   props?: Record<string, string | number | boolean | null>;
 };
@@ -20,6 +21,12 @@ const ENDPOINT = "/api/public/events";
 let queue: Queued[] = [];
 let timer: ReturnType<typeof setTimeout> | null = null;
 let bound = false;
+let qa = false;
+/** Staff QA mode / automated tests: events are stored flagged as test traffic and excluded from public stats. */
+export function setAnalyticsTestMode(on: boolean) { qa = on; }
+function isQa() {
+  try { return qa || !!navigator.webdriver || sessionStorage.getItem("mb_qa") === "1" || new URLSearchParams(location.search).get("mb_qa") === "1"; } catch { return qa; }
+}
 
 function ids() {
   try {
@@ -28,14 +35,15 @@ function ids() {
     let s = sessionStorage.getItem("mb_sid");
     if (!s) { s = crypto.randomUUID(); sessionStorage.setItem("mb_sid", s); }
     return { v, s };
-  } catch { return { v: "anon", s: null }; }
+  } catch { return { v: "anonymous-visitor", s: null }; }
 }
 
 function flush(useBeacon = false) {
   if (timer) { clearTimeout(timer); timer = null; }
   if (!queue.length) return;
   const batch = queue.splice(0, 50);
-  const body = JSON.stringify({ ...ids(), events: batch });
+  if (new URLSearchParams(location.search).get("mb_qa") === "1") try { sessionStorage.setItem("mb_qa", "1"); } catch { /* ignore */ }
+  const body = JSON.stringify({ ...ids(), qa: isQa(), events: batch });
   try {
     if (useBeacon && navigator.sendBeacon) navigator.sendBeacon(ENDPOINT, new Blob([body], { type: "application/json" }));
     else fetch(ENDPOINT, { method: "POST", body, headers: { "content-type": "application/json" }, keepalive: true }).catch(() => {});

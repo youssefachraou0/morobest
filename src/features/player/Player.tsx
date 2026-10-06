@@ -3,6 +3,7 @@ import { Maximize, Minimize, Pause, Play, PictureInPicture2, RotateCcw, RotateCw
 import { Star8 } from "@/components/mb/Brand";
 import { cn } from "@/lib/utils";
 import { track as trackEvent } from "@/features/analytics/track";
+import { watchStep } from "@/features/analytics/metrics";
 
 export type PlayerSource = { kind: string; url: string; subtitles: { lang: string; label: string; url: string; forced?: boolean; default?: boolean }[] };
 
@@ -31,7 +32,7 @@ type Props = {
   preferredSubtitle?: string | null;
   badge?: string;
   /** First-party analytics identity for this playback (title + episode). */
-  analytics?: { titleId: string; episodeId?: string | null; provider?: string | null };
+  analytics?: { titleId: string; episodeId?: string | null; provider?: string | null; test?: boolean };
 };
 
 const fmt = (s: number) => {
@@ -81,26 +82,26 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
   useEffect(() => {
     const v = video.current; const a = an.current;
     if (!v || !a) return;
-    const f = { titleId: a.titleId, episodeId: a.episodeId ?? null };
+    const f = { titleId: a.titleId, episodeId: a.episodeId ?? null, ...(a.test ? { test: true } : {}) };
     let started = false, done = false, last = v.currentTime, acc = 0;
     const flush = () => { if (acc >= 1) { trackEvent("watch_time", { ...f, value: Math.round(acc) }); acc = 0; } };
     const onPlay = () => { if (!started) { started = true; trackEvent("play_start", { ...f, props: { provider: a.provider ?? null } }); } else trackEvent("resume", f); };
+    const onSeek = () => { last = v.currentTime; };
     const onPause = () => { if (!v.ended) trackEvent("pause", f); flush(); };
     const onTime = () => {
-      const d = v.currentTime - last; last = v.currentTime;
-      if (d > 0 && d < 2 && !v.paused) acc += d;
+      acc += watchStep(last, v.currentTime, { paused: v.paused, hidden: document.visibilityState === "hidden" }); last = v.currentTime;
       if (acc >= 30) flush();
       if (!done && v.duration > 0 && v.currentTime / v.duration >= 0.9) { done = true; trackEvent("complete", { ...f, value: Math.round(v.duration) }); }
     };
     const onEnd = () => { flush(); if (!done) { done = true; trackEvent("complete", { ...f, value: Math.round(v.duration || 0) }); } };
-    v.addEventListener("play", onPlay); v.addEventListener("pause", onPause); v.addEventListener("timeupdate", onTime); v.addEventListener("ended", onEnd);
-    return () => { flush(); v.removeEventListener("play", onPlay); v.removeEventListener("pause", onPause); v.removeEventListener("timeupdate", onTime); v.removeEventListener("ended", onEnd); };
+    v.addEventListener("play", onPlay); v.addEventListener("pause", onPause); v.addEventListener("timeupdate", onTime); v.addEventListener("ended", onEnd); v.addEventListener("seeked", onSeek);
+    return () => { flush(); v.removeEventListener("play", onPlay); v.removeEventListener("pause", onPause); v.removeEventListener("timeupdate", onTime); v.removeEventListener("ended", onEnd); v.removeEventListener("seeked", onSeek); };
   }, [source.url]);
   const fail = useCallback((m: string) => { if (fatalRef.current?.(m)) return; setError(true); }, []);
   useEffect(() => {
     if (countdown == null) return;
     if (!autoplayNext) return;
-    if (countdown <= 0) { setCountdown(null); if (an.current) trackEvent("autoplay_next", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null }); onNext?.(); return; }
+    if (countdown <= 0) { setCountdown(null); if (an.current) trackEvent("autoplay_next", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null, ...(an.current.test ? { test: true } : {}) }); onNext?.(); return; }
     const id = setTimeout(() => setCountdown((c) => (c == null ? null : c - 1)), 1000);
     return () => clearTimeout(id);
   }, [countdown, onNext, autoplayNext]);
@@ -301,13 +302,13 @@ export function Player({ source, title, startAt = 0, onProgress, onEnded, onNext
                       options={[["-1", "Auto"], ...levels.map((l, i) => [String(i), `${l.height}p`] as [string, string])]} />
                   )}
                   {tracks.length > 1 && (
-                    <Sel label="Audio" value={String(track)} onChange={(v) => { const i = Number(v); if (hlsRef.current) hlsRef.current.audioTrack = i; setTrack(i); const l = tracks[i]?.lang; if (l) onAudioLanguage?.(l); if (an.current) trackEvent("audio_select", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null, props: { lang: l ?? null } }); }}
+                    <Sel label="Audio" value={String(track)} onChange={(v) => { const i = Number(v); if (hlsRef.current) hlsRef.current.audioTrack = i; setTrack(i); const l = tracks[i]?.lang; if (l) onAudioLanguage?.(l); if (an.current) trackEvent("audio_select", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null, ...(an.current.test ? { test: true } : {}), props: { lang: l ?? null } }); }}
                       options={tracks.map((a) => [String(a.id), a.name] as [string, string])} />
                   )}
                   {tracks.length <= 1 && audioOptions && audioOptions.length > 1 && onAudio && (
                     <Sel label="Audio" value={audio ?? ""} onChange={onAudio} options={audioOptions} />
                   )}
-                  <Sel label="Subtitles" value={String(subIdx)} onChange={(v) => { const i = Number(v); setSubIdx(i); if (an.current) trackEvent("subtitle_select", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null, props: { lang: source.subtitles[i]?.lang ?? "off" } }); }}
+                  <Sel label="Subtitles" value={String(subIdx)} onChange={(v) => { const i = Number(v); setSubIdx(i); if (an.current) trackEvent("subtitle_select", { titleId: an.current.titleId, episodeId: an.current.episodeId ?? null, ...(an.current.test ? { test: true } : {}), props: { lang: source.subtitles[i]?.lang ?? "off" } }); }}
                     options={[["-1", "Off"], ...source.subtitles.map((s, i) => [String(i), s.label] as [string, string])]} />
                 </div>
               )}

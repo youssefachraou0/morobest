@@ -7,6 +7,16 @@ import { useCanonical } from "@/features/editorial/canonical";
 import { FullPageMessage } from "@/components/mb/States";
 import { StarLoader } from "@/components/mb/Brand";
 import { Stat, hm, pct, useRange } from "@/components/mb/AnalyticsBits";
+import { MaintenanceBar } from "@/components/mb/AnalyticsMaintenance";
+import type { ContentRef } from "@/features/editorial/canonical";
+
+/** Linked MOROBEST titles link to their provider page (stable "-id" slug, or custom slug via the map). */
+function titleRef(t: Dashboard["titles"][number]): ContentRef {
+  const l = t.link;
+  if (!l) return { kind: "title", slug: t.slug };
+  const kind = l.content_type === "movie" ? "movie" : l.content_type === "anime" ? "anime" : l.content_type === "manga" ? "manga" : "series";
+  return { kind, providerId: l.provider_id, slug: `${t.slug}-${l.provider_id}` };
+}
 
 export const Route = createFileRoute("/_authenticated/admin-analytics")({
   head: () => ({ meta: [{ title: "Analytics · MOROBEST Admin" }, { name: "robots", content: "noindex" }] }),
@@ -31,7 +41,8 @@ function AdminAnalytics() {
         </div>
         {picker}
       </div>
-      {q.isLoading || !d ? <StarLoader className="h-64" /> : <Body d={d} />}
+      <MaintenanceBar testEvents={d?.test_events ?? 0} onDone={() => q.refetch()} />
+      {q.error ? <p className="text-destructive">{(q.error as Error).message}</p> : q.isLoading || !d ? <StarLoader className="h-64" /> : <Body d={d} />}
     </div>
   );
 }
@@ -59,9 +70,9 @@ function Body({ d }: { d: Dashboard }) {
         <Stat label="Views today" value={d.views_today} />
         <Stat label="Views this week" value={d.views_week} />
         <Stat label="Views (range)" value={d.views} hint={`${d.unique_viewers} unique`} />
-        <Stat label="Watch time" value={hm(d.watch_seconds)} />
+        <Stat label="Watch time" value={hm(d.watch_seconds)} hint={d.views ? `avg ${hm(d.watch_seconds / d.views)} · ${pct(d.completions, d.views)} complete` : undefined} />
         <Stat label="Page views" value={d.page_views} />
-        <Stat label="Playback errors" value={d.errors} hint={`failure rate ${pct(d.errors, d.views + d.errors)}`} />
+        <Stat label="Playback errors" value={d.errors} hint={`failure rate ${pct(d.failed, d.attempts)}`} />
         <Stat label="Source fallbacks" value={d.fallbacks} />
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -97,10 +108,10 @@ function Body({ d }: { d: Dashboard }) {
           <tbody>
             {d.titles.length === 0 ? <tr><td colSpan={7} className="p-4 text-muted-foreground">No playback in this period.</td></tr> : d.titles.map((t) => (
               <tr key={t.title_id} className="border-t border-border">
-                <td className="p-2"><Link to="/title/$slug" params={{ slug: t.slug }} className="hover:text-gold">{t.name}</Link> <span className="text-xs text-muted-foreground">{t.kind}</span></td>
+                <td className="p-2"><Link {...canonical(titleRef(t))} className="hover:text-gold">{t.name}</Link> <span className="text-xs text-muted-foreground">{t.kind}</span></td>
                 <td className="p-2 tabular-nums">{t.views}</td><td className="p-2 tabular-nums">{t.unique}</td><td className="p-2 tabular-nums">{hm(t.watch_seconds)}</td>
                 <td className="p-2 tabular-nums">{t.views ? hm(t.watch_seconds / t.views) : "—"}</td><td className="p-2 tabular-nums">{pct(t.completions, t.views)}</td>
-                <td className="p-2 tabular-nums">{pct(t.errors, t.views + t.errors)}</td>
+                <td className="p-2 tabular-nums">{pct(t.failed, t.attempts)}</td>
               </tr>
             ))}
           </tbody>

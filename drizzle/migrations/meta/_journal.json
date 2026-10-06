@@ -71,6 +71,13 @@
       "when": 1791320584784,
       "tag": "0009_analytics_ctx_counts",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791321036444,
+      "tag": "0010_analytics_test_traffic_and_math",
+      "breakpoints": true
     }
   ]
 }
