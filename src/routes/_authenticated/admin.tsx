@@ -47,7 +47,13 @@ function Admin() {
   return (
     <div className="flex">
       <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-56 shrink-0 overflow-y-auto border-e border-border p-4 pt-20 lg:block">
-        {SECTIONS.map((s, i) => s === "Media" && canManageMedia ? (
+        {canManageContent && <>
+          <Link to="/admin-content" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Content · Title Linking</Link>
+          <Link to="/admin-content" search={{ tab: "titles" }} className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Content · MOROBEST titles</Link>
+          <Link to="/admin-ramadan" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Content · Ramadan</Link>
+          <Link to="/admin-content" search={{ tab: "audit" }} className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Audit log</Link>
+        </>}
+        {SECTIONS.filter((s) => !(canManageContent && ["Ramadan", "SEO"].includes(s))).map((s, i) => s === "Media" && canManageMedia ? (
           <Link key={s} to="/admin-media" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Media / Streaming</Link>
         ) : s === "Subtitles" && canManageMedia ? (
           <Link key={s} to="/admin-media" search={{ tab: "subtitles" }} className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface-2 hover:text-gold">Subtitles</Link>
