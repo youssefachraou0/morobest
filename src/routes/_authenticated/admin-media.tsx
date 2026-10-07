@@ -16,10 +16,12 @@ import {
 } from "@/features/streaming/streaming.functions";
 import { cn } from "@/lib/utils";
 import { MediaIngest } from "@/components/mb/MediaIngest";
+import { ArchiveImport } from "@/components/mb/ArchiveImport";
 
-type Tab = "import" | "sources" | "subtitles" | "markers";
+type Tab = "import" | "sources" | "subtitles" | "markers" | "archive";
+const TABS: Tab[] = ["import", "sources", "subtitles", "markers", "archive"];
 export const Route = createFileRoute("/_authenticated/admin-media")({
-  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: s.tab === "subtitles" || s.tab === "markers" ? s.tab : undefined, title: typeof s.title === "string" ? s.title : undefined }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab; title?: string } => ({ tab: TABS.includes(s.tab as Tab) ? (s.tab as Tab) : undefined, title: typeof s.title === "string" ? s.title : undefined }),
   head: () => ({ meta: [{ title: "Media · MOROBEST Admin" }, { name: "description", content: "Manage MOROBEST video sources, subtitles and markers." }, { name: "robots", content: "noindex" }] }),
   component: MediaAdmin,
 });
@@ -76,8 +78,20 @@ function MediaAdmin() {
         <div className="mt-4 flex gap-4 text-sm">
           <Link to="/admin" className="text-muted-foreground hover:text-gold">← Dashboard</Link>
           <Link to="/admin-settings" className="text-muted-foreground hover:text-gold">Streaming providers</Link>
+          <button
+            onClick={() => navigate({ search: tab === "archive" ? { tab: undefined, title: titleId || undefined } : { tab: "archive" }, replace: true })}
+            className={cn("text-muted-foreground hover:text-gold", tab === "archive" && "text-gold")}
+          >
+            {tab === "archive" ? "← Back to titles and sources" : "Import from archive.org"}
+          </button>
         </div>
       </PageHeader>
+      {tab === "archive" ? (
+        <div className="px-4 sm:px-8 lg:px-14">
+          <ArchiveImport onImported={() => titles.refetch()} />
+        </div>
+      ) : (
+
       <div className="grid gap-8 px-4 sm:px-8 lg:grid-cols-[minmax(0,340px)_1fr] lg:px-14">
         <aside className="space-y-3">
           <input className={field} placeholder="Search movie, series, anime…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search content" />
@@ -128,6 +142,7 @@ function MediaAdmin() {
           )}
         </section>
       </div>
+      )}
     </div>
   );
 }
