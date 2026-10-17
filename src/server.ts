@@ -46,6 +46,10 @@ function isH3SwallowedErrorBody(body: string): boolean {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // Block bot/scanner traffic from China at the edge (owner request).
+    if (request.headers.get("cf-ipcountry") === "CN") {
+      return new Response("Forbidden", { status: 403 });
+    }
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
