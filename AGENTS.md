@@ -28,3 +28,5 @@
 - The player never waits indefinitely: a 15s startup watchdog, a 25s stall watchdog and an H.264/MSE capability check turn into a user-safe error plus a `playback_errors` row (browser/OS family only); why: undecodable or stuck streams must fail visibly and be diagnosable.
 - Open-licence catalogue imports go through `src/features/archive/` (server-only archive.org provider reading the public JSON APIs, plus admin server functions that create the title, source and subtitle tracks); why: MOROBEST can fill its player with real, free film legally — no scraper, no proxy, no unlicensed source.
 - An archive import never guesses rights: items whose licence archive.org does not state are shown as "licence unverified" and require an explicit admin acknowledgement, and every imported source stores `license_url`/`license_note`/`attribution` next to `rights_confirmed_by`; why: MOROBEST must always be able to show which right it relies on and who confirmed it.
+
+- Visitors whose `cf-ipcountry` is CN get a 403 in `src/server.ts` before SSR; why: owner chose to block bot/scanner traffic from China.
